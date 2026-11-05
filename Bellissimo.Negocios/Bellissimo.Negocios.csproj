@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bellissimo.Datos\Bellissimo.Datos.csproj" />
+    <ProjectReference Include="..\Bellissimo.Entidades\Bellissimo.Entidades.csproj" />
+  </ItemGroup>
+
+</Project>
