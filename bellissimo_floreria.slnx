@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Bellissimo.Datos/Bellissimo.Datos.csproj" />
+  <Project Path="Bellissimo.Entidades/Bellissimo.Entidades.csproj" />
+  <Project Path="Bellissimo.Negocios/Bellissimo.Negocios.csproj" />
+  <Project Path="Bellissimo.Web/Bellissimo.Web.csproj" />
+</Solution>
