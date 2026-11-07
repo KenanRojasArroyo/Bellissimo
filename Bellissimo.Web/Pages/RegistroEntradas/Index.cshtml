@@ -1,0 +1,36 @@
+﻿@page
+@model Bellissimo.Web.Pages.RegistroEntradas.IndexModel
+@{
+    ViewData["Title"] = "Registro de Entrada";
+}
+
+<div class="container py-4">
+    <h1>Registro de Entrada</h1>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-6 col-lg-5">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Entrada al Turno</h3>
+                    <p class="card-text">Registra las entradas del personal al inicio del día.</p>
+                    <a asp-page="/RegistroEntradas/RegistroEntrada" class="btn btn-primary">
+                        Ir a Entrada al Turno
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-5">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Regreso de Comida</h3>
+                    <p class="card-text">Registra el regreso del personal despues de su comida.</p>
+                    <a asp-page="/RegistroEntradas/RegistroRegresoComida" class="btn btn-primary">
+                        Ir a Regreso de Comida
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

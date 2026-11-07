@@ -1,0 +1,41 @@
+﻿@page "{id:int}"
+@using Bellissimo.Entidades
+@model Bellissimo.Web.Pages.Personal.DetalleModel
+@{
+    ViewData["Title"] = "Detalle Empleado";
+}
+
+<div class="container py-4">
+    <h1>Detalle del Empleado</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">
+            @Model.Empleado.Nombre
+            @Model.Empleado.ApellidoPaterno
+            @Model.Empleado.ApellidoMaterno
+        </dd>
+
+        <dt class="col-sm-3">Teléfono</dt>
+        <dd class="col-sm-9">@Model.Empleado.Telefono</dd>
+
+        <dt class="col-sm-3">Cargo</dt>
+        <dd class="col-sm-9">@Model.Empleado.TipoCargo.ObtenerNombreAmigable()</dd>
+
+        <dt class="col-sm-3">Sueldo Base / hr</dt>
+        <dd class="col-sm-9">@Model.Empleado.SueldoBase.ToString("C")</dd>
+
+        <dt class="col-sm-3">Fecha de Registro</dt>
+        <dd class="col-sm-9">@Model.Empleado.FechaRegistro.ToString("dd/MM/yyyy")</dd>
+    </dl>
+
+    <a asp-page="./Editar"
+       asp-route-id="@Model.Empleado.IdPersonal"
+       class="btn btn-sm btn-outline-primary">
+        Editar
+    </a>
+
+    <a asp-page="./Index" class="btn btn-sm btn-outline-secondary">
+        Regresar
+    </a>
+</div>

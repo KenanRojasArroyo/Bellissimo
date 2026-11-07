@@ -1,0 +1,74 @@
+﻿@page
+@model Bellissimo.Web.Pages.Personal.EditarModel
+@using Bellissimo.Entidades
+@{
+    ViewData["Title"] = "Editar Empleado";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Editar Empleado</h1>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="post" class="row g-3">
+                <input type="hidden" asp-for="Empleado.IdPersonal" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.Nombre" class="form-label"></label>
+                    <input asp-for="Empleado.Nombre" class="form-control" />
+                    <span asp-validation-for="Empleado.Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.ApellidoPaterno" class="form-label">Apellido paterno</label>
+                    <input asp-for="Empleado.ApellidoPaterno" class="form-control" />
+                    <span asp-validation-for="Empleado.ApellidoPaterno" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.ApellidoMaterno" class="form-label">Apellido materno</label>
+                    <input asp-for="Empleado.ApellidoMaterno" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.Telefono" class="form-label">Teléfono</label>
+                    <input asp-for="Empleado.Telefono" class="form-control" />
+                    <span asp-validation-for="Empleado.Telefono" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.TipoCargo" class="form-label">Cargo</label>
+                    <select asp-for="Empleado.TipoCargo" class="form-select">
+                        <option value="">Seleccione un cargo...</option>
+                        @foreach (var cargo in Enum.GetValues<TipoCargo>())
+                        {
+                            <option value="@cargo">@cargo.ObtenerNombreAmigable()</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Empleado.TipoCargo" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Empleado.SueldoBase" class="form-label">Sueldo Base / hr</label>
+                    <input asp-for="Empleado.SueldoBase" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Empleado.SueldoBase" class="text-danger"></span>
+                </div>
+
+                <div class="col-12 mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary">
+                        Guardar cambios
+                    </button>
+                    <a asp-page="/Personal/Index" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

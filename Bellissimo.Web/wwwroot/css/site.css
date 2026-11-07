@@ -1,31 +1,782 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap");
+
+:root {
+    --cream: #FAF2E9;
+    --cream-glow: #FFF7EC;
+    --beige: #EBD1C5;
+    --blush: #F6CDD2;
+    --rose: #D8A3A8;
+    --rose-mid: #C98991;
+    --rose-deep: #C98991;
+    --rose-deeper: #8F4E5A;
+    --ink: #8F4E5A;
+    --ink-soft: #6E5459;
+    --glass: rgba(255, 250, 244, .80);
+    --glass-strong: rgba(255, 250, 244, .92);
+    --glass-border: rgba(255, 255, 255, .90);
+    --line: rgba(166, 95, 107, .2);
+    --radius-lg: 24px;
+    --radius-md: 14px;
+    --shadow-soft: 0 24px 48px -28px rgba(143, 78, 90, .45);
+    --font-display: "Google Sans Flex", sans-serif;
+    --font-body: "Google Sans Flex", sans-serif;
+}
+
+/* ---------- Base ---------- */
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+    background-color: #F6EADF;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: transparent;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+    /* Fondo mesh: manchas difusas que se funden entre sí */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: radial-gradient(48% 52% at 6% 92%, var(--rose) 0%, rgba(216, 163, 168, 0) 72%), radial-gradient(46% 46% at 96% 4%, var(--blush) 0%, rgba(246, 205, 210, 0) 72%), radial-gradient(52% 40% at 52% 56%, var(--beige) 0%, rgba(235, 209, 197, 0) 72%), radial-gradient(34% 38% at 98% 98%, rgba(201, 137, 145, .85) 0%, rgba(201, 137, 145, 0) 72%), radial-gradient(40% 36% at 8% 4%, var(--cream-glow) 0%, rgba(255, 247, 236, 0) 72%), linear-gradient(135deg, #FBF3EA 0%, #F4E3D8 100%);
+    }
+
+::selection {
+    background: rgba(216, 163, 168, .5);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-style: normal;
+    color: var(--ink);
+}
+
+h1 {
+    font-size: clamp(2.1rem, 4.2vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    margin-bottom: .75rem;
+}
+
+h3, .card-title {
+    font-size: 1.6rem;
+}
+
+.text-muted {
+    color: var(--ink-soft) !important;
+}
+
+a:not(.btn):not(.nav-link):not(.navbar-brand) {
+    color: var(--rose-deep);
+    text-decoration-color: rgba(166, 95, 107, .4);
+    text-underline-offset: .2em;
+}
+
+    a:not(.btn):not(.nav-link):not(.navbar-brand):hover {
+        color: var(--rose-deeper);
+    }
+
+/* Portada centrada (opcional, ver notas) */
+.hero {
+    text-align: center;
+    padding: clamp(2rem, 8vh, 5rem) 0 clamp(1.5rem, 5vh, 3rem);
+}
+
+    .hero h1 {
+        font-size: clamp(2.6rem, 7vw, 4.25rem);
+        color: #5E4348;
+    }
+
+    .hero p {
+        max-width: 42ch;
+        margin-inline: auto;
+    }
+
+/* ---------- Barra de navegación ---------- */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    padding-top: 1rem;
+}
+
+/* Modificado: Navbar sin fondo, borde ni sombra */
+body .navbar {
+    width: min(1120px, calc(100% - 2rem));
+    margin-inline: auto;
+    padding: .55rem .5rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.navbar > .container {
+    max-width: none;
+    padding-inline: .9rem;
+}
+
+body a.navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    white-space: nowrap;
+    word-break: normal;
+    text-align: left;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: .02em;
+    color: var(--ink);
+}
+
+/* Modificado: Bola de color eliminada (bloque .navbar-brand::before borrado) */
+
+.navbar-nav {
+    gap: .25rem;
+}
+
+@media (min-width: 576px) {
+    .navbar-nav.flex-grow-1 {
+        justify-content: flex-end;
+    }
+}
+
+/* EFECTO HOVER ENLACES NAVEGACIÓN MODIFICADO */
+.navbar .nav-link {
+    position: relative;
+    padding: .5rem .6rem;
+    border-radius: 0;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: transparent;
+    transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+    .navbar .nav-link::before {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background-color: var(--rose-deeper);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .navbar .nav-link:hover,
+    .navbar .nav-link:focus-visible,
+    .navbar .nav-link.active {
+        color: var(--rose-deeper);
+        background-color: transparent;
+    }
+
+        .navbar .nav-link:hover::before,
+        .navbar .nav-link:focus-visible::before,
+        .navbar .nav-link.active::before {
+            transform: scaleX(1);
+        }
+/* FIN EFECTO HOVER MODIFICADO */
+
+/* ---------- Submenú Horizontal en Hover ---------- */
+
+.has-submenu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.submenu-horizontal {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(15px);
+    display: flex;
+    flex-direction: row;
+    gap: .25rem;
+    padding: .4rem;
+    background-color: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1050;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.3s ease;
+}
+
+    /* 🔥 ESTE ES EL PUENTE INVISIBLE QUE SOLUCIONA EL PROBLEMA 🔥 */
+    .submenu-horizontal::before {
+        content: "";
+        position: absolute;
+        top: -15px; /* Cubre el espacio transparente hacia arriba */
+        left: 0;
+        right: 0;
+        height: 15px;
+        background: transparent;
+    }
+
+.has-submenu:hover .submenu-horizontal,
+.has-submenu:focus-within .submenu-horizontal {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(5px);
+}
+
+/* Modificado: Enlaces del submenú ahora usan el efecto de línea inferior */
+.submenu-horizontal a {
+    position: relative;
+    padding: .5rem 1rem;
+    border-radius: 0; /* Removido el borde redondeado para la línea */
+    font-family: var(--font-body);
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-decoration: none;
+    background: transparent;
+    transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+    /* La línea inferior para el submenú */
+    .submenu-horizontal a::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        left: 10px; /* Margen para alinear con el texto */
+        right: 10px;
+        bottom: 5px; /* Altura de la línea */
+        height: 2px;
+        background-color: var(--rose-deeper);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .submenu-horizontal a:hover,
+    .submenu-horizontal a:focus {
+        color: var(--rose-deeper);
+        background-color: transparent; /* Fondo transparente mantenido */
+        outline: none;
+    }
+
+        /* Animación de la línea en hover */
+        .submenu-horizontal a:hover::after,
+        .submenu-horizontal a:focus::after {
+            transform: scaleX(1);
+        }
+
+/* FIN Submenú Horizontal */
+
+.navbar-toggler {
+    border: 1px solid rgba(166, 95, 107, .35);
+    border-radius: 12px;
+}
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 .2rem rgba(216, 163, 168, .45);
+    }
+
+@media (max-width: 575.98px) {
+    .navbar-collapse {
+        padding-top: .5rem;
+    }
+
+    .navbar .nav-link {
+        padding: .65rem 1rem;
+    }
+}
+
+/* ---------- Tarjetas ---------- */
+
+.card {
+    color: var(--ink);
+    background-color: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+    .card.shadow-sm {
+        box-shadow: var(--shadow-soft) !important;
+    }
+
+.card-body {
+    padding: 1.6rem 1.7rem;
+}
+
+.card-text {
+    color: var(--ink-soft);
+}
+
+/* ---------- Botones ---------- */
+
+.btn {
+    padding: .55rem 1.35rem;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.btn-sm {
+    padding: .35rem .9rem;
+    font-size: .78rem;
+}
+
+.btn:focus,
+.btn:active:focus {
+    box-shadow: none;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--rose-deep);
+    outline-offset: 3px;
+}
+
+body .btn-primary {
+    --bs-btn-bg: var(--rose-deep);
+    --bs-btn-border-color: var(--rose-deep);
+    --bs-btn-color: #FFF8F2;
+    --bs-btn-hover-bg: var(--rose-deeper);
+    --bs-btn-hover-border-color: var(--rose-deeper);
+    --bs-btn-hover-color: #FFF8F2;
+    --bs-btn-active-bg: var(--rose-deeper);
+    --bs-btn-active-border-color: var(--rose-deeper);
+    --bs-btn-active-color: #FFF8F2;
+    color: #FFF8F2;
+    background-color: var(--rose-deep);
+    border-color: var(--rose-deep);
+    box-shadow: 0 10px 22px -12px rgba(166, 95, 107, .8);
+}
+
+.btn-secondary {
+    --bs-btn-bg: rgba(255, 255, 255, .65);
+    --bs-btn-border-color: rgba(166, 95, 107, .28);
+    --bs-btn-color: #5E4348;
+    --bs-btn-hover-bg: rgba(216, 163, 168, .3);
+    --bs-btn-hover-border-color: rgba(166, 95, 107, .4);
+    --bs-btn-hover-color: #5E4348;
+    --bs-btn-active-bg: rgba(216, 163, 168, .4);
+    --bs-btn-active-border-color: rgba(166, 95, 107, .4);
+    --bs-btn-active-color: #5E4348;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--rose-deep);
+    --bs-btn-border-color: rgba(166, 95, 107, .5);
+    --bs-btn-hover-bg: var(--rose-deep);
+    --bs-btn-hover-border-color: var(--rose-deep);
+    --bs-btn-hover-color: #FFF8F2;
+    --bs-btn-active-bg: var(--rose-deeper);
+    --bs-btn-active-border-color: var(--rose-deeper);
+    --bs-btn-active-color: #FFF8F2;
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--ink-soft);
+    --bs-btn-border-color: rgba(110, 84, 89, .35);
+    --bs-btn-hover-bg: rgba(216, 163, 168, .28);
+    --bs-btn-hover-border-color: rgba(110, 84, 89, .45);
+    --bs-btn-hover-color: #FFF8F2;
+    --bs-btn-active-bg: rgba(216, 163, 168, .4);
+    --bs-btn-active-border-color: rgba(110, 84, 89, .45);
+    --bs-btn-active-color: #FFF8F2;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    color: #FFF8F2;
+    background-color: var(--rose-deep);
+    border-color: var(--rose-deep);
+}
+
+/* ---------- Formularios ---------- */
+
+.form-label {
+    margin-bottom: .4rem;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.form-control,
+.form-select {
+    padding: .65rem .95rem;
+    color: var(--ink);
+    background-color: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(166, 95, 107, .28);
+    border-radius: var(--radius-md);
+}
+
+    .form-control::placeholder {
+        color: #8A6E73;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    .form-check-input:focus {
+        background-color: #fff;
+        border-color: var(--rose-mid);
+        outline: 0;
+        box-shadow: 0 0 0 .25rem rgba(216, 163, 168, .38);
+    }
+
+.form-check-input:checked {
+    background-color: var(--rose-deep);
+    border-color: var(--rose-deep);
+}
+
+.text-danger {
+    color: #B0343F !important;
+}
+
+.input-validation-error,
+.form-control.input-validation-error {
+    border-color: #B0343F;
+}
+
+/* Comportamiento original de los campos flotantes */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ---------- Alertas ---------- */
+
+.alert {
+    padding: .9rem 1.15rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.alert-info {
+    color: #5C3A42;
+    background-color: rgba(246, 205, 210, .6);
+    border-color: rgba(216, 163, 168, .7);
+}
+
+.alert-success {
+    color: #3F5238;
+    background-color: rgba(220, 232, 210, .75);
+    border-color: rgba(160, 186, 150, .7);
+}
+
+/* ---------- Tablas ---------- */
+
+.table-responsive {
+    padding: .5rem 1rem;
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--ink);
+    --bs-table-border-color: var(--line);
+    --bs-table-striped-bg: rgba(216, 163, 168, .14);
+    --bs-table-striped-color: var(--ink);
+    --bs-table-hover-bg: rgba(216, 163, 168, .26);
+    --bs-table-hover-color: var(--ink);
+    margin-bottom: 0;
+}
+
+    .table > :not(caption) > * > * {
+        padding: .85rem .75rem;
+    }
+
+    .table > thead > tr > th {
+        font-size: .78rem;
+        font-weight: 500;
+        letter-spacing: .06em;
+        color: var(--ink-soft);
+    }
+
+    .table > tbody > tr:last-child > * {
+        border-bottom-width: 0;
+    }
+
+/* ---------- Pie de página ---------- */
+
+body .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--ink-soft);
+    background: transparent;
+}
+
+    body .footer.border-top {
+        border-top: 1px solid var(--line) !important;
+    }
+
+/* ---------- Respaldos y accesibilidad ---------- */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root {
+        --glass: rgba(255, 250, 244, .92);
+        --glass-strong: rgba(255, 250, 244, .94);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-body);
+    font-style: normal;
+}
+
+
+/* ==========================================================================
+   MOVIMIENTO Y BOTONES  (misma paleta, solo se agrega comportamiento)
+   ========================================================================== */
+
+:root {
+    --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+    text-wrap: balance;
+    letter-spacing: -.02em;
+}
+
+/* ---------- Botones: relleno difuminado del centro a las esquinas ---------- */
+.btn {
+    --fill: var(--ink);
+    --anim-duration: 0.8s;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition: color var(--anim-duration) var(--ease), border-color var(--anim-duration) var(--ease), box-shadow var(--anim-duration) var(--ease), transform .2s var(--ease);
+}
+
+    .btn::before {
+        content: "";
+        position: absolute;
+        inset: -10%;
+        z-index: -1;
+        background: var(--fill);
+        border-radius: 999px;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: opacity var(--anim-duration) var(--ease), transform var(--anim-duration) var(--ease);
+    }
+
+    .btn:hover::before,
+    .btn:focus-visible::before {
+        opacity: 1; /* Aparece (difuminado a sólido) */
+        transform: scale(1); /* Crece hasta llenar el botón */
+    }
+
+    .btn:active {
+        transform: scale(.97);
+    }
+
+    .btn:disabled, .btn.disabled {
+        opacity: .5;
+        pointer-events: none;
+    }
+
+/* El color de fondo de Bootstrap ya no cambia en hover: lo hace el relleno */
+body .btn-primary {
+    --fill: var(--ink);
+    --bs-btn-hover-bg: var(--rose-deep);
+    --bs-btn-hover-border-color: var(--ink);
+    --bs-btn-active-bg: var(--ink);
+    --bs-btn-active-border-color: var(--ink);
+}
+
+.btn-outline-primary {
+    --fill: var(--rose-deep);
+    --bs-btn-hover-bg: transparent;
+    --bs-btn-active-bg: var(--rose-deeper);
+}
+
+.btn-secondary {
+    --fill: var(--blush);
+    --bs-btn-hover-bg: rgba(255, 255, 255, .65);
+    --bs-btn-active-bg: rgba(255, 255, 255, .65);
+    --bs-btn-hover-color: var(--ink);
+}
+
+.btn-outline-secondary {
+    --fill: var(--rose-deeper);
+    --bs-btn-hover-bg: transparent;
+    --bs-btn-active-bg: transparent;
+}
+
+
+/* ---------- Tarjetas: elevación y luz que sigue al cursor ---------- */
+.card {
+    position: relative;
+    transition: transform .45s var(--ease), box-shadow .45s var(--ease), border-color .45s var(--ease);
+}
+
+    .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .4s var(--ease);
+        background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(246, 205, 210, .75), transparent 60%);
+    }
+
+.card-body {
+    position: relative;
+}
+
+@media (hover: hover) {
+    .card.shadow-sm:hover {
+        transform: translateY(-4px);
+        border-color: #fff;
+        box-shadow: 0 34px 56px -28px rgba(143, 78, 90, .55) !important;
+    }
+
+    .card:hover::before {
+        opacity: 1;
+    }
+}
+
+/* ---------- Barra de navegación: cristal al hacer scroll ---------- */
+body .navbar {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    transition: background-color .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease);
+}
+
+header.is-scrolled .navbar {
+    background: var(--glass);
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow-soft);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+}
+
+@media (max-width: 575.98px) {
+    body .navbar {
+        border-radius: 24px;
+    }
+}
+
+/* ---------- Portada ---------- */
+.eyebrow {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: .35rem .9rem;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--rose-deep);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+}
+
+/* ---------- Formularios ---------- */
+.form-control, .form-select {
+    transition: border-color .3s var(--ease), box-shadow .3s var(--ease), background-color .3s var(--ease);
+}
+
+    .form-control:hover, .form-select:hover {
+        border-color: var(--rose-mid);
+    }
+
+/* ---------- Entrada escalonada al hacer scroll ---------- */
+.js .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(4px);
+    transition: opacity .7s var(--ease), transform .7s var(--ease), filter .7s var(--ease);
+    transition-delay: var(--d, 0ms);
+}
+
+    .js .reveal.is-in {
+        opacity: 1;
+        transform: none;
+        filter: none;
+    }
+
+/* ---------- Fondo mesh: deriva muy lenta ---------- */
+body::before {
+    animation: mesh-drift 32s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+@keyframes mesh-drift {
+    to {
+        transform: translate3d(-1.5%, 1%, 0) scale(1.06);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        animation: none;
+    }
+
+    .js .reveal {
+        opacity: 1;
+        transform: none;
+        filter: none;
+    }
 }
