@@ -6,36 +6,48 @@
 }
 
 <div class="container py-4">
-    <h1>Detalle del Empleado</h1>
+    <h1 class="mb-4">Detalle del Empleado</h1>
 
-    <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">
-            @Model.Empleado.Nombre
-            @Model.Empleado.ApellidoPaterno
-            @Model.Empleado.ApellidoMaterno
-        </dd>
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-hover align-middle mb-0">
+            <tbody>
+                <tr>
+                    <th scope="row" style="width: 30%;">Nombre</th>
+                    <td>
+                        @Model.Empleado.Nombre
+                        @Model.Empleado.ApellidoPaterno
+                        @Model.Empleado.ApellidoMaterno
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Teléfono</th>
+                    <td>@Model.Empleado.Telefono</td>
+                </tr>
+                <tr>
+                    <th scope="row">Cargo</th>
+                    <td>@Model.Empleado.TipoCargo.ObtenerNombreAmigable()</td>
+                </tr>
+                <tr>
+                    <th scope="row">Sueldo Base / hr</th>
+                    <td>@Model.Empleado.SueldoBase.ToString("C")</td>
+                </tr>
+                <tr>
+                    <th scope="row">Fecha de Registro</th>
+                    <td>@Model.Empleado.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <dt class="col-sm-3">Teléfono</dt>
-        <dd class="col-sm-9">@Model.Empleado.Telefono</dd>
+    <div class="d-flex gap-2">
+        <a asp-page="./Editar"
+           asp-route-id="@Model.Empleado.IdPersonal"
+           class="btn btn-outline-primary">
+            Editar
+        </a>
 
-        <dt class="col-sm-3">Cargo</dt>
-        <dd class="col-sm-9">@Model.Empleado.TipoCargo.ObtenerNombreAmigable()</dd>
-
-        <dt class="col-sm-3">Sueldo Base / hr</dt>
-        <dd class="col-sm-9">@Model.Empleado.SueldoBase.ToString("C")</dd>
-
-        <dt class="col-sm-3">Fecha de Registro</dt>
-        <dd class="col-sm-9">@Model.Empleado.FechaRegistro.ToString("dd/MM/yyyy")</dd>
-    </dl>
-
-    <a asp-page="./Editar"
-       asp-route-id="@Model.Empleado.IdPersonal"
-       class="btn btn-sm btn-outline-primary">
-        Editar
-    </a>
-
-    <a asp-page="./Index" class="btn btn-sm btn-outline-secondary">
-        Regresar
-    </a>
+        <a asp-page="./Index" class="btn btn-outline-secondary">
+            Regresar
+        </a>
+    </div>
 </div>
