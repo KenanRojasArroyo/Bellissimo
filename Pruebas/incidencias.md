@@ -16,11 +16,11 @@ ejecución en MySQL 8 real fue el 2026-11-12 (base `belissimo`): 01–04 termina
 | INC-04 | 2026-11-16 | `sp_generar_pago` llamado dentro de otra transacción | `START TRANSACTION; UPDATE empleado SET telefono='111' WHERE id_empleado=4; CALL sp_generar_pago(4,2,2); ROLLBACK;` → el teléfono **quedó en '111'**. Sin el `CALL`, el mismo `ROLLBACK` sí deshace el cambio. | El procedimiento ejecuta su propio `START TRANSACTION`, y en MySQL eso hace un **COMMIT implícito** de la transacción abierta por quien llama. | No se cambia el SQL: MySQL no tiene una variable confiable para detectarlo (`SELECT @@in_transaction` → `ERROR 1193 (HY000): Unknown system variable 'in_transaction'`). Se documenta como **regla obligatoria** en `Sql/CONTRATO_BD.md`: la app llama `sp_generar_pago` en modo autocommit, nunca dentro de su propia transacción. | Reproducido dos veces en `belissimo_prueba`. |
 | INC-05 | 2026-11-16 | Trigger `trg_registro_au_auditoria` | Conectado como el usuario de la app (`app_floreria_prueba`), una corrección de checada dejó en `auditoria_registro` el valor `usuario_bd = root@localhost`. | Dentro de un trigger, `CURRENT_USER()` devuelve la cuenta **DEFINER** del trigger (root), no la cuenta que se conectó. | Se usa `USER()`, que devuelve la cuenta de la sesión. | Misma corrección → `usuario_bd = app_floreria_prueba@localhost`; 17/17 casos de privilegios OK. |
 
-## Hallazgos pendientes de decisión (no corregidos)
+## Hallazgos que dependían de una decisión del negocio
 
-| ID | Fecha | Hallazgo (observado) | Por qué no se corrigió |
-| -- | ----- | -------------------- | ---------------------- |
-| PEN-01 | 2026-11-16 | Un empleado puede tener **checada y ausencia el mismo día**. Ana checó a las 08:55 el 2026-10-26 y aun así se aceptó `INSERT INTO ausencia (3, '2026-10-26', 'Injustificada')`; al regenerar su pago se le descontaron $531.25. | Es una regla de negocio: ¿se permite medio día de falta justificada (por ejemplo, se fue enfermo)? Si el dueño dice que no, se agrega un trigger que rechace la ausencia cuando hay checada (y al revés). |
+| ID | Fecha | Hallazgo (observado) | Decisión y estado |
+| -- | ----- | -------------------- | ----------------- |
+| PEN-01 | 2026-11-16 | Un empleado puede tener **checada y ausencia el mismo día**. Ana checó a las 08:55 el 2026-10-26 y aun así se aceptó `INSERT INTO ausencia (3, '2026-10-26', 'Injustificada')`; al regenerar su pago se le descontaron $531.25. | **Resuelto el 2026-11-16.** Decisión: un día es checada **o** ausencia, nunca las dos. Se agregaron `trg_registro_bi/bu_ausencia` y `trg_ausencia_bi/bu_checada` (16 triggers en total). Verificado con P21–P21d: el mismo `INSERT INTO ausencia` sobre un día con checadas da `ERROR 1644 (45000): El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.` |
 
 ## Observaciones que NO fueron errores
 

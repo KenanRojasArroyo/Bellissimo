@@ -340,3 +340,39 @@ FROM pago_semanal p WHERE id_pago = 8;
 SELECT id_usuario, salario_final,
        (SELECT COUNT(*) FROM detalle_pago d WHERE d.id_pago = p.id_pago) AS renglones
 FROM pago_semanal p WHERE id_pago = 8;
+
+/* ---------------------------------------------------------------------
+   P21  CHECADA y AUSENCIA no pueden coincidir el mismo día (PEN-01)
+   Requisito : un día es checada o ausencia, nunca las dos
+               (trg_registro_bi/bu_ausencia, trg_ausencia_bi/bu_checada)
+   Precondición: semana 2 abierta; Ana (3) tiene falta injustificada el
+                 2026-11-04 y checadas el 2026-11-05; Luis (4) checó el 2026-11-03
+   Entrada   : caso válido = ausencia de Carla el 2026-11-10 (día sin checada),
+               dentro de una transacción que se deshace; inválidos POR SEPARADO
+   Esperado  : el caso válido inserta 1 fila; P21a–P21d dan ERROR 1644
+   --------------------------------------------------------------------- */
+START TRANSACTION;
+INSERT INTO ausencia (id_empleado, fecha, tipo, observaciones)
+VALUES (5, '2026-11-10', 'Justificada', 'Consulta médica');
+SELECT id_empleado, fecha, tipo FROM ausencia WHERE id_empleado = 5;
+ROLLBACK;
+
+/* P21a  Checar un día que ya tiene ausencia            -- POR SEPARADO
+   (trg_registro_bi_ausencia, a través de sp_registrar_checada)
+   Esperado: ERROR 1644 "El empleado tiene una ausencia registrada ese dia: no puede tener checadas." */
+-- CALL sp_registrar_checada(3, '2026-11-04 09:00:00', 'Clave');
+
+/* P21b  Registrar ausencia en un día con checadas      -- POR SEPARADO
+   (trg_ausencia_bi_checada)
+   Esperado: ERROR 1644 "El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia." */
+-- INSERT INTO ausencia (id_empleado, fecha, tipo) VALUES (4, '2026-11-03', 'Justificada');
+
+/* P21c  Mover una ausencia a un día con checadas       -- POR SEPARADO
+   (trg_ausencia_bu_checada)
+   Esperado: ERROR 1644 "El empleado ya tiene checadas ese dia: ..." */
+-- UPDATE ausencia SET fecha = '2026-11-05' WHERE id_empleado = 3 AND fecha = '2026-11-04';
+
+/* P21d  Mover un registro a un día con ausencia        -- POR SEPARADO
+   (trg_registro_bu_ausencia)
+   Esperado: ERROR 1644 "El empleado tiene una ausencia registrada ese dia: ..." */
+-- UPDATE registro_asistencia SET fecha = '2026-11-04' WHERE id_empleado = 3 AND fecha = '2026-11-05';

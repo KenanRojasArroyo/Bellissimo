@@ -32,7 +32,7 @@ FROM (
            CAST((SELECT COUNT(*) FROM information_schema.ROUTINES
                  WHERE ROUTINE_SCHEMA = DATABASE() AND ROUTINE_TYPE = 'PROCEDURE') AS CHAR)
     UNION ALL
-    SELECT 'triggers', '12',
+    SELECT 'triggers', '16',
            CAST((SELECT COUNT(*) FROM information_schema.TRIGGERS
                  WHERE TRIGGER_SCHEMA = DATABASE()) AS CHAR)
     UNION ALL

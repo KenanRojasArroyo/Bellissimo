@@ -212,7 +212,7 @@ CALL sp_ticket(2, 1)
 +------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
 | empleado         | puesto     | fecha_inicio | fecha_fin  | sueldo_base | valor_hora | min_exceso_comida | min_retardo | min_salida_temprana | min_falta | min_extra | descuento_total | monto_extra | salario_a_pagar | estado   | fecha_generacion    | generado_por        | observaciones |
 +------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
-| Juan Pérez Soto  | Repartidor | 2026-10-26   | 2026-10-31 |     3300.00 |      68.75 |                10 |          39 |                  30 |       510 |        60 |          630.22 |      137.50 |         2807.28 | Borrador | 2026-11-16 21:41:11 | Encargado de prueba | NULL          |
+| Juan Pérez Soto  | Repartidor | 2026-10-26   | 2026-10-31 |     3300.00 |      68.75 |                10 |          39 |                  30 |       510 |        60 |          630.22 |      137.50 |         2807.28 | Borrador | 2026-11-16 22:34:30 | Encargado de prueba | NULL          |
 +------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
 1 row in set
 
@@ -684,3 +684,68 @@ FROM pago_semanal p WHERE id_pago = 8
 1 row in set
 
 Bye
+
+######## P21 [normal] exit=0
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+INSERT INTO ausencia (id_empleado, fecha, tipo, observaciones)
+VALUES (5, '2026-11-10', 'Justificada', 'Consulta médica')
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT id_empleado, fecha, tipo FROM ausencia WHERE id_empleado = 5
+--------------
+
++-------------+------------+-------------+
+| id_empleado | fecha      | tipo        |
++-------------+------------+-------------+
+|           5 | 2026-11-10 | Justificada |
++-------------+------------+-------------+
+1 row in set
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected
+
+Bye
+
+######## P21a [separado] exit=1
+--------------
+CALL sp_registrar_checada(3, '2026-11-04 09:00:00', 'Clave')
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El empleado tiene una ausencia registrada ese dia: no puede tener checadas.
+
+######## P21b [separado] exit=1
+--------------
+INSERT INTO ausencia (id_empleado, fecha, tipo) VALUES (4, '2026-11-03', 'Justificada')
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.
+
+######## P21c [separado] exit=1
+--------------
+UPDATE ausencia SET fecha = '2026-11-05' WHERE id_empleado = 3 AND fecha = '2026-11-04'
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.
+
+######## P21d [separado] exit=1
+--------------
+UPDATE registro_asistencia SET fecha = '2026-11-04' WHERE id_empleado = 3 AND fecha = '2026-11-05'
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El empleado tiene una ausencia registrada ese dia: no puede tener checadas.
