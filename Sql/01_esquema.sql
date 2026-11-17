@@ -38,23 +38,23 @@ USE belissimo;
 
 CREATE TABLE puesto
 (
-    id_puesto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE
-);
+    id_puesto INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del puesto',
+    nombre VARCHAR(50) NOT NULL UNIQUE COMMENT 'Nombre del puesto (único)'
+) COMMENT = 'Catálogo de puestos de trabajo';
 
 CREATE TABLE empleado
 (
-    id_empleado INT AUTO_INCREMENT PRIMARY KEY,
-    id_puesto INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    apellido_paterno VARCHAR(60) NOT NULL,
-    apellido_materno VARCHAR(60),
-    telefono VARCHAR(20),
-    fecha_ingreso DATE NOT NULL,
-    sueldo_base_semanal DECIMAL(10,2) NOT NULL,
-    clave_hash VARCHAR(255) NULL,   -- clave personal para checar (HASH, nunca en texto plano)
-    id_huella INT NULL UNIQUE,      -- identificador del lector de huella (se usará después)
-    activo BOOLEAN NOT NULL DEFAULT 1,
+    id_empleado INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del empleado',
+    id_puesto INT NOT NULL COMMENT 'Puesto que ocupa el empleado',
+    nombre VARCHAR(60) NOT NULL COMMENT 'Nombre(s) del empleado',
+    apellido_paterno VARCHAR(60) NOT NULL COMMENT 'Apellido paterno',
+    apellido_materno VARCHAR(60) COMMENT 'Apellido materno (opcional)',
+    telefono VARCHAR(20) COMMENT 'Teléfono de contacto',
+    fecha_ingreso DATE NOT NULL COMMENT 'Fecha en que empezó a trabajar',
+    sueldo_base_semanal DECIMAL(10,2) NOT NULL COMMENT 'Sueldo semanal pactado, base del cálculo (48 h)',
+    clave_hash VARCHAR(255) NULL COMMENT 'Hash de la clave personal para checar (nunca texto plano)', -- clave personal para checar (HASH, nunca en texto plano)
+    id_huella INT NULL UNIQUE COMMENT 'Identificador en el lector de huella (uso futuro)', -- identificador del lector de huella (se usará después)
+    activo BOOLEAN NOT NULL DEFAULT 1 COMMENT '1 = trabaja actualmente, 0 = baja',
 
     CONSTRAINT fk_empleado_puesto
         FOREIGN KEY (id_puesto)
@@ -64,54 +64,54 @@ CREATE TABLE empleado
 
     CONSTRAINT ck_empleado_sueldo
         CHECK (sueldo_base_semanal > 0)
-);
+) COMMENT = 'Personas que checan asistencia y reciben pago semanal';
 
 -- Personas que usan la página web (dueño, encargado).
 CREATE TABLE usuario
 (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_completo VARCHAR(120) NOT NULL,
-    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
-    contrasena VARCHAR(255) NOT NULL, -- guardar HASH, nunca contraseña en texto plano
-    rol ENUM('Dueno', 'Encargado') NOT NULL DEFAULT 'Encargado',
-    activo BOOLEAN NOT NULL DEFAULT 1
-);
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del usuario de la página',
+    nombre_completo VARCHAR(120) NOT NULL COMMENT 'Nombre de la persona',
+    nombre_usuario VARCHAR(50) NOT NULL UNIQUE COMMENT 'Nombre para iniciar sesión (único)',
+    contrasena VARCHAR(255) NOT NULL COMMENT 'Hash de la contraseña (nunca texto plano)', -- guardar HASH, nunca contraseña en texto plano
+    rol ENUM('Dueno', 'Encargado') NOT NULL DEFAULT 'Encargado' COMMENT 'Rol: Dueno (dueño) o Encargado',
+    activo BOOLEAN NOT NULL DEFAULT 1 COMMENT '1 = puede entrar a la página, 0 = deshabilitado'
+) COMMENT = 'Personas que usan la página web (dueño y encargado)';
 
 -- dia_semana: 1 = lunes ... 6 = sábado (coincide con WEEKDAY(fecha) + 1)
 CREATE TABLE horario_general
 (
-    dia_semana TINYINT PRIMARY KEY,
-    hora_entrada TIME NOT NULL,
-    hora_salida TIME NOT NULL,
+    dia_semana TINYINT PRIMARY KEY COMMENT 'Día: 1 = lunes ... 6 = sábado (WEEKDAY + 1)',
+    hora_entrada TIME NOT NULL COMMENT 'Hora oficial de entrada',
+    hora_salida TIME NOT NULL COMMENT 'Hora oficial de salida',
 
     CONSTRAINT ck_horario_dia
         CHECK (dia_semana BETWEEN 1 AND 6),
 
     CONSTRAINT ck_horario_horas
         CHECK (hora_salida > hora_entrada)
-);
+) COMMENT = 'Horario oficial por día de la semana (lunes a sábado)';
 
 -- Parámetros que pueden cambiar sin modificar el sistema.
 -- valor NULL = regla todavía sin definir por el dueño.
 CREATE TABLE configuracion
 (
-    parametro VARCHAR(50) PRIMARY KEY,
-    valor VARCHAR(50) NULL,
-    descripcion VARCHAR(200)
-);
+    parametro VARCHAR(50) PRIMARY KEY COMMENT 'Nombre del parámetro',
+    valor VARCHAR(50) NULL COMMENT 'Valor del parámetro; NULL = regla pendiente',
+    descripcion VARCHAR(200) COMMENT 'Qué significa el parámetro'
+) COMMENT = 'Parámetros del cálculo de pago editables sin cambiar el sistema';
 
 -- Una fila por empleado y día con las cuatro checadas.
 CREATE TABLE registro_asistencia
 (
-    id_registro INT AUTO_INCREMENT PRIMARY KEY,
-    id_empleado INT NOT NULL,
-    fecha DATE NOT NULL,
-    entrada DATETIME NULL,
-    salida_comida DATETIME NULL,
-    regreso_comida DATETIME NULL,
-    salida DATETIME NULL,
-    metodo ENUM('Clave', 'Huella', 'Manual') NOT NULL DEFAULT 'Clave',
-    modificado_por INT NULL, -- usuario que corrigió una checada a mano
+    id_registro INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del registro diario',
+    id_empleado INT NOT NULL COMMENT 'Empleado que checó',
+    fecha DATE NOT NULL COMMENT 'Día laboral del registro',
+    entrada DATETIME NULL COMMENT 'Checada 1: entrada',
+    salida_comida DATETIME NULL COMMENT 'Checada 2: salida a comer',
+    regreso_comida DATETIME NULL COMMENT 'Checada 3: regreso de comer',
+    salida DATETIME NULL COMMENT 'Checada 4: salida',
+    metodo ENUM('Clave', 'Huella', 'Manual') NOT NULL DEFAULT 'Clave' COMMENT 'Cómo se registró: Clave, Huella o Manual (corrección)',
+    modificado_por INT NULL COMMENT 'Usuario que corrigió la checada a mano', -- usuario que corrigió una checada a mano
 
     CONSTRAINT fk_registro_empleado
         FOREIGN KEY (id_empleado)
@@ -137,15 +137,15 @@ CREATE TABLE registro_asistencia
             AND (salida_comida IS NULL OR regreso_comida IS NULL OR regreso_comida >= salida_comida)
             AND (regreso_comida IS NULL OR salida IS NULL OR salida >= regreso_comida)
         )
-);
+) COMMENT = 'Las cuatro checadas de un empleado en un día';
 
 CREATE TABLE ausencia
 (
-    id_ausencia INT AUTO_INCREMENT PRIMARY KEY,
-    id_empleado INT NOT NULL,
-    fecha DATE NOT NULL,
-    tipo ENUM('Justificada', 'Injustificada', 'Vacaciones') NOT NULL,
-    observaciones VARCHAR(200),
+    id_ausencia INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la ausencia',
+    id_empleado INT NOT NULL COMMENT 'Empleado que faltó',
+    fecha DATE NOT NULL COMMENT 'Día de la ausencia',
+    tipo ENUM('Justificada', 'Injustificada', 'Vacaciones') NOT NULL COMMENT 'Justificada (salud), Injustificada o Vacaciones',
+    observaciones VARCHAR(200) COMMENT 'Motivo o nota',
 
     CONSTRAINT fk_ausencia_empleado
         FOREIGN KEY (id_empleado)
@@ -155,39 +155,39 @@ CREATE TABLE ausencia
 
     CONSTRAINT uq_ausencia_dia
         UNIQUE (id_empleado, fecha)
-);
+) COMMENT = 'Días que un empleado no asistió y su tipo';
 
 CREATE TABLE semana
 (
-    id_semana INT AUTO_INCREMENT PRIMARY KEY,
-    fecha_inicio DATE NOT NULL UNIQUE,
-    fecha_fin DATE NOT NULL,
+    id_semana INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la semana de pago',
+    fecha_inicio DATE NOT NULL UNIQUE COMMENT 'Lunes de la semana (único)',
+    fecha_fin DATE NOT NULL COMMENT 'Sábado de la semana',
 
     CONSTRAINT ck_semana_fechas
         CHECK (fecha_fin > fecha_inicio)
-);
+) COMMENT = 'Periodo de pago de lunes a sábado';
 
 -- Resumen del pago de un empleado en una semana (una fila por empleado y semana).
 -- Los minutos y montos son una FOTO de lo que se calculó (ver detalle_pago).
 CREATE TABLE pago_semanal
 (
-    id_pago INT AUTO_INCREMENT PRIMARY KEY,
-    id_empleado INT NOT NULL,
-    id_semana INT NOT NULL,
-    id_usuario INT NULL, -- encargado que generó el ticket
-    sueldo_base_usado DECIMAL(10,2) NOT NULL,
-    valor_hora DECIMAL(10,4) NOT NULL,
-    min_retardo INT NOT NULL DEFAULT 0,
-    min_salida_temprana INT NOT NULL DEFAULT 0,
-    min_falta INT NOT NULL DEFAULT 0,
-    min_exceso_comida INT NOT NULL DEFAULT 0,
-    min_extra INT NOT NULL DEFAULT 0,
-    descuento_total DECIMAL(10,2) NOT NULL DEFAULT 0,
-    monto_extra DECIMAL(10,2) NOT NULL DEFAULT 0,
-    salario_final DECIMAL(10,2) NOT NULL,
-    cerrado BOOLEAN NOT NULL DEFAULT 0, -- 1 = pago pagado, ya no se modifica
-    fecha_generacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    observaciones VARCHAR(255),
+    id_pago INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del pago',
+    id_empleado INT NOT NULL COMMENT 'Empleado al que se paga',
+    id_semana INT NOT NULL COMMENT 'Semana que se paga',
+    id_usuario INT NULL COMMENT 'Encargado que generó el pago', -- encargado que generó el ticket
+    sueldo_base_usado DECIMAL(10,2) NOT NULL COMMENT 'Copia del sueldo base al momento de calcular',
+    valor_hora DECIMAL(10,4) NOT NULL COMMENT 'Sueldo base / 48 al momento de calcular',
+    min_retardo INT NOT NULL DEFAULT 0 COMMENT 'Minutos de retardo de la semana',
+    min_salida_temprana INT NOT NULL DEFAULT 0 COMMENT 'Minutos de salida antes de hora',
+    min_falta INT NOT NULL DEFAULT 0 COMMENT 'Minutos de faltas injustificadas',
+    min_exceso_comida INT NOT NULL DEFAULT 0 COMMENT 'Minutos de comida de más',
+    min_extra INT NOT NULL DEFAULT 0 COMMENT 'Minutos de tiempo extra',
+    descuento_total DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Suma de renglones con monto negativo (positivo)',
+    monto_extra DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Suma pagada por tiempo extra',
+    salario_final DECIMAL(10,2) NOT NULL COMMENT 'Sueldo base - descuentos + extra, mínimo 0',
+    cerrado BOOLEAN NOT NULL DEFAULT 0 COMMENT '1 = pagado y congelado, 0 = borrador', -- 1 = pago pagado, ya no se modifica
+    fecha_generacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Cuándo se calculó por última vez',
+    observaciones VARCHAR(255) COMMENT 'Nota del encargado (editable aun cerrado)',
 
     CONSTRAINT fk_pago_empleado
         FOREIGN KEY (id_empleado)
@@ -213,16 +213,16 @@ CREATE TABLE pago_semanal
     CONSTRAINT ck_pago_montos
         CHECK (sueldo_base_usado > 0 AND descuento_total >= 0
                AND monto_extra >= 0 AND salario_final >= 0)
-);
+) COMMENT = 'Resumen congelado del pago de un empleado en una semana';
 
 -- Cada renglón del ticket. Se guarda tal como se calculó para poder
 -- justificar el pago aunque después se corrija una checada.
 -- monto: negativo = descuento, 0 = informativo, positivo = pago extra.
 CREATE TABLE detalle_pago
 (
-    id_detalle INT AUTO_INCREMENT PRIMARY KEY,
-    id_pago INT NOT NULL,
-    fecha DATE NULL,
+    id_detalle INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del renglón',
+    id_pago INT NOT NULL COMMENT 'Pago al que pertenece el renglón',
+    fecha DATE NULL COMMENT 'Día del evento; NULL en conceptos semanales',
     concepto ENUM(
         'COMIDA_EXCESO',
         'RETARDO',
@@ -230,37 +230,37 @@ CREATE TABLE detalle_pago
         'SALIDA_TEMPRANA',
         'FALTA_INJUSTIFICADA',
         'TIEMPO_EXTRA'
-    ) NOT NULL,
-    minutos INT NOT NULL DEFAULT 0,
-    monto DECIMAL(10,2) NOT NULL DEFAULT 0,
+    ) NOT NULL COMMENT 'Tipo de renglón del ticket',
+    minutos INT NOT NULL DEFAULT 0 COMMENT 'Minutos del evento',
+    monto DECIMAL(10,2) NOT NULL DEFAULT 0 COMMENT 'Negativo = descuento, 0 = informativo, positivo = pago',
 
     CONSTRAINT fk_detalle_pago
         FOREIGN KEY (id_pago)
         REFERENCES pago_semanal(id_pago)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
-);
+) COMMENT = 'Renglones del ticket de pago tal como se calcularon';
 
 -- Auditoría de correcciones hechas a las checadas (la llena un trigger).
 -- No lleva llave foránea a registro_asistencia: debe sobrevivir si el registro se borra.
 CREATE TABLE auditoria_registro
 (
-    id_auditoria INT AUTO_INCREMENT PRIMARY KEY,
-    id_registro INT NOT NULL,
-    id_empleado INT NOT NULL,
-    fecha DATE NOT NULL,
-    entrada_anterior DATETIME NULL,
-    salida_comida_anterior DATETIME NULL,
-    regreso_comida_anterior DATETIME NULL,
-    salida_anterior DATETIME NULL,
-    entrada_nueva DATETIME NULL,
-    salida_comida_nueva DATETIME NULL,
-    regreso_comida_nueva DATETIME NULL,
-    salida_nueva DATETIME NULL,
-    id_usuario_app INT NULL,
-    usuario_bd VARCHAR(100) NOT NULL,
-    fecha_cambio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+    id_auditoria INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del cambio auditado',
+    id_registro INT NOT NULL COMMENT 'Registro corregido (sin FK: sobrevive a borrados)',
+    id_empleado INT NOT NULL COMMENT 'Empleado del registro corregido',
+    fecha DATE NOT NULL COMMENT 'Día del registro corregido',
+    entrada_anterior DATETIME NULL COMMENT 'Entrada antes del cambio',
+    salida_comida_anterior DATETIME NULL COMMENT 'Salida a comer antes del cambio',
+    regreso_comida_anterior DATETIME NULL COMMENT 'Regreso de comer antes del cambio',
+    salida_anterior DATETIME NULL COMMENT 'Salida antes del cambio',
+    entrada_nueva DATETIME NULL COMMENT 'Entrada después del cambio',
+    salida_comida_nueva DATETIME NULL COMMENT 'Salida a comer después del cambio',
+    regreso_comida_nueva DATETIME NULL COMMENT 'Regreso de comer después del cambio',
+    salida_nueva DATETIME NULL COMMENT 'Salida después del cambio',
+    id_usuario_app INT NULL COMMENT 'Usuario de la página que corrigió (modificado_por)',
+    usuario_bd VARCHAR(100) NOT NULL COMMENT 'Usuario de MySQL que ejecutó el cambio',
+    fecha_cambio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Momento del cambio'
+) COMMENT = 'Bitácora de correcciones a checadas (la llena un trigger)';
 
 /* ---------------------------------------------------------------------
    1b. ÍNDICES PARA BÚSQUEDAS FRECUENTES
