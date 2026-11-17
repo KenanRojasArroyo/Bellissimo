@@ -1,0 +1,636 @@
+{
+ "base": "belissimo",
+ "tablas": {
+  "auditoria_registro": {
+   "comentario": "Bitácora de correcciones a checadas (la llena un trigger)",
+   "columnas": [
+    {
+     "nombre": "id_auditoria",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_registro",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "id_empleado",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "entrada_anterior",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida_comida_anterior",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "regreso_comida_anterior",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida_anterior",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "entrada_nueva",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida_comida_nueva",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "regreso_comida_nueva",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida_nueva",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "id_usuario_app",
+     "tipo": "INT",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "usuario_bd",
+     "tipo": "VARCHAR(100)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha_cambio",
+     "tipo": "DATETIME",
+     "nulo": false,
+     "pk": false
+    }
+   ]
+  },
+  "ausencia": {
+   "comentario": "Días que un empleado no asistió y su tipo",
+   "columnas": [
+    {
+     "nombre": "id_ausencia",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_empleado",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "tipo",
+     "tipo": "ENUM('JUSTIFICADA','INJUSTIFICADA','VACACIONES')",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "observaciones",
+     "tipo": "VARCHAR(200)",
+     "nulo": true,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "uq_ausencia_dia": [
+     "id_empleado",
+     "fecha"
+    ]
+   }
+  },
+  "configuracion": {
+   "comentario": "Parámetros del cálculo de pago editables sin cambiar el sistema",
+   "columnas": [
+    {
+     "nombre": "parametro",
+     "tipo": "VARCHAR(50)",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "valor",
+     "tipo": "VARCHAR(50)",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "descripcion",
+     "tipo": "VARCHAR(200)",
+     "nulo": true,
+     "pk": false
+    }
+   ]
+  },
+  "detalle_pago": {
+   "comentario": "Renglones del ticket de pago tal como se calcularon",
+   "columnas": [
+    {
+     "nombre": "id_detalle",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_pago",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha",
+     "tipo": "DATE",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "concepto",
+     "tipo": "ENUM('COMIDA_EXCESO','RETARDO','RETARDO_ACUMULADO','SALIDA_TEMPRANA','FALTA_INJUSTIFICADA','TIEMPO_EXTRA')",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "minutos",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "monto",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    }
+   ]
+  },
+  "empleado": {
+   "comentario": "Personas que checan asistencia y reciben pago semanal",
+   "columnas": [
+    {
+     "nombre": "id_empleado",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_puesto",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "nombre",
+     "tipo": "VARCHAR(60)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "apellido_paterno",
+     "tipo": "VARCHAR(60)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "apellido_materno",
+     "tipo": "VARCHAR(60)",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "telefono",
+     "tipo": "VARCHAR(20)",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "fecha_ingreso",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "sueldo_base_semanal",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "clave_hash",
+     "tipo": "VARCHAR(255)",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "id_huella",
+     "tipo": "INT",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "activo",
+     "tipo": "TINYINT(1)",
+     "nulo": false,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "id_huella": [
+     "id_huella"
+    ]
+   }
+  },
+  "horario_general": {
+   "comentario": "Horario oficial por día de la semana (lunes a sábado)",
+   "columnas": [
+    {
+     "nombre": "dia_semana",
+     "tipo": "TINYINT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "hora_entrada",
+     "tipo": "TIME",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "hora_salida",
+     "tipo": "TIME",
+     "nulo": false,
+     "pk": false
+    }
+   ]
+  },
+  "pago_semanal": {
+   "comentario": "Resumen congelado del pago de un empleado en una semana",
+   "columnas": [
+    {
+     "nombre": "id_pago",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_empleado",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "id_semana",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "id_usuario",
+     "tipo": "INT",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "sueldo_base_usado",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "valor_hora",
+     "tipo": "DECIMAL(10,4)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "min_retardo",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "min_salida_temprana",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "min_falta",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "min_exceso_comida",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "min_extra",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "descuento_total",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "monto_extra",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "salario_final",
+     "tipo": "DECIMAL(10,2)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "cerrado",
+     "tipo": "TINYINT(1)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha_generacion",
+     "tipo": "DATETIME",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "observaciones",
+     "tipo": "VARCHAR(255)",
+     "nulo": true,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "uq_pago_empleado_semana": [
+     "id_empleado",
+     "id_semana"
+    ]
+   }
+  },
+  "puesto": {
+   "comentario": "Catálogo de puestos de trabajo",
+   "columnas": [
+    {
+     "nombre": "id_puesto",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "nombre",
+     "tipo": "VARCHAR(50)",
+     "nulo": false,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "nombre": [
+     "nombre"
+    ]
+   }
+  },
+  "registro_asistencia": {
+   "comentario": "Las cuatro checadas de un empleado en un día",
+   "columnas": [
+    {
+     "nombre": "id_registro",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "id_empleado",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "entrada",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida_comida",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "regreso_comida",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "salida",
+     "tipo": "DATETIME",
+     "nulo": true,
+     "pk": false
+    },
+    {
+     "nombre": "metodo",
+     "tipo": "ENUM('CLAVE','HUELLA','MANUAL')",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "modificado_por",
+     "tipo": "INT",
+     "nulo": true,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "uq_registro_dia": [
+     "id_empleado",
+     "fecha"
+    ]
+   }
+  },
+  "semana": {
+   "comentario": "Periodo de pago de lunes a sábado",
+   "columnas": [
+    {
+     "nombre": "id_semana",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "fecha_inicio",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "fecha_fin",
+     "tipo": "DATE",
+     "nulo": false,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "fecha_inicio": [
+     "fecha_inicio"
+    ]
+   }
+  },
+  "usuario": {
+   "comentario": "Personas que usan la página web (dueño y encargado)",
+   "columnas": [
+    {
+     "nombre": "id_usuario",
+     "tipo": "INT",
+     "nulo": false,
+     "pk": true
+    },
+    {
+     "nombre": "nombre_completo",
+     "tipo": "VARCHAR(120)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "nombre_usuario",
+     "tipo": "VARCHAR(50)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "contrasena",
+     "tipo": "VARCHAR(255)",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "rol",
+     "tipo": "ENUM('DUENO','ENCARGADO')",
+     "nulo": false,
+     "pk": false
+    },
+    {
+     "nombre": "activo",
+     "tipo": "TINYINT(1)",
+     "nulo": false,
+     "pk": false
+    }
+   ],
+   "unicos": {
+    "nombre_usuario": [
+     "nombre_usuario"
+    ]
+   }
+  }
+ },
+ "fks": [
+  {
+   "nombre": "fk_ausencia_empleado",
+   "tabla": "ausencia",
+   "columna": "id_empleado",
+   "ref_tabla": "empleado",
+   "ref_columna": "id_empleado"
+  },
+  {
+   "nombre": "fk_detalle_pago",
+   "tabla": "detalle_pago",
+   "columna": "id_pago",
+   "ref_tabla": "pago_semanal",
+   "ref_columna": "id_pago"
+  },
+  {
+   "nombre": "fk_empleado_puesto",
+   "tabla": "empleado",
+   "columna": "id_puesto",
+   "ref_tabla": "puesto",
+   "ref_columna": "id_puesto"
+  },
+  {
+   "nombre": "fk_pago_empleado",
+   "tabla": "pago_semanal",
+   "columna": "id_empleado",
+   "ref_tabla": "empleado",
+   "ref_columna": "id_empleado"
+  },
+  {
+   "nombre": "fk_pago_semana",
+   "tabla": "pago_semanal",
+   "columna": "id_semana",
+   "ref_tabla": "semana",
+   "ref_columna": "id_semana"
+  },
+  {
+   "nombre": "fk_pago_usuario",
+   "tabla": "pago_semanal",
+   "columna": "id_usuario",
+   "ref_tabla": "usuario",
+   "ref_columna": "id_usuario"
+  },
+  {
+   "nombre": "fk_registro_empleado",
+   "tabla": "registro_asistencia",
+   "columna": "id_empleado",
+   "ref_tabla": "empleado",
+   "ref_columna": "id_empleado"
+  },
+  {
+   "nombre": "fk_registro_usuario",
+   "tabla": "registro_asistencia",
+   "columna": "modificado_por",
+   "ref_tabla": "usuario",
+   "ref_columna": "id_usuario"
+  }
+ ]
+}
