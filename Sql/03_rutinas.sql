@@ -6,10 +6,14 @@
    Funciones, procedimientos almacenados y triggers.
    Ejecutar después de 01_esquema.sql y 02_datos.sql.
 
+   Contiene: 3 funciones, 5 procedimientos y 12 triggers.
+
    NOTA: con el registro binario activo (MySQL 8 lo trae activado), crear
    triggers y funciones exige permiso SUPER. El usuario root de Workbench
    lo tiene. Si usas otro usuario y marca el error 1419, ejecuta como root:
        SET GLOBAL log_bin_trust_function_creators = 1;
+   (Verificado el 2026-11-16 en MySQL 8.0.46 con log_bin = 1: como root
+    NO fue necesario cambiar esa variable.)
    ===================================================================== */
 
 USE belissimo;
@@ -610,22 +614,94 @@ BEGIN
 END$$
 
 -- Evento: BEFORE UPDATE en pago_semanal
--- Condición: el pago ya estaba cerrado y se intenta cambiar un monto o reabrirlo
---            (escribir observaciones sí se permite)
+-- Condición: el pago ya estaba cerrado y se intenta cambiar CUALQUIER columna
+--            que no sea observaciones (montos, minutos, empleado, semana,
+--            usuario, fecha o reabrirlo)
 -- Efecto: rechaza la operación con un error
+-- (Corrección 2026-11-16: antes solo revisaba 5 columnas y permitía, por
+--  ejemplo, pasar un pago cerrado a otro empleado o cambiar sus minutos.)
 CREATE TRIGGER trg_pago_bu_cerrado
 BEFORE UPDATE ON pago_semanal
 FOR EACH ROW
 BEGIN
     IF OLD.cerrado = 1
-       AND (NOT (NEW.sueldo_base_usado <=> OLD.sueldo_base_usado)
-         OR NOT (NEW.valor_hora        <=> OLD.valor_hora)
-         OR NOT (NEW.descuento_total   <=> OLD.descuento_total)
-         OR NOT (NEW.monto_extra       <=> OLD.monto_extra)
-         OR NOT (NEW.salario_final     <=> OLD.salario_final)
-         OR NEW.cerrado <> OLD.cerrado) THEN
+       AND (NOT (NEW.id_pago             <=> OLD.id_pago)
+         OR NOT (NEW.id_empleado         <=> OLD.id_empleado)
+         OR NOT (NEW.id_semana           <=> OLD.id_semana)
+         OR NOT (NEW.id_usuario          <=> OLD.id_usuario)
+         OR NOT (NEW.sueldo_base_usado   <=> OLD.sueldo_base_usado)
+         OR NOT (NEW.valor_hora          <=> OLD.valor_hora)
+         OR NOT (NEW.min_retardo         <=> OLD.min_retardo)
+         OR NOT (NEW.min_salida_temprana <=> OLD.min_salida_temprana)
+         OR NOT (NEW.min_falta           <=> OLD.min_falta)
+         OR NOT (NEW.min_exceso_comida   <=> OLD.min_exceso_comida)
+         OR NOT (NEW.min_extra           <=> OLD.min_extra)
+         OR NOT (NEW.descuento_total     <=> OLD.descuento_total)
+         OR NOT (NEW.monto_extra         <=> OLD.monto_extra)
+         OR NOT (NEW.salario_final       <=> OLD.salario_final)
+         OR NOT (NEW.cerrado             <=> OLD.cerrado)
+         OR NOT (NEW.fecha_generacion    <=> OLD.fecha_generacion)) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El pago esta cerrado: solo se pueden agregar observaciones.';
+    END IF;
+END$$
+
+-- Evento: BEFORE DELETE en pago_semanal
+-- Condición: el pago está cerrado
+-- Efecto: rechaza la operación con un error
+-- (Corrección 2026-11-16: un pago cerrado SIN renglones de ticket se podía
+--  borrar, porque la llave foránea de detalle_pago no tenía hijos que proteger.)
+CREATE TRIGGER trg_pago_bd_cerrado
+BEFORE DELETE ON pago_semanal
+FOR EACH ROW
+BEGIN
+    IF OLD.cerrado = 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El pago esta cerrado: no se puede eliminar.';
+    END IF;
+END$$
+
+/* ---- Semana cerrada: tampoco se pueden cambiar las ausencias ---- */
+/* Una ausencia cambia el pago (una falta injustificada descuenta la jornada),
+   así que se congela igual que las checadas cuando el pago ya se cerró. */
+
+-- Evento: BEFORE INSERT en ausencia
+-- Condición: el empleado ya tiene cerrado el pago de la semana de esa fecha
+-- Efecto: rechaza la operación con un error
+CREATE TRIGGER trg_ausencia_bi_cerrado
+BEFORE INSERT ON ausencia
+FOR EACH ROW
+BEGIN
+    IF fn_semana_cerrada(NEW.id_empleado, NEW.fecha) = 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La semana de esa ausencia ya esta cerrada y no se puede modificar.';
+    END IF;
+END$$
+
+-- Evento: BEFORE UPDATE en ausencia
+-- Condición: la semana original o la nueva ya está cerrada
+-- Efecto: rechaza la operación con un error
+CREATE TRIGGER trg_ausencia_bu_cerrado
+BEFORE UPDATE ON ausencia
+FOR EACH ROW
+BEGIN
+    IF fn_semana_cerrada(OLD.id_empleado, OLD.fecha) = 1
+       OR fn_semana_cerrada(NEW.id_empleado, NEW.fecha) = 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La semana de esa ausencia ya esta cerrada y no se puede modificar.';
+    END IF;
+END$$
+
+-- Evento: BEFORE DELETE en ausencia
+-- Condición: la semana de esa ausencia ya está cerrada
+-- Efecto: rechaza la operación con un error
+CREATE TRIGGER trg_ausencia_bd_cerrado
+BEFORE DELETE ON ausencia
+FOR EACH ROW
+BEGIN
+    IF fn_semana_cerrada(OLD.id_empleado, OLD.fecha) = 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La semana de esa ausencia ya esta cerrada y no se puede modificar.';
     END IF;
 END$$
 
