@@ -4,7 +4,7 @@
    Motor   : MySQL 8.0
 
    SQL equivalente a cada expresión de álgebra relacional del reporte
-   (Reporte/algebra_relacional.md). Ejecutar sobre la base recién
+   (Reporte/07_algebra_relacional.md). Ejecutar sobre la base recién
    reconstruida con 01 -> 04 (antes de Pruebas/pruebas_bd.sql).
    Se usa DISTINCT porque el álgebra relacional trabaja con conjuntos.
    ===================================================================== */

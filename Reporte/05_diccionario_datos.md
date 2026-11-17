@@ -1,10 +1,10 @@
-# Diccionario de datos — base `belissimo`
+# 5. Diccionario de datos — base `belissimo`
 
 Generado automáticamente desde `information_schema` de **MySQL 8.0.46** con `Sql/diccionario_datos.sql` (no está escrito a mano). El significado de cada atributo es el `COMMENT` definido en `Sql/01_esquema.sql`.
 
 Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** · Índices: **27**
 
-## 1. Tablas
+## 5.1 Tablas
 
 | tabla | descripcion | motor | intercalacion |
 | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** ·
 | semana | Periodo de pago de lunes a sábado | InnoDB | utf8mb4_unicode_ci |
 | usuario | Personas que usan la página web (dueño y encargado) | InnoDB | utf8mb4_unicode_ci |
 
-## 2. Atributos por tabla
+## 5.2 Atributos por tabla
 
 ### `auditoria_registro`
 
@@ -179,7 +179,7 @@ _Personas que usan la página web (dueño y encargado)_
 | rol | Rol: Dueno (dueño) o Encargado | enum('Dueno','Encargado') | 9 | No |  |  | Encargado |  |
 | activo | 1 = puede entrar a la página, 0 = deshabilitado | tinyint(1) | 3 | No |  |  | 1 |  |
 
-## 3. Restricciones CHECK
+## 5.3 Restricciones CHECK
 
 | tabla | restriccion | expresion |
 | --- | --- | --- |
@@ -191,7 +191,7 @@ _Personas que usan la página web (dueño y encargado)_
 | registro_asistencia | ck_registro_orden | (((`entrada` is null) or (`salida_comida` is null) or (`salida_comida` >= `entrada`)) and ((`salida_comida` is null) or (`regreso_comida` is null) or (`regreso_comida` >= `salida_comida`)) and ((`regreso_comida` is null) or (`salida` is null) or (`salida` >= `regreso_comida`))) |
 | semana | ck_semana_fechas | (`fecha_fin` > `fecha_inicio`) |
 
-## 4. Llaves foráneas (integridad referencial)
+## 5.4 Llaves foráneas (integridad referencial)
 
 | tabla | llave_foranea | tabla_referenciada | al_actualizar | al_borrar |
 | --- | --- | --- | --- | --- |
@@ -204,7 +204,7 @@ _Personas que usan la página web (dueño y encargado)_
 | registro_asistencia | fk_registro_empleado | empleado | CASCADE | RESTRICT |
 | registro_asistencia | fk_registro_usuario | usuario | CASCADE | RESTRICT |
 
-## 5. Índices
+## 5.5 Índices
 
 `PRIMARY` = llave primaria; los `uq_`/`UNIQUE` son claves candidatas; los `fk_` los crea MySQL para las llaves foráneas; los `idx_` se agregaron para búsquedas frecuentes.
 

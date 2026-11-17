@@ -1,10 +1,10 @@
-# Reglas de negocio y requerimientos funcionales
+# 2. Reglas de negocio y requerimientos funcionales
 
 Reglas acordadas con el dueño de la florería. Cada una dice **qué mecanismo de la base la hace
 cumplir** y **con qué prueba se verifica** (`Pruebas/pruebas_bd.sql`; resultados en
 `Pruebas/matriz_pruebas.md`). Las marcadas *Supuesto* o *Pendiente* no las cerró el DBA.
 
-## 1. Reglas de negocio (verificables)
+## 2.1 Reglas de negocio (verificables)
 
 | ID | Regla | Mecanismo en la BD | Verificación |
 | -- | ----- | ------------------ | ------------ |
@@ -30,7 +30,7 @@ Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retard
 corrige checadas olvidadas, y si se permite **checada y ausencia el mismo día** (hallazgo PEN-01
 en `Pruebas/incidencias.md`).
 
-## 2. Requerimientos funcionales
+## 2.2 Requerimientos funcionales
 
 | ID | Requerimiento | Lo cumple | Verificación |
 | -- | ------------- | --------- | ------------ |
