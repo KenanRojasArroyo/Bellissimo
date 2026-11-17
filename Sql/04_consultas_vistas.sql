@@ -3,11 +3,11 @@
    Archivo : 04_consultas_vistas.sql
    Motor   : MySQL 8.0 (MySQL Workbench)
 
-   Contiene: preparación de pagos, 2 vistas y 10 consultas documentadas
+   Contiene: preparación de pagos, 3 vistas y 10 consultas documentadas
              (3 con JOIN, 2 con subconsultas, 3 con GROUP BY/HAVING y 2 libres).
 
-   Ejecutar después de 03_rutinas.sql y ANTES de 05_pruebas.sql.
-   Si ya ejecutaste 05_pruebas.sql, reconstruye la base desde 01_esquema.sql.
+   Ejecutar después de 03_rutinas.sql y ANTES de ../Pruebas/pruebas_bd.sql.
+   Si ya ejecutaste las pruebas, reconstruye la base desde 01_esquema.sql.
    Ejecuta cada consulta por separado (cursor sobre ella + rayo) para ver su resultado.
    ===================================================================== */
 
@@ -83,9 +83,49 @@ INNER JOIN empleado e ON e.id_empleado = p.id_empleado
 INNER JOIN puesto pu ON pu.id_puesto = e.id_puesto
 INNER JOIN semana s ON s.id_semana = p.id_semana;
 
+/* VISTA 3: v_dias_sin_checada
+   Propósito: detectar días laborales (lunes a sábado) de cada semana registrada
+   en los que un empleado activo NO tiene checada NI ausencia registrada.
+   Esos días hoy NO se descuentan solos: el encargado debe revisarlos y
+   capturar la ausencia que corresponda (Injustificada, Justificada o
+   Vacaciones) ANTES de generar y cerrar el pago.
+   - Solo cuenta días desde la fecha de ingreso del empleado.
+   - Solo cuenta días que ya pasaron (fecha <= hoy).
+   - minutos_jornada = lo que se descontaría si se registra como falta
+     injustificada (510 entre semana, 390 sábado). */
+CREATE OR REPLACE VIEW v_dias_sin_checada AS
+SELECT
+    dia.id_semana,
+    e.id_empleado,
+    CONCAT(e.nombre, ' ', e.apellido_paterno) AS empleado,
+    dia.fecha,
+    h.dia_semana,
+    TIME_TO_SEC(TIMEDIFF(h.hora_salida, h.hora_entrada)) DIV 60 AS minutos_jornada,
+    fn_semana_cerrada(e.id_empleado, dia.fecha) AS semana_cerrada
+FROM (
+    SELECT s.id_semana,
+           DATE_ADD(s.fecha_inicio, INTERVAL n.n DAY) AS fecha,
+           s.fecha_fin
+    FROM semana s
+    CROSS JOIN (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2
+                UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+                UNION ALL SELECT 6) n
+) dia
+INNER JOIN horario_general h ON h.dia_semana = WEEKDAY(dia.fecha) + 1
+INNER JOIN empleado e ON e.activo = 1 AND e.fecha_ingreso <= dia.fecha
+WHERE dia.fecha <= dia.fecha_fin
+  AND dia.fecha <= CURDATE()
+  AND NOT EXISTS (SELECT 1 FROM registro_asistencia r
+                  WHERE r.id_empleado = e.id_empleado AND r.fecha = dia.fecha)
+  AND NOT EXISTS (SELECT 1 FROM ausencia a
+                  WHERE a.id_empleado = e.id_empleado AND a.fecha = dia.fecha);
+
 -- Demostración de las vistas
 SELECT * FROM v_asistencia_diaria WHERE id_empleado = 2 ORDER BY fecha;
 SELECT * FROM v_resumen_pago_semanal ORDER BY id_semana, id_empleado;
+-- Con los datos de prueba no hay días sin checada: todo día faltante ya
+-- tiene su ausencia registrada (0 filas). Ver la prueba en Pruebas/pruebas_bd.sql.
+SELECT * FROM v_dias_sin_checada ORDER BY fecha, id_empleado;
 
 /* ---------------------------------------------------------------------
    2. CONSULTAS CON JOIN (3)
