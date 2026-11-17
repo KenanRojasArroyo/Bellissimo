@@ -1,32 +1,41 @@
-# Base de datos — Reloj checador y pago semanal (Florería)
+# Base de datos — Reloj checador y pago semanal (Florería Bellissimo)
 
-**Motor:** MySQL 8.0 · **Herramienta:** MySQL Workbench · **Base:** `Floreria_Checador`
+**Motor:** MySQL 8.0 (probado en 8.0.46) · **Herramienta:** MySQL Workbench · **Base:** `belissimo`
+· **Juego de caracteres:** `utf8mb4` / `utf8mb4_unicode_ci`
 
 ## 1. Cómo reconstruir la base
 
-Ejecutar en MySQL Workbench, **en este orden** (File → Open SQL Script → rayo):
+Ejecutar **en este orden** (Workbench: File → Open SQL Script → rayo; o el cliente `mysql`):
 
 | # | Archivo | Qué hace |
 | - | ------- | -------- |
-| 1 | `01_esquema.sql` | Elimina y crea la base, tablas, restricciones y catálogos |
-| 2 | `02_datos.sql` | Datos de prueba ficticios: 5 empleados, 2 semanas, 44 checadas, 4 ausencias |
-| 3 | `03_rutinas.sql` | 3 funciones, 5 procedimientos y 8 triggers |
-| 4 | `04_consultas_vistas.sql` | Genera los pagos de prueba, 2 vistas y 10 consultas documentadas |
-| 5 | `05_pruebas.sql` | Casos de prueba válidos e inválidos, COMMIT/ROLLBACK, auditoría |
+| 1 | `Sql/01_esquema.sql` | Elimina y crea la base, 11 tablas, restricciones, índices y catálogos |
+| 2 | `Sql/02_datos.sql` | Datos de prueba **ficticios**: 5 empleados, 2 semanas, 44 checadas, 4 ausencias |
+| 3 | `Sql/03_rutinas.sql` | 3 funciones, 5 procedimientos y 12 triggers |
+| 4 | `Sql/04_consultas_vistas.sql` | Genera los 8 pagos de prueba, 3 vistas y 10 consultas documentadas |
+| — | `Pruebas/verificacion_regresion.sql` | Confirma objetos y pagos esperados (todo debe decir `OK`) |
+| — | `Pruebas/pruebas_bd.sql` | Casos de prueba válidos e inválidos (cambia datos a propósito) |
 
-> **Cuidado:** `01_esquema.sql` empieza con `DROP DATABASE IF EXISTS Floreria_Checador;`.
-> En una computadora con datos reales, los borra.
+Desde PowerShell (el operador `<` no existe ahí; los scripts usan `DELIMITER`, por eso se usa `source`):
 
-Los scripts 01–04 corren sin cambios manuales. En `05_pruebas.sql`, las pruebas marcadas
-**POR SEPARADO** están comentadas porque provocan un error a propósito: se descomenta y
-ejecuta una por una. Si se corrió `05` y se quiere repetir, reconstruir desde `01`.
+```powershell
+& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p --default-character-set=utf8mb4 -e "source Sql/01_esquema.sql"
+```
 
-**Requisito de permisos:** si MySQL tiene el binlog activo, crear funciones y triggers exige
-`SUPER` o ejecutar antes `SET GLOBAL log_bin_trust_function_creators = 1;`.
+> **Cuidado:** `01_esquema.sql` empieza con `DROP DATABASE IF EXISTS belissimo;`. Borra todo lo
+> que haya en esa base. Si se corrió `pruebas_bd.sql` y se quiere repetir, reconstruir desde `01`.
 
-**Estado de verificación:** los cinco scripts se ejecutaron en MariaDB 10.11 (compatible con
-MySQL 8) y los resultados coinciden con los cálculos hechos a mano. **Aún no se han corrido en
-MySQL 8 real:** hacerlo en Workbench antes de entregar y registrar lo observado.
+**Permisos:** si el binlog está activo, crear funciones y triggers exige `SUPER`. Con `root` no hace
+falta nada más (verificado en MySQL 8.0.46). Con otro usuario, si aparece el error 1419, un
+administrador ejecuta `SET GLOBAL log_bin_trust_function_creators = 1;`.
+
+**Equivalencia con la numeración original:** `01_esquema`, `02_datos`, `03_rutinas` y
+`04_consultas_vistas` conservan su número. El antiguo `05_pruebas.sql` ahora es
+`Pruebas/pruebas_bd.sql`. No se reordenó a "03 consultas / 04 rutinas" porque las vistas y la
+preparación de pagos dependen de funciones y procedimientos que se crean en `03_rutinas`.
+
+**Estado de verificación:** los scripts corren sin errores ni advertencias en MySQL 8.0.46
+(2026-11-16). Incidencias reales encontradas y corregidas: `Pruebas/incidencias.md`.
 
 ## 2. Tablas
 
@@ -44,7 +53,7 @@ MySQL 8 real:** hacerlo en Workbench antes de entregar y registrar lo observado.
 | `detalle_pago` | Renglones del ticket, congelados tal como se calcularon |
 | `auditoria_registro` | Bitácora de correcciones de checadas (la llena un trigger) |
 
-Diagrama: `diagramas/diagrama_er.png` (fuente: `diagrama_er.mmd`).
+Diagramas: carpeta `Diagramas/`.
 
 ## 3. Cómo se calcula el pago
 
@@ -61,6 +70,7 @@ Salario          = sueldo base − descuentos + tiempo extra   (mínimo $0)
 | Salida antes de la hora | Los minutos faltantes se descuentan |
 | Falta injustificada | Se descuenta la jornada del día (510 min entre semana, 390 sábado) |
 | Falta justificada o vacaciones | No se descuenta |
+| Día sin checada y sin ausencia | **No se descuenta solo**: aparece en `v_dias_sin_checada` para que el encargado capture la ausencia |
 | Tiempo extra | Primeros 540 min de la semana × 2; lo que pase × 3 (valores en `configuracion`) |
 
 El descuento y el extra del ticket son la **suma de renglones**, cada uno redondeado a centavos.
@@ -72,22 +82,32 @@ CALL sp_registrar_checada(id_empleado, ahora, 'Clave');   -- siguiente checada d
 CALL sp_generar_pago(id_empleado, id_semana, id_usuario); -- calcula (transacción) y puede regenerarse
 CALL sp_ticket(id_empleado, id_semana);                   -- muestra el ticket sin recalcular
 CALL sp_agregar_observacion(id_pago, 'texto');            -- permitido aun con el pago cerrado
-CALL sp_cerrar_pago(id_pago);                             -- congela pago, ticket y checadas de la semana
+CALL sp_cerrar_pago(id_pago);                             -- congela pago, ticket, checadas y ausencias de la semana
 ```
 
-`sp_generar_pago` corre dentro de `START TRANSACTION … COMMIT` con `ROLLBACK` si algo falla.
-`sp_ticket` devuelve dos resultados: resumen y detalle por día.
+Referencia completa para la aplicación (parámetros, resultados, errores, ejemplos en C#):
+`Sql/CONTRATO_BD.md`.
 
-## 5. Triggers
+## 5. Triggers (12)
 
 | Trigger | Efecto |
 | ------- | ------ |
 | `trg_registro_bi/bu/bd_cerrado` | Impiden insertar, modificar o borrar checadas de una semana cerrada |
 | `trg_registro_au_auditoria` | Guarda hora anterior y nueva, usuario de la app y usuario de BD al corregir una checada |
+| `trg_ausencia_bi/bu/bd_cerrado` | Impiden insertar, modificar o borrar ausencias de una semana cerrada |
 | `trg_detalle_bi/bu/bd_cerrado` | Congelan el ticket de un pago cerrado |
 | `trg_pago_bu_cerrado` | En un pago cerrado solo permite cambiar `observaciones` |
+| `trg_pago_bd_cerrado` | Un pago cerrado no se puede borrar |
 
-## 6. Resultados esperados con los datos de prueba
+## 6. Vistas (3)
+
+| Vista | Uso |
+| ----- | --- |
+| `v_asistencia_diaria` | Una fila por empleado y día: horas, retardo, comida de más, salida temprana, extra |
+| `v_resumen_pago_semanal` | Pago de cada empleado por semana con puesto y estado (Borrador/Cerrado) |
+| `v_dias_sin_checada` | Días laborales ya pasados sin checada ni ausencia (revisar antes de cerrar el pago) |
+
+## 7. Resultados esperados con los datos de prueba
 
 | Empleado | Semana 1 | Semana 2 |
 | -------- | -------- | -------- |
@@ -99,7 +119,7 @@ CALL sp_cerrar_pago(id_pago);                             -- congela pago, ticke
 Total a pagar: semana 1 = $11,868.73, semana 2 = $14,562.50. Carla Mendoza (ingresó el
 2026-11-09) no tiene pagos: sirve para probar `LEFT JOIN` y `NOT EXISTS`.
 
-## 7. Pendientes con el dueño
+## 8. Pendientes con el dueño
 
 | Pendiente | Hoy en el sistema |
 | --------- | ----------------- |
@@ -110,13 +130,14 @@ Total a pagar: semana 1 = $11,868.73, semana 2 = $14,562.50. Carla Mendoza (ingr
 | Bonificaciones y vacaciones por antigüedad | Etapa 2 (fuera de alcance) |
 | Checado por huella | Pospuesto; la BD ya tiene `id_huella` y método `Huella` |
 
-## 8. Limitaciones y observaciones
+## 9. Limitaciones y observaciones
 
 - **48 h base vs 49 h de presencia.** El dueño confirmó que el sueldo se calcula sobre 48 h; por eso
   el pago es *sueldo base − tiempo perdido (+ extra)* y quien cumple todo cobra exactamente su base.
   Con seis faltas completas el descuento rebasa el sueldo y el salario se limita a $0.
-- **`ausencia` no se bloquea** al cerrar una semana: se puede editar aunque el pago ya esté congelado.
-- **`pago_semanal` guarda totales derivados** a propósito, como foto histórica del pago (justificar
-  en la sección de normalización).
-- **Días sin checada y sin ausencia** no se descuentan solos; la consulta Q5 los detecta.
+- **`pago_semanal` guarda totales derivados** a propósito, como foto histórica del pago (ver la
+  sección de normalización del reporte).
+- **Días sin checada y sin ausencia** no se descuentan solos; `v_dias_sin_checada` los muestra.
+- **Borrar una checada** de una semana abierta no queda en la auditoría (solo se auditan correcciones
+  con `UPDATE`). Si el dueño quiere rastrear también borrados, se agrega un trigger `AFTER DELETE`.
 - **Contraseñas y claves:** guardar solo hashes. Los de prueba son `HASH_DE_PRUEBA_NO_USAR`.
