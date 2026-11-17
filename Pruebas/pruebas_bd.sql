@@ -1,12 +1,12 @@
 /* =====================================================================
    FLORERÍA - RELOJ CHECADOR Y PAGO SEMANAL
-   Archivo : 05_pruebas.sql
+   Archivo : Pruebas/pruebas_bd.sql (antes 05_pruebas.sql)
    Motor   : MySQL 8.0 (MySQL Workbench)
 
    Casos de prueba con operaciones válidas e inválidas, triggers,
    procedimientos, funciones, transacciones y persistencia.
 
-   Ejecutar después de 04_consultas_vistas.sql, EN ORDEN (algunas pruebas
+   Ejecutar después de Sql/04_consultas_vistas.sql, EN ORDEN (algunas pruebas
    usan datos creados por las anteriores).
    Cada prueba indica: requisito, precondición, entrada y resultado ESPERADO.
    El resultado OBSERVADO y el estado se llenan en la matriz de pruebas
@@ -250,3 +250,68 @@ SELECT id_pago, cerrado, salario_final, observaciones FROM pago_semanal WHERE id
 SELECT * FROM v_resumen_pago_semanal ORDER BY id_semana, id_empleado;
 SELECT COUNT(*) AS checadas_de_carla FROM registro_asistencia WHERE id_empleado = 5;
 SELECT COUNT(*) AS correcciones_auditadas FROM auditoria_registro;
+
+/* ---------------------------------------------------------------------
+   P17  PAGO CERRADO totalmente congelado (corrección 2026-11-16)
+   Requisito : un pago cerrado solo admite observaciones y no se borra
+   Precondición: el pago 3 (Ana, semana 1) no tiene renglones de ticket
+   Entrada   : cerrar el pago 3 (válido); luego, POR SEPARADO, intentar
+               borrarlo y pasar el pago 1 (cerrado en P14) a otro empleado
+   Esperado  : el cierre funciona; P17a y P17b dan ERROR 1644
+   --------------------------------------------------------------------- */
+CALL sp_cerrar_pago(3);
+SELECT id_pago, cerrado FROM pago_semanal WHERE id_pago = 3;
+
+/* P17a  Borrar un pago cerrado sin renglones        -- POR SEPARADO
+   (trg_pago_bd_cerrado)
+   Esperado: ERROR 1644 "El pago esta cerrado: no se puede eliminar." */
+-- DELETE FROM pago_semanal WHERE id_pago = 3;
+
+/* P17b  Cambiar el empleado de un pago cerrado      -- POR SEPARADO
+   (trg_pago_bu_cerrado)
+   Esperado: ERROR 1644 "El pago esta cerrado: solo se pueden agregar observaciones." */
+-- UPDATE pago_semanal SET id_empleado = 5 WHERE id_pago = 1;
+
+/* ---------------------------------------------------------------------
+   P18  AUSENCIAS de una semana cerrada (mejora 2026-11-16)
+   Requisito : una semana cerrada no cambia (checadas, ausencias y ticket)
+   Precondición: Juan (id 2) tiene falta injustificada el 2026-10-29
+   Entrada   : cerrar el pago de Juan semana 1 (id_pago 2); editar una
+               ausencia de una semana ABIERTA (Ana, 2026-11-04)
+   Esperado  : el cierre funciona; la ausencia de Ana se edita (1 fila);
+               P18a y P18b dan ERROR 1644
+   --------------------------------------------------------------------- */
+CALL sp_cerrar_pago(2);
+
+UPDATE ausencia SET observaciones = 'No avisó; se habló con ella'
+WHERE id_empleado = 3 AND fecha = '2026-11-04';
+SELECT id_empleado, fecha, tipo, observaciones FROM ausencia WHERE id_empleado = 3;
+
+/* P18a  Cambiar el tipo de una ausencia de semana cerrada   -- POR SEPARADO
+   (trg_ausencia_bu_cerrado)
+   Esperado: ERROR 1644 "La semana de esa ausencia ya esta cerrada y no se puede modificar." */
+-- UPDATE ausencia SET tipo = 'Justificada' WHERE id_empleado = 2 AND fecha = '2026-10-29';
+
+/* P18b  Borrar una ausencia de semana cerrada               -- POR SEPARADO
+   (trg_ausencia_bd_cerrado)
+   Esperado: ERROR 1644 "La semana de esa ausencia ya esta cerrada y no se puede modificar." */
+-- DELETE FROM ausencia WHERE id_empleado = 2 AND fecha = '2026-10-29';
+
+/* ---------------------------------------------------------------------
+   P19  VISTA v_dias_sin_checada dentro de una transacción con ROLLBACK
+   Requisito : detectar días laborales sin checada y sin ausencia
+   Precondición: P07 ejecutada (Carla checó el lunes 2026-11-09);
+                 la fecha de hoy es 2026-11-14 o posterior
+   Entrada   : registrar la semana del 9 al 14 de nov (sin checadas salvo la
+               de Carla), consultar la vista y deshacer con ROLLBACK
+   Esperado  : 29 días detectados (5 empleados x 6 días - 1 checada de Carla);
+               después del ROLLBACK la vista vuelve a 0 filas
+   --------------------------------------------------------------------- */
+START TRANSACTION;
+INSERT INTO semana (fecha_inicio, fecha_fin) VALUES ('2026-11-09', '2026-11-14');
+SELECT COUNT(*) AS dias_sin_checada FROM v_dias_sin_checada;
+SELECT empleado, fecha, minutos_jornada FROM v_dias_sin_checada
+WHERE fecha = '2026-11-09' ORDER BY id_empleado;
+ROLLBACK;
+
+SELECT COUNT(*) AS dias_sin_checada_despues FROM v_dias_sin_checada;
