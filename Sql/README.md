@@ -49,6 +49,20 @@ preparación de pagos dependen de funciones y procedimientos que se crean en `03
 **Estado de verificación:** los scripts corren sin errores ni advertencias en MySQL 8.0.46
 (2026-11-16). Incidencias reales encontradas y corregidas: `Pruebas/incidencias.md`.
 
+**Requisitos:** MySQL Server 8.0.31 o posterior (por `INTERSECT`/`EXCEPT` en
+`algebra_relacional.sql`; los scripts 01–05 funcionan con cualquier 8.0), usuario con privilegio
+para crear bases, rutinas y triggers (root), y Windows PowerShell para el script de respaldo.
+
+### Mapa de las carpetas de base de datos
+
+| Carpeta | Contenido |
+| ------- | --------- |
+| `Sql/` | Scripts 01–05, contrato para la app, plantilla de conexión, validaciones, respaldo, diccionario y álgebra |
+| `Diagramas/` | Crow's Foot, Connect to Columns, UML e IDEF1X (PNG/PDF), fuentes editables y guía para Classic y el `.mwb` en Workbench |
+| `Pruebas/` | `pruebas_bd.sql`, `verificacion_regresion.sql`, `matriz_pruebas.md`, `incidencias.md` y `evidencias/` |
+| `Reporte/` | Secciones de BD del reporte (`00`–`13`), `Reporte_BD.md` / `.pdf` armados con `herramientas/armar_reporte.py` |
+| `Presentacion/`, `Video/` | Apartados de BD de la presentación y guion del video |
+
 ## 2. Tablas
 
 | Tabla | Para qué sirve |
