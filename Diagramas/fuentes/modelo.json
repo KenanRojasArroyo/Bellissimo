@@ -2,7 +2,7 @@
  "base": "belissimo",
  "tablas": {
   "auditoria_registro": {
-   "comentario": "Bitácora de correcciones a checadas (la llena un trigger)",
+   "comentario": "BitÃ¡cora de correcciones a checadas (la llena un trigger)",
    "columnas": [
     {
      "nombre": "id_auditoria",
@@ -97,7 +97,7 @@
    ]
   },
   "ausencia": {
-   "comentario": "Días que un empleado no asistió y su tipo",
+   "comentario": "DÃ­as que un empleado no asistiÃ³ y su tipo",
    "columnas": [
     {
      "nombre": "id_ausencia",
@@ -138,7 +138,7 @@
    }
   },
   "configuracion": {
-   "comentario": "Parámetros del cálculo de pago editables sin cambiar el sistema",
+   "comentario": "ParÃ¡metros del cÃ¡lculo de pago editables sin cambiar el sistema",
    "columnas": [
     {
      "nombre": "parametro",
@@ -278,7 +278,7 @@
    }
   },
   "horario_general": {
-   "comentario": "Horario oficial por día de la semana (lunes a sábado)",
+   "comentario": "Horario oficial por dÃ­a de la semana (lunes a sÃ¡bado)",
    "columnas": [
     {
      "nombre": "dia_semana",
@@ -414,7 +414,7 @@
    }
   },
   "puesto": {
-   "comentario": "Catálogo de puestos de trabajo",
+   "comentario": "CatÃ¡logo de puestos de trabajo",
    "columnas": [
     {
      "nombre": "id_puesto",
@@ -436,7 +436,7 @@
    }
   },
   "registro_asistencia": {
-   "comentario": "Las cuatro checadas de un empleado en un día",
+   "comentario": "Las cuatro checadas de un empleado en un dÃ­a",
    "columnas": [
     {
      "nombre": "id_registro",
@@ -501,7 +501,7 @@
    }
   },
   "semana": {
-   "comentario": "Periodo de pago de lunes a sábado",
+   "comentario": "Periodo de pago de lunes a sÃ¡bado",
    "columnas": [
     {
      "nombre": "id_semana",
@@ -529,7 +529,7 @@
    }
   },
   "usuario": {
-   "comentario": "Personas que usan la página web (dueño y encargado)",
+   "comentario": "Personas que usan la pÃ¡gina web (dueÃ±o y encargado)",
    "columnas": [
     {
      "nombre": "id_usuario",
