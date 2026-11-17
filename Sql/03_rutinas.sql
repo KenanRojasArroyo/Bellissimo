@@ -568,7 +568,10 @@ BEGIN
             (OLD.id_registro, OLD.id_empleado, OLD.fecha,
              OLD.entrada, OLD.salida_comida, OLD.regreso_comida, OLD.salida,
              NEW.entrada, NEW.salida_comida, NEW.regreso_comida, NEW.salida,
-             NEW.modificado_por, CURRENT_USER());
+             NEW.modificado_por, USER());
+             -- USER() = cuenta que se conectó. CURRENT_USER() dentro de un trigger
+             -- devuelve al DEFINER (root) y escondía quién hizo el cambio
+             -- (corrección 2026-11-16, incidencia INC-05).
     END IF;
 END$$
 
