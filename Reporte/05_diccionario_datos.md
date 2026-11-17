@@ -2,7 +2,7 @@
 
 Generado automáticamente desde `information_schema` de **MySQL 8.0.46** con `Sql/diccionario_datos.sql` (no está escrito a mano). El significado de cada atributo es el `COMMENT` definido en `Sql/01_esquema.sql`.
 
-Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** · Índices: **27**
+Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** · Índices: **27** · Triggers: **16**
 
 ## 5.1 Tablas
 
@@ -237,3 +237,26 @@ _Personas que usan la página web (dueño y encargado)_
 | semana | PRIMARY | id_semana | Único |
 | usuario | nombre_usuario | nombre_usuario | Único |
 | usuario | PRIMARY | id_usuario | Único |
+
+## 5.6 Triggers
+
+Lógica completa de cada trigger: `Sql/03_rutinas.sql` y sección 9.5.
+
+| tabla | trigger | momento | evento |
+| --- | --- | --- | --- |
+| ausencia | trg_ausencia_bi_cerrado | BEFORE | INSERT |
+| ausencia | trg_ausencia_bi_checada | BEFORE | INSERT |
+| ausencia | trg_ausencia_bu_cerrado | BEFORE | UPDATE |
+| ausencia | trg_ausencia_bu_checada | BEFORE | UPDATE |
+| ausencia | trg_ausencia_bd_cerrado | BEFORE | DELETE |
+| detalle_pago | trg_detalle_bi_cerrado | BEFORE | INSERT |
+| detalle_pago | trg_detalle_bu_cerrado | BEFORE | UPDATE |
+| detalle_pago | trg_detalle_bd_cerrado | BEFORE | DELETE |
+| pago_semanal | trg_pago_bu_cerrado | BEFORE | UPDATE |
+| pago_semanal | trg_pago_bd_cerrado | BEFORE | DELETE |
+| registro_asistencia | trg_registro_bi_ausencia | BEFORE | INSERT |
+| registro_asistencia | trg_registro_bi_cerrado | BEFORE | INSERT |
+| registro_asistencia | trg_registro_bu_ausencia | BEFORE | UPDATE |
+| registro_asistencia | trg_registro_bu_cerrado | BEFORE | UPDATE |
+| registro_asistencia | trg_registro_bd_cerrado | BEFORE | DELETE |
+| registro_asistencia | trg_registro_au_auditoria | AFTER | UPDATE |

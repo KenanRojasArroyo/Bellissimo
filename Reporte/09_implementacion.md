@@ -13,7 +13,7 @@
 | Índices | 27 (PK, `UNIQUE`, FK y 5 `idx_` de búsqueda) | `01_esquema.sql` |
 | Funciones | 3 | `03_rutinas.sql` |
 | Procedimientos | 5 | `03_rutinas.sql` |
-| Triggers | 12 | `03_rutinas.sql` |
+| Triggers | 16 | `03_rutinas.sql` |
 | Vistas | 3 | `04_consultas_vistas.sql` |
 | Consultas documentadas | 10 | `04_consultas_vistas.sql` |
 
@@ -74,6 +74,8 @@ que el llamador tuviera abierto, por eso la app debe llamar el procedimiento en 
 | `trg_detalle_bi/bu/bd_cerrado` | BEFORE INSERT/UPDATE/DELETE en `detalle_pago` | Congela el ticket de un pago cerrado |
 | `trg_pago_bu_cerrado` | BEFORE UPDATE en `pago_semanal` | En un pago cerrado solo permite cambiar `observaciones` |
 | `trg_pago_bd_cerrado` | BEFORE DELETE en `pago_semanal` | Un pago cerrado no se puede borrar |
+| `trg_registro_bi/bu_ausencia` | BEFORE INSERT/UPDATE en `registro_asistencia` | Rechaza una checada en un día con ausencia del mismo empleado (también al cambiar empleado o fecha) |
+| `trg_ausencia_bi/bu_checada` | BEFORE INSERT/UPDATE en `ausencia` | Rechaza una ausencia en un día en que el empleado ya checó |
 
 **Sin doble ejecución:** los triggers solo validan y auditan; los cálculos los hacen únicamente
 los procedimientos. La aplicación no recalcula pagos ni escribe la auditoría, y además no tiene

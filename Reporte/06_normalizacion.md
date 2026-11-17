@@ -118,7 +118,7 @@ Es intencional:
 1. **Foto histórica.** El ticket justifica lo que se pagó. Si mañana cambia el sueldo de Juan, la
    tolerancia o el multiplicador del tiempo extra, el pago de la semana 1 debe seguir diciendo
    $2,807.28. Por eso se guardan `sueldo_base_usado` y `valor_hora`, aunque se puedan calcular.
-2. **Ticket congelado.** Al cerrar el pago, 12 triggers impiden cambiar checadas, ausencias,
+2. **Ticket congelado.** Al cerrar el pago, 11 triggers impiden cambiar checadas, ausencias,
    renglones y montos de esa semana. Que el dato derivado sea inmutable elimina la anomalía de
    actualización.
 3. **Una sola fuente que escribe.** Solo `sp_generar_pago` escribe totales y renglones, dentro de

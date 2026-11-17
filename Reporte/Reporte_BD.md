@@ -96,11 +96,12 @@ cumplir** y **con qué prueba se verifica** (`Pruebas/pruebas_bd.sql`; resultado
 | RN14 | Toda corrección manual de una checada queda registrada (antes, después, usuario de la app y usuario de BD). | `trg_registro_au_auditoria` → `auditoria_registro`. | P13 |
 | RN15 | No se borra información con historial (empleados, puestos, semanas, pagos con ticket). | FK con `ON DELETE RESTRICT`; baja lógica con `activo = 0`. | P05, P06 |
 | RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (pendiente — equipo de la aplicación) |
+| RN17 | Un día es **checada o ausencia**, nunca las dos, para el mismo empleado (decisión del 2026-11-16, PEN-01). | `trg_registro_bi_ausencia`, `trg_registro_bu_ausencia`, `trg_ausencia_bi_checada`, `trg_ausencia_bu_checada`. | P21, P21a–d |
 
 Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retardos acumulados
 (RN09), si la falta justificada se paga (RN08), multiplicadores de tiempo extra (RN10), quién
-corrige checadas olvidadas, y si se permite **checada y ausencia el mismo día** (hallazgo PEN-01
-en `Pruebas/incidencias.md`).
+corrige checadas olvidadas. El hallazgo PEN-01 (checada y ausencia el mismo día) ya se resolvió con
+la regla RN17.
 
 ## 2.2 Requerimientos funcionales
 
@@ -256,7 +257,7 @@ omisión de cada columna: sección 5, diccionario de datos.
 
 Generado automáticamente desde `information_schema` de **MySQL 8.0.46** con `Sql/diccionario_datos.sql` (no está escrito a mano). El significado de cada atributo es el `COMMENT` definido en `Sql/01_esquema.sql`.
 
-Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** · Índices: **27**
+Tablas: **11** · Columnas: **80** · CHECK: **7** · Llaves foráneas: **8** · Índices: **27** · Triggers: **16**
 
 ## 5.1 Tablas
 
@@ -492,6 +493,29 @@ _Personas que usan la página web (dueño y encargado)_
 | usuario | nombre_usuario | nombre_usuario | Único |
 | usuario | PRIMARY | id_usuario | Único |
 
+## 5.6 Triggers
+
+Lógica completa de cada trigger: `Sql/03_rutinas.sql` y sección 9.5.
+
+| tabla | trigger | momento | evento |
+| --- | --- | --- | --- |
+| ausencia | trg_ausencia_bi_cerrado | BEFORE | INSERT |
+| ausencia | trg_ausencia_bi_checada | BEFORE | INSERT |
+| ausencia | trg_ausencia_bu_cerrado | BEFORE | UPDATE |
+| ausencia | trg_ausencia_bu_checada | BEFORE | UPDATE |
+| ausencia | trg_ausencia_bd_cerrado | BEFORE | DELETE |
+| detalle_pago | trg_detalle_bi_cerrado | BEFORE | INSERT |
+| detalle_pago | trg_detalle_bu_cerrado | BEFORE | UPDATE |
+| detalle_pago | trg_detalle_bd_cerrado | BEFORE | DELETE |
+| pago_semanal | trg_pago_bu_cerrado | BEFORE | UPDATE |
+| pago_semanal | trg_pago_bd_cerrado | BEFORE | DELETE |
+| registro_asistencia | trg_registro_bi_ausencia | BEFORE | INSERT |
+| registro_asistencia | trg_registro_bi_cerrado | BEFORE | INSERT |
+| registro_asistencia | trg_registro_bu_ausencia | BEFORE | UPDATE |
+| registro_asistencia | trg_registro_bu_cerrado | BEFORE | UPDATE |
+| registro_asistencia | trg_registro_bd_cerrado | BEFORE | DELETE |
+| registro_asistencia | trg_registro_au_auditoria | AFTER | UPDATE |
+
 <div class="salto"></div>
 
 # 6. Anomalías y normalización
@@ -614,7 +638,7 @@ Es intencional:
 1. **Foto histórica.** El ticket justifica lo que se pagó. Si mañana cambia el sueldo de Juan, la
    tolerancia o el multiplicador del tiempo extra, el pago de la semana 1 debe seguir diciendo
    $2,807.28. Por eso se guardan `sueldo_base_usado` y `valor_hora`, aunque se puedan calcular.
-2. **Ticket congelado.** Al cerrar el pago, 12 triggers impiden cambiar checadas, ausencias,
+2. **Ticket congelado.** Al cerrar el pago, 11 triggers impiden cambiar checadas, ausencias,
    renglones y montos de esa semana. Que el dato derivado sea inmutable elimina la anomalía de
    actualización.
 3. **Una sola fuente que escribe.** Solo `sp_generar_pago` escribe totales y renglones, dentro de
@@ -842,7 +866,7 @@ hora de generación cambian con cada ejecución.
 | Índices | 27 (PK, `UNIQUE`, FK y 5 `idx_` de búsqueda) | `01_esquema.sql` |
 | Funciones | 3 | `03_rutinas.sql` |
 | Procedimientos | 5 | `03_rutinas.sql` |
-| Triggers | 12 | `03_rutinas.sql` |
+| Triggers | 16 | `03_rutinas.sql` |
 | Vistas | 3 | `04_consultas_vistas.sql` |
 | Consultas documentadas | 10 | `04_consultas_vistas.sql` |
 
@@ -903,6 +927,8 @@ que el llamador tuviera abierto, por eso la app debe llamar el procedimiento en 
 | `trg_detalle_bi/bu/bd_cerrado` | BEFORE INSERT/UPDATE/DELETE en `detalle_pago` | Congela el ticket de un pago cerrado |
 | `trg_pago_bu_cerrado` | BEFORE UPDATE en `pago_semanal` | En un pago cerrado solo permite cambiar `observaciones` |
 | `trg_pago_bd_cerrado` | BEFORE DELETE en `pago_semanal` | Un pago cerrado no se puede borrar |
+| `trg_registro_bi/bu_ausencia` | BEFORE INSERT/UPDATE en `registro_asistencia` | Rechaza una checada en un día con ausencia del mismo empleado (también al cambiar empleado o fecha) |
+| `trg_ausencia_bi/bu_checada` | BEFORE INSERT/UPDATE en `ausencia` | Rechaza una ausencia en un día en que el empleado ya checó |
 
 **Sin doble ejecución:** los triggers solo validan y auditan; los cálculos los hacen únicamente
 los procedimientos. La aplicación no recalcula pagos ni escribe la auditoría, y además no tiene
@@ -974,6 +1000,11 @@ el DBA (lo hace el equipo de la aplicación).
 | P18b | RN13 Borrar ausencia de semana cerrada | P18 | `DELETE` ausencia de Juan 2026-10-29 | Por separado | Error 1644 (`trg_ausencia_bd_cerrado`) | `ERROR 1644 (45000): La semana de esa ausencia ya esta cerrada y no se puede modificar.` | Pasa |
 | P19 | RF11 Vista de días sin checada + ROLLBACK | P07; hoy ≥ 2026-11-14 | Semana 9–14 nov dentro de una transacción | `START TRANSACTION; INSERT semana; SELECT vista; ROLLBACK;` | 29 días; después 0 | 29 días (María, Juan, Ana y Luis el lunes 9, 510 min); después del ROLLBACK, 0 | Pasa |
 | P20 | RF05 ROLLBACK automático del procedimiento | Pago 8 en borrador con 2 renglones | `sp_generar_pago(4,2,999)` | `SELECT`; `CALL` por separado; `SELECT` | Error 1452; pago sin cambios | Antes: usuario 2, 3937.50, 2 renglones. `ERROR 1452 (23000): … CONSTRAINT fk_pago_usuario …`. Después: usuario 2, 3937.50, 2 renglones | Pasa |
+| P21 | RN17 Ausencia en día sin checada (válido) | Carla sin checada el 2026-11-10 | Ausencia Justificada 2026-11-10 | `START TRANSACTION; INSERT; SELECT; ROLLBACK;` | Se inserta 1 fila | `Query OK, 1 row affected`; `SELECT` muestra (5, 2026-11-10, Justificada); ROLLBACK | Pasa |
+| P21a | RN17 Checar en día con ausencia | Ana tiene falta el 2026-11-04 (semana 2 abierta) | `sp_registrar_checada(3,'2026-11-04 09:00','Clave')` | Por separado | Error 1644 (`trg_registro_bi_ausencia`) | `ERROR 1644 (45000): El empleado tiene una ausencia registrada ese dia: no puede tener checadas.` | Pasa |
+| P21b | RN17 Ausencia en día con checadas | Luis checó el 2026-11-03 | `INSERT` ausencia (4, 2026-11-03) | Por separado | Error 1644 (`trg_ausencia_bi_checada`) | `ERROR 1644 (45000): El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.` | Pasa |
+| P21c | RN17 Mover ausencia a día con checadas | Ana checó el 2026-11-05 | `UPDATE ausencia SET fecha='2026-11-05'` | Por separado | Error 1644 (`trg_ausencia_bu_checada`) | `ERROR 1644 (45000): El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.` | Pasa |
+| P21d | RN17 Mover registro a día con ausencia | Ana tiene falta el 2026-11-04 | `UPDATE registro_asistencia SET fecha='2026-11-04'` (registro del 05) | Por separado | Error 1644 (`trg_registro_bu_ausencia`) | `ERROR 1644 (45000): El empleado tiene una ausencia registrada ese dia: no puede tener checadas.` | Pasa |
 
 ¹ En la primera versión del script, el esperado de P16 decía "las 4 checadas de Carla", pero la
 consulta cuenta **registros**. Se corrigió el texto del esperado; la base se comportó bien.
@@ -986,7 +1017,7 @@ consulta cuenta **registros**. Se corrigió el texto del esperado; la base se co
 | S01 | Seguridad: usuario de mínimo privilegio | `05_usuario_app.sql` con un usuario temporal; 9 operaciones permitidas y 8 prohibidas | Permitidas funcionan; prohibidas dan 1142/1044 | 17/17 como se esperaba (UPDATE/INSERT/DELETE a pagos y auditoría, DROP, ALTER, CREATE, `mysql.user` y la base `veterinaria`, rechazados) | Pasa |
 | S02 | Auditoría registra la cuenta real (INC-05) | Corrección de checada conectado como el usuario de la app | `usuario_bd` = cuenta de la app | `app_floreria_prueba@localhost` | Pasa |
 | C01 | Contrato para la app (ADO.NET) | 9 llamadas de `CONTRATO_BD.md` con MySql.Data 26.10.0 en .NET 10 | Resultados y errores documentados | 9/9 OK (checada, error 1644 de domingo, pago, ticket con 2 resultados, vista, función, `bool`, 1644 al regenerar pago cerrado, 1142) | Pasa |
-| B01 | Respaldo y restauración | `respaldo_restauracion.ps1` → base nueva → `CHECKSUM TABLE` | Mismas 11 tablas, 3 vistas, 8 rutinas, 12 triggers y datos idénticos | 11/3/8/12; 11 de 11 tablas con checksum IGUAL; reintento sin `-Forzar` rechazado | Pasa |
+| B01 | Respaldo y restauración (base de prueba, antes de PEN-01) | `respaldo_restauracion.ps1` → base nueva → `CHECKSUM TABLE` | Mismas 11 tablas, 3 vistas, 8 rutinas, 12 triggers (los que había ese momento) y datos idénticos | 11/3/8/12; 11 de 11 tablas con checksum IGUAL; reintento sin `-Forzar` rechazado | Pasa |
 | T01 | Transacción del llamador con `sp_generar_pago` | `START TRANSACTION; UPDATE; CALL sp_generar_pago; ROLLBACK` | (Comportamiento por documentar) | El `UPDATE` quedó guardado: COMMIT implícito (INC-04). Se documentó como regla para la app | Pasa (documentado) |
 
 ## 10.3 Reservadas para el equipo de la aplicación
@@ -1044,11 +1075,11 @@ ejecución en MySQL 8 real fue el 2026-11-12 (base `belissimo`): 01–04 termina
 | INC-04 | 2026-11-16 | `sp_generar_pago` llamado dentro de otra transacción | `START TRANSACTION; UPDATE empleado SET telefono='111' WHERE id_empleado=4; CALL sp_generar_pago(4,2,2); ROLLBACK;` → el teléfono **quedó en '111'**. Sin el `CALL`, el mismo `ROLLBACK` sí deshace el cambio. | El procedimiento ejecuta su propio `START TRANSACTION`, y en MySQL eso hace un **COMMIT implícito** de la transacción abierta por quien llama. | No se cambia el SQL: MySQL no tiene una variable confiable para detectarlo (`SELECT @@in_transaction` → `ERROR 1193 (HY000): Unknown system variable 'in_transaction'`). Se documenta como **regla obligatoria** en `Sql/CONTRATO_BD.md`: la app llama `sp_generar_pago` en modo autocommit, nunca dentro de su propia transacción. | Reproducido dos veces en `belissimo_prueba`. |
 | INC-05 | 2026-11-16 | Trigger `trg_registro_au_auditoria` | Conectado como el usuario de la app (`app_floreria_prueba`), una corrección de checada dejó en `auditoria_registro` el valor `usuario_bd = root@localhost`. | Dentro de un trigger, `CURRENT_USER()` devuelve la cuenta **DEFINER** del trigger (root), no la cuenta que se conectó. | Se usa `USER()`, que devuelve la cuenta de la sesión. | Misma corrección → `usuario_bd = app_floreria_prueba@localhost`; 17/17 casos de privilegios OK. |
 
-## 11.1 Hallazgos pendientes de decisión (no corregidos)
+## 11.1 Hallazgos que dependían de una decisión del negocio
 
-| ID | Fecha | Hallazgo (observado) | Por qué no se corrigió |
-| -- | ----- | -------------------- | ---------------------- |
-| PEN-01 | 2026-11-16 | Un empleado puede tener **checada y ausencia el mismo día**. Ana checó a las 08:55 el 2026-10-26 y aun así se aceptó `INSERT INTO ausencia (3, '2026-10-26', 'Injustificada')`; al regenerar su pago se le descontaron $531.25. | Es una regla de negocio: ¿se permite medio día de falta justificada (por ejemplo, se fue enfermo)? Si el dueño dice que no, se agrega un trigger que rechace la ausencia cuando hay checada (y al revés). |
+| ID | Fecha | Hallazgo (observado) | Decisión y estado |
+| -- | ----- | -------------------- | ----------------- |
+| PEN-01 | 2026-11-16 | Un empleado puede tener **checada y ausencia el mismo día**. Ana checó a las 08:55 el 2026-10-26 y aun así se aceptó `INSERT INTO ausencia (3, '2026-10-26', 'Injustificada')`; al regenerar su pago se le descontaron $531.25. | **Resuelto el 2026-11-16.** Decisión: un día es checada **o** ausencia, nunca las dos. Se agregaron `trg_registro_bi/bu_ausencia` y `trg_ausencia_bi/bu_checada` (16 triggers en total). Verificado con P21–P21d: el mismo `INSERT INTO ausencia` sobre un día con checadas da `ERROR 1644 (45000): El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.` |
 
 ## 11.2 Observaciones que NO fueron errores
 

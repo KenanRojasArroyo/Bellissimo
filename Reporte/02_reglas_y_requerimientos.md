@@ -24,11 +24,12 @@ cumplir** y **con qué prueba se verifica** (`Pruebas/pruebas_bd.sql`; resultado
 | RN14 | Toda corrección manual de una checada queda registrada (antes, después, usuario de la app y usuario de BD). | `trg_registro_au_auditoria` → `auditoria_registro`. | P13 |
 | RN15 | No se borra información con historial (empleados, puestos, semanas, pagos con ticket). | FK con `ON DELETE RESTRICT`; baja lógica con `activo = 0`. | P05, P06 |
 | RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (pendiente — equipo de la aplicación) |
+| RN17 | Un día es **checada o ausencia**, nunca las dos, para el mismo empleado (decisión del 2026-11-16, PEN-01). | `trg_registro_bi_ausencia`, `trg_registro_bu_ausencia`, `trg_ausencia_bi_checada`, `trg_ausencia_bu_checada`. | P21, P21a–d |
 
 Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retardos acumulados
 (RN09), si la falta justificada se paga (RN08), multiplicadores de tiempo extra (RN10), quién
-corrige checadas olvidadas, y si se permite **checada y ausencia el mismo día** (hallazgo PEN-01
-en `Pruebas/incidencias.md`).
+corrige checadas olvidadas. El hallazgo PEN-01 (checada y ausencia el mismo día) ya se resolvió con
+la regla RN17.
 
 ## 2.2 Requerimientos funcionales
 

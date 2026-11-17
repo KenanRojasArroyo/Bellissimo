@@ -30,7 +30,7 @@ for line in r.stdout.splitlines():
     elif cur is not None:
         cur.append(line.split("\t"))
 
-tablas, columnas, checks, fks, indices = blocks
+tablas, columnas, checks, fks, indices, triggers = blocks
 desc = {row[0]: row[1] for row in tablas[1:]}
 
 HEAD = {
@@ -60,7 +60,7 @@ md = ["# 5. Diccionario de datos — base `belissimo`", "",
       "es el `COMMENT` definido en `Sql/01_esquema.sql`.", "",
       f"Tablas: **{len(tablas) - 1}** · Columnas: **{len(columnas) - 1}** · "
       f"CHECK: **{len(checks) - 1}** · Llaves foráneas: **{len(fks) - 1}** · "
-      f"Índices: **{len(indices) - 1}**", ""]
+      f"Índices: **{len(indices) - 1}** · Triggers: **{len(triggers) - 1}**", ""]
 
 md += ["## 5.1 Tablas", "", table(tablas), ""]
 md += ["## 5.2 Atributos por tabla", ""]
@@ -76,6 +76,9 @@ md += ["## 5.5 Índices", "",
        "`PRIMARY` = llave primaria; los `uq_`/`UNIQUE` son claves candidatas; los `fk_` los crea "
        "MySQL para las llaves foráneas; los `idx_` se agregaron para búsquedas frecuentes.", "",
        table(indices), ""]
+md += ["## 5.6 Triggers", "",
+       "Lógica completa de cada trigger: `Sql/03_rutinas.sql` y sección 9.5.", "",
+       table(triggers), ""]
 
 text = "\n".join(md).replace(db, "belissimo")
 open(dst, "w", encoding="utf-8", newline="\n").write(text)

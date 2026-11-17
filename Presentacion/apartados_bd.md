@@ -35,13 +35,14 @@ Contenido sugerido para las diapositivas de la parte de BD. El resto de la prese
 
 - **5 procedimientos:** checada, generar pago (**transacción** con ROLLBACK), ticket, cerrar,
   observación.
-- **12 triggers:** congelan la semana cerrada y **auditan** las correcciones.
+- **16 triggers:** congelan la semana cerrada, **auditan** las correcciones e impiden checada y
+  ausencia el mismo día.
 - **3 vistas:** asistencia diaria, resumen de pagos, días sin checada.
 - La app no recalcula ni audita: evita la doble ejecución.
 
 ### Diapositiva BD-6 · Pruebas y seguridad
 
-- 32 casos en MySQL 8.0.46: todos pasan (válidos e inválidos con su error exacto).
+- 37 casos en MySQL 8.0.46: todos pasan (válidos e inválidos con su error exacto).
 - 5 incidencias **reales** encontradas y corregidas (por ejemplo, un pago cerrado se podía borrar).
 - Usuario `app_floreria` de mínimo privilegio; respaldo con `mysqldump` probado.
 
@@ -49,5 +50,5 @@ Contenido sugerido para las diapositivas de la parte de BD. El resto de la prese
 
 - Semana 1: $11,868.73 · Semana 2: $14,562.50 (datos ficticios).
 - Ticket de Juan semana 1: descuento $630.22, extra $137.50, pago $2,807.28.
-- Pendientes con el dueño: regla de retardos, falta justificada, multiplicadores, checada y
-  ausencia el mismo día.
+- Pendientes con el dueño: regla de retardos, falta justificada, multiplicadores, quién corrige
+  checadas olvidadas.
