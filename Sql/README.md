@@ -11,7 +11,7 @@ Ejecutar **en este orden** (Workbench: File → Open SQL Script → rayo; o el c
 | - | ------- | -------- |
 | 1 | `Sql/01_esquema.sql` | Elimina y crea la base, 11 tablas, restricciones, índices y catálogos |
 | 2 | `Sql/02_datos.sql` | Datos de prueba **ficticios**: 5 empleados, 2 semanas, 44 checadas, 4 ausencias |
-| 3 | `Sql/03_rutinas.sql` | 3 funciones, 5 procedimientos y 12 triggers |
+| 3 | `Sql/03_rutinas.sql` | 3 funciones, 5 procedimientos y 16 triggers |
 | 4 | `Sql/04_consultas_vistas.sql` | Genera los 8 pagos de prueba, 3 vistas y 10 consultas documentadas |
 | 5 | `Sql/05_usuario_app.sql` | Usuario `app_floreria` de mínimo privilegio (cambiar la contraseña en la copia local) |
 | — | `Pruebas/verificacion_regresion.sql` | Confirma objetos y pagos esperados (todo debe decir `OK`) |
@@ -114,7 +114,7 @@ CALL sp_cerrar_pago(id_pago);                             -- congela pago, ticke
 Referencia completa para la aplicación (parámetros, resultados, errores, ejemplos en C#):
 `Sql/CONTRATO_BD.md`.
 
-## 5. Triggers (12)
+## 5. Triggers (16)
 
 | Trigger | Efecto |
 | ------- | ------ |
@@ -124,6 +124,8 @@ Referencia completa para la aplicación (parámetros, resultados, errores, ejemp
 | `trg_detalle_bi/bu/bd_cerrado` | Congelan el ticket de un pago cerrado |
 | `trg_pago_bu_cerrado` | En un pago cerrado solo permite cambiar `observaciones` |
 | `trg_pago_bd_cerrado` | Un pago cerrado no se puede borrar |
+| `trg_registro_bi/bu_ausencia` | No se puede checar (ni mover un registro) a un día en que el empleado tiene ausencia |
+| `trg_ausencia_bi/bu_checada` | No se puede registrar (ni mover) una ausencia a un día en que el empleado checó |
 
 ## 6. Vistas (3)
 

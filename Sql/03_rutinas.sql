@@ -6,7 +6,7 @@
    Funciones, procedimientos almacenados y triggers.
    Ejecutar después de 01_esquema.sql y 02_datos.sql.
 
-   Contiene: 3 funciones, 5 procedimientos y 12 triggers.
+   Contiene: 3 funciones, 5 procedimientos y 16 triggers.
 
    NOTA: con el registro binario activo (MySQL 8 lo trae activado), crear
    triggers y funciones exige permiso SUPER. El usuario root de Workbench
@@ -705,6 +705,69 @@ BEGIN
     IF fn_semana_cerrada(OLD.id_empleado, OLD.fecha) = 1 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'La semana de esa ausencia ya esta cerrada y no se puede modificar.';
+    END IF;
+END$$
+
+/* ---- Un día es checada O ausencia, nunca las dos (decisión 2026-11-16, PEN-01) ----
+   Si un empleado tiene ausencia registrada ese día no puede checar, y si ya
+   checó no se le puede registrar una ausencia. Evita, por ejemplo, descontar
+   una falta injustificada a quien sí trabajó. */
+
+-- Evento: BEFORE INSERT en registro_asistencia
+-- Condición: el empleado ya tiene una ausencia registrada esa fecha
+-- Efecto: rechaza la checada (también la que llega por sp_registrar_checada)
+CREATE TRIGGER trg_registro_bi_ausencia
+BEFORE INSERT ON registro_asistencia
+FOR EACH ROW
+BEGIN
+    IF EXISTS (SELECT 1 FROM ausencia
+               WHERE id_empleado = NEW.id_empleado AND fecha = NEW.fecha) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El empleado tiene una ausencia registrada ese dia: no puede tener checadas.';
+    END IF;
+END$$
+
+-- Evento: BEFORE UPDATE en registro_asistencia
+-- Condición: se cambia el empleado o la fecha a un día con ausencia
+-- Efecto: rechaza la operación
+CREATE TRIGGER trg_registro_bu_ausencia
+BEFORE UPDATE ON registro_asistencia
+FOR EACH ROW
+BEGIN
+    IF (NEW.id_empleado <> OLD.id_empleado OR NEW.fecha <> OLD.fecha)
+       AND EXISTS (SELECT 1 FROM ausencia
+                   WHERE id_empleado = NEW.id_empleado AND fecha = NEW.fecha) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El empleado tiene una ausencia registrada ese dia: no puede tener checadas.';
+    END IF;
+END$$
+
+-- Evento: BEFORE INSERT en ausencia
+-- Condición: el empleado ya tiene checadas esa fecha
+-- Efecto: rechaza la ausencia
+CREATE TRIGGER trg_ausencia_bi_checada
+BEFORE INSERT ON ausencia
+FOR EACH ROW
+BEGIN
+    IF EXISTS (SELECT 1 FROM registro_asistencia
+               WHERE id_empleado = NEW.id_empleado AND fecha = NEW.fecha) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.';
+    END IF;
+END$$
+
+-- Evento: BEFORE UPDATE en ausencia
+-- Condición: se cambia el empleado o la fecha a un día con checadas
+-- Efecto: rechaza la operación
+CREATE TRIGGER trg_ausencia_bu_checada
+BEFORE UPDATE ON ausencia
+FOR EACH ROW
+BEGIN
+    IF (NEW.id_empleado <> OLD.id_empleado OR NEW.fecha <> OLD.fecha)
+       AND EXISTS (SELECT 1 FROM registro_asistencia
+                   WHERE id_empleado = NEW.id_empleado AND fecha = NEW.fecha) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El empleado ya tiene checadas ese dia: no se le puede registrar una ausencia.';
     END IF;
 END$$
 

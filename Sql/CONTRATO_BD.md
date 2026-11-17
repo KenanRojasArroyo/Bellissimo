@@ -52,6 +52,7 @@ salida.
 - `La hora es anterior a la checada previa del dia.`
 - `El empleado ya tiene las cuatro checadas de hoy.`
 - `La semana de esa checada ya esta cerrada y no se puede modificar.` (trigger)
+- `El empleado tiene una ausencia registrada ese dia: no puede tener checadas.` (trigger; el día ya tiene ausencia)
 
 ```csharp
 using var cmd = new MySqlCommand("sp_registrar_checada", cn) { CommandType = CommandType.StoredProcedure };
@@ -176,8 +177,8 @@ cmd.Parameters.AddWithValue("@s", idSemana);       // SIEMPRE parámetros, nunca
 | ----- | -------------------------- | ----- |
 | `empleado` | SELECT, INSERT, UPDATE, DELETE | `activo` es `BOOLEAN` (se lee como `bool`). Baja = `activo = 0`; `DELETE` falla con 1451 si tiene historial. |
 | `puesto`, `usuario` | SELECT, INSERT, UPDATE | `nombre` / `nombre_usuario` únicos (1062). |
-| `ausencia` | SELECT, INSERT, UPDATE, DELETE | Un registro por empleado y día (1062). Bloqueada si la semana está cerrada (1644). |
-| `registro_asistencia` | SELECT, INSERT, UPDATE, DELETE | Solo para correcciones; ver regla 5. |
+| `ausencia` | SELECT, INSERT, UPDATE, DELETE | Un registro por empleado y día (1062). Bloqueada si la semana está cerrada (1644). **No se acepta en un día en que el empleado ya checó** (1644 `El empleado ya tiene checadas ese dia: ...`). |
+| `registro_asistencia` | SELECT, INSERT, UPDATE, DELETE | Solo para correcciones; ver regla 5. **No se acepta en un día con ausencia** del empleado (1644). Para que alguien que tenía ausencia pueda checar, primero se borra la ausencia (si la semana sigue abierta). |
 | `semana` | SELECT, INSERT | `fecha_inicio` (lunes) única; `fecha_fin` > `fecha_inicio`. |
 | `horario_general`, `configuracion` | SELECT, UPDATE | Cambiar `configuracion` cambia los pagos que se generen después (los cerrados no cambian). |
 | `pago_semanal`, `detalle_pago`, `auditoria_registro` | **Solo SELECT** | Ver reglas 1–3. |
@@ -216,3 +217,4 @@ Revisión de solo lectura del 2026-11-16 de `origin/main` y `origin/frontend`:
 | 2026-11-16 | Cada tabla y columna tiene `COMMENT` con su significado (base del diccionario de datos). | **No.** Solo metadato. |
 | 2026-11-16 | `trg_registro_au_auditoria` guarda en `usuario_bd` la cuenta conectada (`USER()`) en vez del definer (INC-05). | **No** cambia la interfaz; ahora la auditoría muestra `app_floreria@localhost`. |
 | 2026-11-16 | Nuevo `Sql/05_usuario_app.sql` (usuario `app_floreria` de mínimo privilegio). | **Sí.** La app debe conectarse con ese usuario, no con root (ver `Sql/conexion_plantilla.md`). |
+| 2026-11-16 | Nuevos `trg_registro_bi/bu_ausencia` y `trg_ausencia_bi/bu_checada` (PEN-01): un día es checada **o** ausencia, nunca las dos. Total: 16 triggers. | **Sí.** El checador y la pantalla de ausencias pueden recibir 1644 con `El empleado tiene una ausencia registrada ese dia: ...` o `El empleado ya tiene checadas ese dia: ...`; mostrar el mensaje tal cual. |

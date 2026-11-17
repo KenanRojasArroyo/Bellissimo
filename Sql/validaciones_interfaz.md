@@ -21,3 +21,4 @@ la operación con un error (ver `CONTRATO_BD.md` §5). Aun así, la interfaz deb
 | V13 | Configuración | Valores numéricos enteros y positivos (horas base, tolerancia, comida, umbral); multiplicadores ≥ 1; las reglas de retardo pueden quedar vacías (pendiente). | `sp_generar_pago` valida que existan (1644) |
 | V14 | Usuarios / login | Contraseña guardada con hash (por ejemplo `PasswordHasher` de ASP.NET Core); `nombre_usuario` único; solo usuarios `activo = 1` entran. | `UNIQUE` (1062); la BD no puede verificar que sea hash |
 | V15 | Todas | Usar **siempre** parámetros (`@param`), nunca concatenar texto en el SQL. | Previene inyección SQL |
+| V16 | Ausencias / checador | No ofrecer registrar ausencia en un día en que el empleado ya checó, ni checar en un día con ausencia (mostrar la ausencia y la opción de borrarla si la semana está abierta). | `trg_registro_bi/bu_ausencia`, `trg_ausencia_bi/bu_checada` (1644) |
