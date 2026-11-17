@@ -2,7 +2,8 @@
    FLORERÍA - RELOJ CHECADOR Y PAGO SEMANAL
    Archivo : 01_esquema.sql
    Motor   : MySQL 8.0 (MySQL Workbench)
-   Orden   : 01_esquema -> 02_datos -> 03_rutinas -> 04_consultas_vistas -> 05_pruebas
+   Orden   : 01_esquema -> 02_datos -> 03_rutinas -> 04_consultas_vistas
+             -> 05_usuario_app (opcional) ; pruebas en ../Pruebas/pruebas_bd.sql
 
    ADVERTENCIA: este script comienza con DROP DATABASE IF EXISTS.
    Elimina y reconstruye la base local belissimo.
@@ -53,7 +54,7 @@ CREATE TABLE empleado
     sueldo_base_semanal DECIMAL(10,2) NOT NULL,
     clave_hash VARCHAR(255) NULL,   -- clave personal para checar (HASH, nunca en texto plano)
     id_huella INT NULL UNIQUE,      -- identificador del lector de huella (se usará después)
-    activo TINYINT(1) NOT NULL DEFAULT 1,
+    activo BOOLEAN NOT NULL DEFAULT 1,
 
     CONSTRAINT fk_empleado_puesto
         FOREIGN KEY (id_puesto)
@@ -73,7 +74,7 @@ CREATE TABLE usuario
     nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL, -- guardar HASH, nunca contraseña en texto plano
     rol ENUM('Dueno', 'Encargado') NOT NULL DEFAULT 'Encargado',
-    activo TINYINT(1) NOT NULL DEFAULT 1
+    activo BOOLEAN NOT NULL DEFAULT 1
 );
 
 -- dia_semana: 1 = lunes ... 6 = sábado (coincide con WEEKDAY(fecha) + 1)
@@ -184,7 +185,7 @@ CREATE TABLE pago_semanal
     descuento_total DECIMAL(10,2) NOT NULL DEFAULT 0,
     monto_extra DECIMAL(10,2) NOT NULL DEFAULT 0,
     salario_final DECIMAL(10,2) NOT NULL,
-    cerrado TINYINT(1) NOT NULL DEFAULT 0, -- 1 = pago pagado, ya no se modifica
+    cerrado BOOLEAN NOT NULL DEFAULT 0, -- 1 = pago pagado, ya no se modifica
     fecha_generacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     observaciones VARCHAR(255),
 
@@ -260,6 +261,28 @@ CREATE TABLE auditoria_registro
     usuario_bd VARCHAR(100) NOT NULL,
     fecha_cambio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+/* ---------------------------------------------------------------------
+   1b. ÍNDICES PARA BÚSQUEDAS FRECUENTES
+   Las PK, los UNIQUE y las FK ya crean su propio índice. Estos cubren
+   búsquedas que no empiezan por esas columnas.
+   --------------------------------------------------------------------- */
+
+-- Reporte de asistencia de un día para todos los empleados
+-- (uq_registro_dia empieza por id_empleado y no sirve para buscar solo por fecha).
+CREATE INDEX idx_registro_fecha ON registro_asistencia (fecha);
+
+-- Ausencias de un día o rango de fechas de todo el personal.
+CREATE INDEX idx_ausencia_fecha ON ausencia (fecha);
+
+-- sp_generar_pago suma los renglones de un pago por concepto.
+CREATE INDEX idx_detalle_pago_concepto ON detalle_pago (id_pago, concepto);
+
+-- Buscador de empleados por apellido y nombre en la página.
+CREATE INDEX idx_empleado_nombre ON empleado (apellido_paterno, nombre);
+
+-- Historial de correcciones de una checada.
+CREATE INDEX idx_auditoria_registro ON auditoria_registro (id_registro);
 
 /* ---------------------------------------------------------------------
    2. CATÁLOGOS NECESARIOS PARA QUE EL SISTEMA FUNCIONE
