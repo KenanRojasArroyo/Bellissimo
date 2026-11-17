@@ -13,8 +13,20 @@ Ejecutar **en este orden** (Workbench: File → Open SQL Script → rayo; o el c
 | 2 | `Sql/02_datos.sql` | Datos de prueba **ficticios**: 5 empleados, 2 semanas, 44 checadas, 4 ausencias |
 | 3 | `Sql/03_rutinas.sql` | 3 funciones, 5 procedimientos y 12 triggers |
 | 4 | `Sql/04_consultas_vistas.sql` | Genera los 8 pagos de prueba, 3 vistas y 10 consultas documentadas |
+| 5 | `Sql/05_usuario_app.sql` | Usuario `app_floreria` de mínimo privilegio (cambiar la contraseña en la copia local) |
 | — | `Pruebas/verificacion_regresion.sql` | Confirma objetos y pagos esperados (todo debe decir `OK`) |
 | — | `Pruebas/pruebas_bd.sql` | Casos de prueba válidos e inválidos (cambia datos a propósito) |
+
+Otros archivos de esta carpeta:
+
+| Archivo | Para qué |
+| ------- | -------- |
+| `CONTRATO_BD.md` | Procedimientos, funciones, vistas, errores y ejemplos C# para el equipo de la app |
+| `conexion_plantilla.md` | Cadena de conexión con placeholders y cómo usar user-secrets / variables de entorno |
+| `validaciones_interfaz.md` | Reglas que la interfaz también debe validar |
+| `respaldo_restauracion.ps1` | Respaldo (`mysqldump` con rutinas y triggers) y restauración |
+| `diccionario_datos.sql` | Genera el diccionario desde `information_schema` |
+| `algebra_relacional.sql` | SQL equivalente a las expresiones de álgebra relacional del reporte |
 
 Desde PowerShell (el operador `<` no existe ahí; los scripts usan `DELIMITER`, por eso se usa `source`):
 
