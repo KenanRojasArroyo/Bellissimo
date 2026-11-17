@@ -1,0 +1,88 @@
+﻿== creación del usuario (exit 0 )
++-----------------------------------------------------------------------------------------------------------------------+
+| Grants for app_floreria_prueba@localhost                                                                              |
++-----------------------------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `app_floreria_prueba`@`localhost`                                                               |
+| GRANT EXECUTE ON `belissimo_prueba`.* TO `app_floreria_prueba`@`localhost`                                            |
+| GRANT SELECT ON `belissimo_prueba`.`auditoria_registro` TO `app_floreria_prueba`@`localhost`                          |
+| GRANT SELECT, INSERT, UPDATE, DELETE ON `belissimo_prueba`.`ausencia` TO `app_floreria_prueba`@`localhost`            |
+| GRANT SELECT, UPDATE ON `belissimo_prueba`.`configuracion` TO `app_floreria_prueba`@`localhost`                       |
+| GRANT SELECT ON `belissimo_prueba`.`detalle_pago` TO `app_floreria_prueba`@`localhost`                                |
+| GRANT SELECT, INSERT, UPDATE, DELETE ON `belissimo_prueba`.`empleado` TO `app_floreria_prueba`@`localhost`            |
+| GRANT SELECT, UPDATE ON `belissimo_prueba`.`horario_general` TO `app_floreria_prueba`@`localhost`                     |
+| GRANT SELECT ON `belissimo_prueba`.`pago_semanal` TO `app_floreria_prueba`@`localhost`                                |
+| GRANT SELECT, INSERT, UPDATE ON `belissimo_prueba`.`puesto` TO `app_floreria_prueba`@`localhost`                      |
+| GRANT SELECT, INSERT, UPDATE, DELETE ON `belissimo_prueba`.`registro_asistencia` TO `app_floreria_prueba`@`localhost` |
+| GRANT SELECT, INSERT ON `belissimo_prueba`.`semana` TO `app_floreria_prueba`@`localhost`                              |
+| GRANT SELECT, INSERT, UPDATE ON `belissimo_prueba`.`usuario` TO `app_floreria_prueba`@`localhost`                     |
+| GRANT SELECT ON `belissimo_prueba`.`v_asistencia_diaria` TO `app_floreria_prueba`@`localhost`                         |
+| GRANT SELECT ON `belissimo_prueba`.`v_dias_sin_checada` TO `app_floreria_prueba`@`localhost`                          |
+| GRANT SELECT ON `belissimo_prueba`.`v_resumen_pago_semanal` TO `app_floreria_prueba`@`localhost`                      |
++-----------------------------------------------------------------------------------------------------------------------+
+
+== casos con el usuario de la app
+[OK ] SELECT empleados: permitido
+      +---+
+      | n |
+      +---+
+      | 5 |
+      +---+
+[OK ] SELECT vista resumen: permitido
+      +---+
+      | n |
+      +---+
+      | 8 |
+      +---+
+[OK ] SELECT vista dias sin checada: permitido
+      +---+
+      | n |
+      +---+
+      | 0 |
+      +---+
+[OK ] CALL sp_ticket: permitido
+      +--------------------------+---------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
+      | empleado                 | puesto        | fecha_inicio | fecha_fin  | sueldo_base | valor_hora | min_exceso_comida | min_retardo | min_salida_temprana | min_falta | min_extra | descuento_total | monto_extra | salario_a_pagar | estado   | fecha_generacion    | generado_por        | observac
+[OK ] SELECT fn_valor_hora: permitido
+      +---------+
+      | v       |
+      +---------+
+      | 62.5000 |
+      +---------+
+[OK ] CALL sp_generar_pago (escribe vía DEFINER): permitido
+      +---------------+
+      | salario_final |
+      +---------------+
+      |       2468.75 |
+      +---------------+
+[OK ] CALL sp_registrar_checada: permitido
+      +---------+---------------------+
+      | checada | hora                |
+      +---------+---------------------+
+      | ENTRADA | 2026-11-10 09:01:00 |
+      +---------+---------------------+
+[OK ] UPDATE empleado (teléfono): permitido
+      
+[OK ] Corrección manual de checada: permitido
+      +----------------+-------------------------------+
+      | id_usuario_app | usuario_bd                    |
+      +----------------+-------------------------------+
+      |              2 | app_floreria_prueba@localhost |
+      +----------------+-------------------------------+
+[OK ] UPDATE directo a pago_semanal (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: UPDATE command denied to user 'app_floreria_prueba'@'localhost' for table 'pago_semanal'
+[OK ] INSERT directo a auditoria (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: INSERT command denied to user 'app_floreria_prueba'@'localhost' for table 'auditoria_registro'
+[OK ] DELETE detalle_pago (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: DELETE command denied to user 'app_floreria_prueba'@'localhost' for table 'detalle_pago'
+[OK ] DROP TABLE (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: DROP command denied to user 'app_floreria_prueba'@'localhost' for table 'puesto'
+[OK ] ALTER TABLE (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: ALTER command denied to user 'app_floreria_prueba'@'localhost' for table 'empleado'
+[OK ] CREATE TABLE (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: CREATE command denied to user 'app_floreria_prueba'@'localhost' for table 't'
+[OK ] Otra base: mysql.user (debe fallar): rechazado
+      ERROR 1142 (42000) at line 1: SELECT command denied to user 'app_floreria_prueba'@'localhost' for table 'user'
+[OK ] Otra base: veterinaria (debe fallar): rechazado
+      ERROR 1044 (42000) at line 1: Access denied for user 'app_floreria_prueba'@'localhost' to database 'veterinaria'
+
+== limpieza: +--------+ | quedan | +--------+ |      0 | +--------+

@@ -1,0 +1,686 @@
+
+######## INICIO [normal] exit=0
+Bye
+
+######## P01 [normal] exit=0
+--------------
+INSERT INTO empleado
+(id_puesto, nombre, apellido_paterno, telefono, fecha_ingreso, sueldo_base_semanal)
+VALUES
+(3, 'Prueba', 'Temporal', '6460000099', '2026-11-09', 3200.00)
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT id_empleado, nombre, apellido_paterno, sueldo_base_semanal
+FROM empleado
+WHERE apellido_paterno = 'Temporal'
+--------------
+
++-------------+--------+------------------+---------------------+
+| id_empleado | nombre | apellido_paterno | sueldo_base_semanal |
++-------------+--------+------------------+---------------------+
+|           6 | Prueba | Temporal         |             3200.00 |
++-------------+--------+------------------+---------------------+
+1 row in set
+
+Bye
+
+######## P02 [normal] exit=0
+--------------
+SELECT CONCAT(e.nombre, ' ', e.apellido_paterno) AS empleado, e.sueldo_base_semanal
+FROM empleado e
+INNER JOIN puesto p ON p.id_puesto = e.id_puesto
+WHERE p.nombre = 'Florista'
+ORDER BY e.sueldo_base_semanal DESC
+--------------
+
++-----------------+---------------------+
+| empleado        | sueldo_base_semanal |
++-----------------+---------------------+
+| Prueba Temporal |             3200.00 |
+| Luis Ramírez    |             3150.00 |
+| Ana Torres      |             3000.00 |
++-----------------+---------------------+
+3 rows in set
+
+Bye
+
+######## P03 [normal] exit=0
+--------------
+UPDATE empleado
+SET telefono = '6461112233'
+WHERE apellido_paterno = 'Temporal'
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT nombre, telefono FROM empleado WHERE apellido_paterno = 'Temporal'
+--------------
+
++--------+------------+
+| nombre | telefono   |
++--------+------------+
+| Prueba | 6461112233 |
++--------+------------+
+1 row in set
+
+Bye
+
+######## P04 [separado] exit=1
+--------------
+UPDATE empleado SET sueldo_base_semanal = -100
+WHERE apellido_paterno = 'Temporal'
+--------------
+
+Bye
+ERROR 3819 (HY000) at line 1: Check constraint 'ck_empleado_sueldo' is violated.
+
+######## P05 [separado] exit=1
+--------------
+DELETE FROM empleado WHERE id_empleado = 1
+--------------
+
+Bye
+ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`belissimo_prueba`.`pago_semanal`, CONSTRAINT `fk_pago_empleado` FOREIGN KEY (`id_empleado`) REFERENCES `empleado` (`id_empleado`) ON DELETE RESTRICT ON UPDATE CASCADE)
+
+######## P06 [normal] exit=0
+--------------
+DELETE FROM empleado WHERE apellido_paterno = 'Temporal'
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT COUNT(*) AS filas_restantes FROM empleado WHERE apellido_paterno = 'Temporal'
+--------------
+
++-----------------+
+| filas_restantes |
++-----------------+
+|               0 |
++-----------------+
+1 row in set
+
+Bye
+
+######## P07 [normal] exit=0
+--------------
+CALL sp_registrar_checada(5, '2026-11-09 09:02:00', 'Clave')
+--------------
+
++---------+---------------------+
+| checada | hora                |
++---------+---------------------+
+| ENTRADA | 2026-11-09 09:02:00 |
++---------+---------------------+
+1 row in set
+
+Query OK, 0 rows affected
+
+--------------
+CALL sp_registrar_checada(5, '2026-11-09 13:00:00', 'Clave')
+--------------
+
++---------------+---------------------+
+| checada       | hora                |
++---------------+---------------------+
+| SALIDA_COMIDA | 2026-11-09 13:00:00 |
++---------------+---------------------+
+1 row in set
+
+Query OK, 0 rows affected
+
+--------------
+CALL sp_registrar_checada(5, '2026-11-09 13:35:00', 'Clave')
+--------------
+
++----------------+---------------------+
+| checada        | hora                |
++----------------+---------------------+
+| REGRESO_COMIDA | 2026-11-09 13:35:00 |
++----------------+---------------------+
+1 row in set
+
+Query OK, 0 rows affected
+
+--------------
+CALL sp_registrar_checada(5, '2026-11-09 17:30:00', 'Clave')
+--------------
+
++---------+---------------------+
+| checada | hora                |
++---------+---------------------+
+| SALIDA  | 2026-11-09 17:30:00 |
++---------+---------------------+
+1 row in set
+
+Query OK, 0 rows affected
+
+--------------
+SELECT * FROM registro_asistencia WHERE id_empleado = 5
+--------------
+
++-------------+-------------+------------+---------------------+---------------------+---------------------+---------------------+--------+----------------+
+| id_registro | id_empleado | fecha      | entrada             | salida_comida       | regreso_comida      | salida              | metodo | modificado_por |
++-------------+-------------+------------+---------------------+---------------------+---------------------+---------------------+--------+----------------+
+|          45 |           5 | 2026-11-09 | 2026-11-09 09:02:00 | 2026-11-09 13:00:00 | 2026-11-09 13:35:00 | 2026-11-09 17:30:00 | Clave  |           NULL |
++-------------+-------------+------------+---------------------+---------------------+---------------------+---------------------+--------+----------------+
+1 row in set
+
+Bye
+
+######## P08 [separado] exit=1
+--------------
+CALL sp_registrar_checada(5, '2026-11-09 18:00:00', 'Clave')
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El empleado ya tiene las cuatro checadas de hoy.
+
+######## P09 [normal] exit=0
+--------------
+SELECT
+    fn_valor_hora(3300.00) AS valor_hora,
+    fn_minutos_comida_extra('2026-11-09 13:00:00', '2026-11-09 13:35:00') AS comida_extra,
+    fn_semana_cerrada(1, '2026-10-26') AS semana_cerrada
+--------------
+
++------------+--------------+----------------+
+| valor_hora | comida_extra | semana_cerrada |
++------------+--------------+----------------+
+|    68.7500 |            5 |              0 |
++------------+--------------+----------------+
+1 row in set
+
+Bye
+
+######## P10 [normal] exit=0
+--------------
+CALL sp_generar_pago(2, 1, 2)
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+CALL sp_ticket(2, 1)
+--------------
+
++------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
+| empleado         | puesto     | fecha_inicio | fecha_fin  | sueldo_base | valor_hora | min_exceso_comida | min_retardo | min_salida_temprana | min_falta | min_extra | descuento_total | monto_extra | salario_a_pagar | estado   | fecha_generacion    | generado_por        | observaciones |
++------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
+| Juan Pérez Soto  | Repartidor | 2026-10-26   | 2026-10-31 |     3300.00 |      68.75 |                10 |          39 |                  30 |       510 |        60 |          630.22 |      137.50 |         2807.28 | Borrador | 2026-11-16 21:41:11 | Encargado de prueba | NULL          |
++------------------+------------+--------------+------------+-------------+------------+-------------------+-------------+---------------------+-----------+-----------+-----------------+-------------+-----------------+----------+---------------------+---------------------+---------------+
+1 row in set
+
++------------+------------------------+---------+---------+
+| fecha      | concepto               | minutos | monto   |
++------------+------------------------+---------+---------+
+| 2026-10-27 | Comida de más          |      10 |  -11.46 |
+| 2026-10-27 | Retardo                |      12 |    0.00 |
+| 2026-10-28 | Retardo                |       7 |    0.00 |
+| 2026-10-29 | Falta injustificada    |     510 | -584.38 |
+| 2026-10-30 | Retardo                |      20 |    0.00 |
+| 2026-10-30 | Salida antes de tiempo |      30 |  -34.38 |
+| 2026-10-31 | Tiempo extra           |      60 |  137.50 |
++------------+------------------------+---------+---------+
+7 rows in set
+
+Query OK, 0 rows affected
+
+Bye
+
+######## P11 [normal] exit=0
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+UPDATE empleado SET telefono = '6469998877' WHERE id_empleado = 3
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+COMMIT
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+SELECT id_empleado, telefono FROM empleado WHERE id_empleado = 3
+--------------
+
++-------------+------------+
+| id_empleado | telefono   |
++-------------+------------+
+|           3 | 6469998877 |
++-------------+------------+
+1 row in set
+
+Bye
+
+######## P12 [normal] exit=0
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+UPDATE empleado SET sueldo_base_semanal = 3500 WHERE id_empleado = 3
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+UPDATE empleado SET sueldo_base_semanal = 3650 WHERE id_empleado = 4
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT id_empleado, sueldo_base_semanal FROM empleado WHERE id_empleado IN (3, 4)
+--------------
+
++-------------+---------------------+
+| id_empleado | sueldo_base_semanal |
++-------------+---------------------+
+|           3 |             3500.00 |
+|           4 |             3650.00 |
++-------------+---------------------+
+2 rows in set
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+SELECT id_empleado, sueldo_base_semanal FROM empleado WHERE id_empleado IN (3, 4)
+--------------
+
++-------------+---------------------+
+| id_empleado | sueldo_base_semanal |
++-------------+---------------------+
+|           3 |             3000.00 |
+|           4 |             3150.00 |
++-------------+---------------------+
+2 rows in set
+
+Bye
+
+######## P13 [normal] exit=0
+--------------
+UPDATE registro_asistencia
+SET entrada = '2026-11-04 08:58:00', metodo = 'Manual', modificado_por = 2
+WHERE id_empleado = 1 AND fecha = '2026-11-04'
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT id_registro, fecha, entrada_anterior, entrada_nueva, id_usuario_app, usuario_bd
+FROM auditoria_registro
+--------------
+
++-------------+------------+---------------------+---------------------+----------------+----------------+
+| id_registro | fecha      | entrada_anterior    | entrada_nueva       | id_usuario_app | usuario_bd     |
++-------------+------------+---------------------+---------------------+----------------+----------------+
+|          24 | 2026-11-04 | 2026-11-04 09:10:00 | 2026-11-04 08:58:00 |              2 | root@localhost |
++-------------+------------+---------------------+---------------------+----------------+----------------+
+1 row in set
+
+--------------
+CALL sp_generar_pago(1, 2, 2)
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+SELECT min_retardo, salario_final FROM pago_semanal WHERE id_empleado = 1 AND id_semana = 2
+--------------
+
++-------------+---------------+
+| min_retardo | salario_final |
++-------------+---------------+
+|           0 |       3000.00 |
++-------------+---------------+
+1 row in set
+
+Bye
+
+######## P14 [normal] exit=0
+--------------
+CALL sp_cerrar_pago(1)
+--------------
+
+Query OK, 1 row affected
+
+--------------
+CALL sp_agregar_observacion(1, 'Pago revisado con la empleada: 85 min de comida de mas.')
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT id_pago, cerrado, salario_final, observaciones FROM pago_semanal WHERE id_pago = 1
+--------------
+
++---------+---------+---------------+---------------------------------------------------------+
+| id_pago | cerrado | salario_final | observaciones                                           |
++---------+---------+---------------+---------------------------------------------------------+
+|       1 |       1 |       2911.45 | Pago revisado con la empleada: 85 min de comida de mas. |
++---------+---------+---------------+---------------------------------------------------------+
+1 row in set
+
+Bye
+
+######## P14a [separado] exit=1
+--------------
+CALL sp_generar_pago(1, 1, 2)
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El pago de esta semana ya esta cerrado y no se puede regenerar.
+
+######## P14b [separado] exit=1
+--------------
+UPDATE registro_asistencia SET salida = '2026-10-26 17:00:00'
+WHERE id_empleado = 1 AND fecha = '2026-10-26'
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: La semana de esa checada ya esta cerrada y no se puede modificar.
+
+######## P14c [separado] exit=1
+--------------
+INSERT INTO registro_asistencia (id_empleado, fecha, entrada)
+VALUES (1, '2026-10-26', '2026-10-26 09:00:00')
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: La semana de esa checada ya esta cerrada y no se puede modificar.
+
+######## P14d [separado] exit=1
+--------------
+UPDATE detalle_pago SET monto = 0 WHERE id_pago = 1
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El pago esta cerrado: su ticket no se puede modificar.
+
+######## P14e [separado] exit=1
+--------------
+UPDATE pago_semanal SET salario_final = 9999 WHERE id_pago = 1
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El pago esta cerrado: solo se pueden agregar observaciones.
+
+######## P15 [separado] exit=1
+--------------
+INSERT INTO registro_asistencia (id_empleado, fecha, entrada)
+VALUES (999, '2026-11-10', '2026-11-10 09:00:00')
+--------------
+
+Bye
+ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`belissimo_prueba`.`registro_asistencia`, CONSTRAINT `fk_registro_empleado` FOREIGN KEY (`id_empleado`) REFERENCES `empleado` (`id_empleado`) ON DELETE RESTRICT ON UPDATE CASCADE)
+
+######## P15 [separado] exit=1
+--------------
+INSERT INTO registro_asistencia (id_empleado, fecha, entrada)
+VALUES (5, '2026-11-09', '2026-11-09 09:00:00')
+--------------
+
+Bye
+ERROR 1062 (23000) at line 1: Duplicate entry '5-2026-11-09' for key 'registro_asistencia.uq_registro_dia'
+
+######## P15 [separado] exit=1
+--------------
+INSERT INTO registro_asistencia (id_empleado, fecha, entrada, salida_comida, regreso_comida)
+VALUES (3, '2026-11-10', '2026-11-10 09:00:00', '2026-11-10 13:00:00', '2026-11-10 12:00:00')
+--------------
+
+Bye
+ERROR 3819 (HY000) at line 1: Check constraint 'ck_registro_orden' is violated.
+
+######## P15 [separado] exit=1
+--------------
+INSERT INTO registro_asistencia (id_empleado, fecha, entrada)
+VALUES (3, '2026-11-10', '2026-11-11 09:00:00')
+--------------
+
+Bye
+ERROR 3819 (HY000) at line 1: Check constraint 'ck_registro_fecha' is violated.
+
+######## P16 [normal] exit=0
+--------------
+SELECT * FROM v_resumen_pago_semanal ORDER BY id_semana, id_empleado
+--------------
+
++---------+-----------+--------------+------------+-------------+---------------+---------------+-------------+-----------------+-------------+---------------+----------+
+| id_pago | id_semana | fecha_inicio | fecha_fin  | id_empleado | empleado      | puesto        | sueldo_base | descuento_total | monto_extra | salario_final | estado   |
++---------+-----------+--------------+------------+-------------+---------------+---------------+-------------+-----------------+-------------+---------------+----------+
+|       1 |         1 | 2026-10-26   | 2026-10-31 |           1 | María López   | Recepcionista |     3000.00 |           88.55 |        0.00 |       2911.45 | Cerrado  |
+|       2 |         1 | 2026-10-26   | 2026-10-31 |           2 | Juan Pérez    | Repartidor    |     3300.00 |          630.22 |      137.50 |       2807.28 | Borrador |
+|       3 |         1 | 2026-10-26   | 2026-10-31 |           3 | Ana Torres    | Florista      |     3000.00 |            0.00 |        0.00 |       3000.00 | Borrador |
+|       4 |         1 | 2026-10-26   | 2026-10-31 |           4 | Luis Ramírez  | Florista      |     3150.00 |            0.00 |        0.00 |       3150.00 | Borrador |
+|       5 |         2 | 2026-11-02   | 2026-11-07 |           1 | María López   | Recepcionista |     3000.00 |            0.00 |        0.00 |       3000.00 | Borrador |
+|       6 |         2 | 2026-11-02   | 2026-11-07 |           2 | Juan Pérez    | Repartidor    |     3300.00 |            0.00 |     1856.25 |       5156.25 | Borrador |
+|       7 |         2 | 2026-11-02   | 2026-11-07 |           3 | Ana Torres    | Florista      |     3000.00 |          531.25 |        0.00 |       2468.75 | Borrador |
+|       8 |         2 | 2026-11-02   | 2026-11-07 |           4 | Luis Ramírez  | Florista      |     3150.00 |            0.00 |      787.50 |       3937.50 | Borrador |
++---------+-----------+--------------+------------+-------------+---------------+---------------+-------------+-----------------+-------------+---------------+----------+
+8 rows in set
+
+--------------
+SELECT COUNT(*) AS checadas_de_carla FROM registro_asistencia WHERE id_empleado = 5
+--------------
+
++-------------------+
+| checadas_de_carla |
++-------------------+
+|                 1 |
++-------------------+
+1 row in set
+
+--------------
+SELECT COUNT(*) AS correcciones_auditadas FROM auditoria_registro
+--------------
+
++------------------------+
+| correcciones_auditadas |
++------------------------+
+|                      1 |
++------------------------+
+1 row in set
+
+Bye
+
+######## P17 [normal] exit=0
+--------------
+CALL sp_cerrar_pago(3)
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT id_pago, cerrado FROM pago_semanal WHERE id_pago = 3
+--------------
+
++---------+---------+
+| id_pago | cerrado |
++---------+---------+
+|       3 |       1 |
++---------+---------+
+1 row in set
+
+Bye
+
+######## P17a [separado] exit=1
+--------------
+DELETE FROM pago_semanal WHERE id_pago = 3
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El pago esta cerrado: no se puede eliminar.
+
+######## P17b [separado] exit=1
+--------------
+UPDATE pago_semanal SET id_empleado = 5 WHERE id_pago = 1
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: El pago esta cerrado: solo se pueden agregar observaciones.
+
+######## P18a [normal] exit=0
+--------------
+CALL sp_cerrar_pago(2)
+--------------
+
+Query OK, 1 row affected
+
+--------------
+UPDATE ausencia SET observaciones = 'No avisó; se habló con ella'
+WHERE id_empleado = 3 AND fecha = '2026-11-04'
+--------------
+
+Query OK, 1 row affected
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT id_empleado, fecha, tipo, observaciones FROM ausencia WHERE id_empleado = 3
+--------------
+
++-------------+------------+---------------+-------------------------------+
+| id_empleado | fecha      | tipo          | observaciones                 |
++-------------+------------+---------------+-------------------------------+
+|           3 | 2026-11-04 | Injustificada | No avisó; se habló con ella   |
++-------------+------------+---------------+-------------------------------+
+1 row in set
+
+Bye
+
+######## P18a [separado] exit=1
+--------------
+UPDATE ausencia SET tipo = 'Justificada' WHERE id_empleado = 2 AND fecha = '2026-10-29'
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: La semana de esa ausencia ya esta cerrada y no se puede modificar.
+
+######## P18b [separado] exit=1
+--------------
+DELETE FROM ausencia WHERE id_empleado = 2 AND fecha = '2026-10-29'
+--------------
+
+Bye
+ERROR 1644 (45000) at line 1: La semana de esa ausencia ya esta cerrada y no se puede modificar.
+
+######## P19 [normal] exit=0
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+INSERT INTO semana (fecha_inicio, fecha_fin) VALUES ('2026-11-09', '2026-11-14')
+--------------
+
+Query OK, 1 row affected
+
+--------------
+SELECT COUNT(*) AS dias_sin_checada FROM v_dias_sin_checada
+--------------
+
++------------------+
+| dias_sin_checada |
++------------------+
+|               29 |
++------------------+
+1 row in set
+
+--------------
+SELECT empleado, fecha, minutos_jornada FROM v_dias_sin_checada
+WHERE fecha = '2026-11-09' ORDER BY id_empleado
+--------------
+
++---------------+------------+-----------------+
+| empleado      | fecha      | minutos_jornada |
++---------------+------------+-----------------+
+| María López   | 2026-11-09 |             510 |
+| Juan Pérez    | 2026-11-09 |             510 |
+| Ana Torres    | 2026-11-09 |             510 |
+| Luis Ramírez  | 2026-11-09 |             510 |
++---------------+------------+-----------------+
+4 rows in set
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected
+
+--------------
+SELECT COUNT(*) AS dias_sin_checada_despues FROM v_dias_sin_checada
+--------------
+
++--------------------------+
+| dias_sin_checada_despues |
++--------------------------+
+|                        0 |
++--------------------------+
+1 row in set
+
+Bye
+
+######## P20 [normal] exit=0
+--------------
+SELECT id_usuario, salario_final,
+       (SELECT COUNT(*) FROM detalle_pago d WHERE d.id_pago = p.id_pago) AS renglones
+FROM pago_semanal p WHERE id_pago = 8
+--------------
+
++------------+---------------+-----------+
+| id_usuario | salario_final | renglones |
++------------+---------------+-----------+
+|          2 |       3937.50 |         2 |
++------------+---------------+-----------+
+1 row in set
+
+Bye
+
+######## P20a [separado] exit=1
+--------------
+CALL sp_generar_pago(4, 2, 999)
+--------------
+
+Bye
+ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`belissimo_prueba`.`pago_semanal`, CONSTRAINT `fk_pago_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE)
+
+######## P20a [normal] exit=0
+--------------
+SELECT id_usuario, salario_final,
+       (SELECT COUNT(*) FROM detalle_pago d WHERE d.id_pago = p.id_pago) AS renglones
+FROM pago_semanal p WHERE id_pago = 8
+--------------
+
++------------+---------------+-----------+
+| id_usuario | salario_final | renglones |
++------------+---------------+-----------+
+|          2 |       3937.50 |         2 |
++------------+---------------+-----------+
+1 row in set
+
+Bye
