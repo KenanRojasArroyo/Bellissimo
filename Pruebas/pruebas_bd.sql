@@ -245,7 +245,8 @@ SELECT id_pago, cerrado, salario_final, observaciones FROM pago_semanal WHERE id
    Entrada   : consultar el resumen de pagos; luego CERRAR la conexión de
                Workbench, abrir una nueva y volver a ejecutar el SELECT
    Esperado  : los mismos datos (el pago 1 en estado Cerrado, la auditoría
-               de P13, las 4 checadas de Carla): lo guardado persiste
+               de P13 (1 corrección), 1 registro de Carla con sus 4 checadas):
+               lo guardado persiste
    --------------------------------------------------------------------- */
 SELECT * FROM v_resumen_pago_semanal ORDER BY id_semana, id_empleado;
 SELECT COUNT(*) AS checadas_de_carla FROM registro_asistencia WHERE id_empleado = 5;
@@ -315,3 +316,27 @@ WHERE fecha = '2026-11-09' ORDER BY id_empleado;
 ROLLBACK;
 
 SELECT COUNT(*) AS dias_sin_checada_despues FROM v_dias_sin_checada;
+
+/* ---------------------------------------------------------------------
+   P20  TRANSACCIÓN con ROLLBACK automático dentro de sp_generar_pago
+   Requisito : si el cálculo del pago falla, no queda nada a medias
+   Precondición: el pago de Luis semana 2 (id_pago 8) está en borrador
+                 con sus renglones de tiempo extra
+   Entrada   : regenerarlo indicando un usuario que no existe (999)
+   Esperado  : ERROR 1452 (llave foránea fk_pago_usuario); el EXIT HANDLER
+               hace ROLLBACK: el pago conserva su salario (3937.50), su
+               usuario (2) y sus renglones, aunque el procedimiento ya
+               había borrado los renglones antes de fallar
+   --------------------------------------------------------------------- */
+SELECT id_usuario, salario_final,
+       (SELECT COUNT(*) FROM detalle_pago d WHERE d.id_pago = p.id_pago) AS renglones
+FROM pago_semanal p WHERE id_pago = 8;
+
+/* P20a  Generar el pago con un usuario inexistente   -- POR SEPARADO
+   Esperado: ERROR 1452 ... CONSTRAINT `fk_pago_usuario` ... */
+-- CALL sp_generar_pago(4, 2, 999);
+
+-- Después de P20a, repetir el SELECT de arriba: los valores no cambian.
+SELECT id_usuario, salario_final,
+       (SELECT COUNT(*) FROM detalle_pago d WHERE d.id_pago = p.id_pago) AS renglones
+FROM pago_semanal p WHERE id_pago = 8;
