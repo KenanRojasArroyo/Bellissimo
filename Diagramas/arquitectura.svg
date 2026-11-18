@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800" viewBox="0 0 1400 800" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Esquema de arquitectura: Usuarios -> Interfaz/aplicación -> SGBD -> Base de datos.
+       Archivo editable (Inkscape, diagrams.net o cualquier editor de texto).
+       Lo marcado "[a confirmar con el equipo de la app]" depende del equipo de la aplicación. -->
+  <defs>
+    <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2933"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="800" fill="#ffffff"/>
+
+  <text x="40" y="48" font-size="26" font-weight="700" fill="#1f2933">Arquitectura del sistema — Reloj checador y pago semanal (Florería Bellissimo)</text>
+  <text x="40" y="78" font-size="15" fill="#52606d">Usuarios → Interfaz / aplicación → SGBD → Base de datos · las cajas punteadas dependen del equipo de la aplicación</text>
+
+  <!-- 1. Usuarios -->
+  <rect x="40" y="120" width="270" height="330" rx="10" fill="#eef3f8" stroke="#1f2933" stroke-width="2"/>
+  <text x="175" y="152" font-size="19" font-weight="700" text-anchor="middle" fill="#1f2933">1. Usuarios</text>
+  <text x="60" y="190" font-size="15" font-weight="700" fill="#1f2933">Dueño</text>
+  <text x="60" y="210" font-size="13" fill="#323f4b">configura parámetros, revisa pagos</text>
+  <text x="60" y="230" font-size="13" fill="#323f4b">y reportes</text>
+  <text x="60" y="265" font-size="15" font-weight="700" fill="#1f2933">Encargado</text>
+  <text x="60" y="285" font-size="13" fill="#323f4b">ausencias, correcciones, genera</text>
+  <text x="60" y="305" font-size="13" fill="#323f4b">y cierra pagos, ticket</text>
+  <text x="60" y="340" font-size="15" font-weight="700" fill="#1f2933">Empleado</text>
+  <text x="60" y="360" font-size="13" fill="#323f4b">checa 4 veces al día con su clave</text>
+  <text x="60" y="380" font-size="13" fill="#323f4b">(huella: etapa futura)</text>
+  <text x="60" y="420" font-size="12" font-style="italic" fill="#7b2d26">Navegador web en la florería</text>
+
+  <!-- 2. Interfaz / aplicación (equipo app) -->
+  <rect x="380" y="120" width="300" height="330" rx="10" fill="#fffbea" stroke="#9a6b00" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="530" y="152" font-size="19" font-weight="700" text-anchor="middle" fill="#1f2933">2. Interfaz / aplicación</text>
+  <text x="400" y="185" font-size="14" fill="#323f4b">ASP.NET Core Razor Pages (.NET)</text>
+  <text x="400" y="207" font-size="14" fill="#323f4b">Capas: Web · Negocios · Datos · Entidades</text>
+  <text x="400" y="229" font-size="14" fill="#323f4b">Acceso a datos: ADO.NET con MySql.Data</text>
+  <text x="400" y="263" font-size="14" fill="#323f4b">Llama procedimientos (checada, pago,</text>
+  <text x="400" y="285" font-size="14" fill="#323f4b">ticket, cierre) y lee vistas</text>
+  <text x="400" y="319" font-size="14" fill="#323f4b">Cadena de conexión en user-secrets o</text>
+  <text x="400" y="341" font-size="14" fill="#323f4b">variable de entorno (nunca en el cliente)</text>
+  <text x="400" y="380" font-size="13" font-weight="700" fill="#9a6b00">[a confirmar con el equipo de la app]</text>
+  <text x="400" y="400" font-size="12" fill="#9a6b00">pantallas, hosting, HTTPS y autenticación</text>
+
+  <!-- 3. SGBD -->
+  <rect x="750" y="120" width="300" height="330" rx="10" fill="#e8f4ec" stroke="#1f2933" stroke-width="2"/>
+  <text x="900" y="152" font-size="19" font-weight="700" text-anchor="middle" fill="#1f2933">3. SGBD</text>
+  <text x="770" y="185" font-size="14" fill="#323f4b">MySQL Community Server 8.0.46</text>
+  <text x="770" y="207" font-size="14" fill="#323f4b">Motor InnoDB · utf8mb4_unicode_ci</text>
+  <text x="770" y="241" font-size="14" font-weight="700" fill="#1f2933">Lógica en la base</text>
+  <text x="770" y="263" font-size="14" fill="#323f4b">5 procedimientos · 3 funciones</text>
+  <text x="770" y="285" font-size="14" fill="#323f4b">16 triggers · 3 vistas</text>
+  <text x="770" y="307" font-size="14" fill="#323f4b">transacción con ROLLBACK en el pago</text>
+  <text x="770" y="341" font-size="14" font-weight="700" fill="#1f2933">Cuenta de la app: app_floreria</text>
+  <text x="770" y="363" font-size="14" fill="#323f4b">mínimo privilegio (EXECUTE, SELECT,</text>
+  <text x="770" y="385" font-size="14" fill="#323f4b">DML solo donde hace falta)</text>
+  <text x="770" y="419" font-size="12" fill="#323f4b">Administración: MySQL Workbench (DBA)</text>
+
+  <!-- 4. Base de datos -->
+  <rect x="1120" y="120" width="240" height="330" rx="10" fill="#e4ebf2" stroke="#1f2933" stroke-width="2"/>
+  <text x="1240" y="152" font-size="19" font-weight="700" text-anchor="middle" fill="#1f2933">4. Base de datos</text>
+  <text x="1240" y="182" font-size="16" font-weight="700" text-anchor="middle" fill="#1f2933">belissimo</text>
+  <text x="1140" y="215" font-size="13" fill="#323f4b">11 tablas, 8 FK, 7 CHECK</text>
+  <text x="1140" y="240" font-size="13" fill="#323f4b">empleado · puesto · usuario</text>
+  <text x="1140" y="260" font-size="13" fill="#323f4b">horario_general · configuracion</text>
+  <text x="1140" y="280" font-size="13" fill="#323f4b">registro_asistencia · ausencia</text>
+  <text x="1140" y="300" font-size="13" fill="#323f4b">semana · pago_semanal</text>
+  <text x="1140" y="320" font-size="13" fill="#323f4b">detalle_pago (ticket)</text>
+  <text x="1140" y="340" font-size="13" fill="#323f4b">auditoria_registro</text>
+  <text x="1140" y="380" font-size="12" font-style="italic" fill="#323f4b">Datos de prueba ficticios</text>
+
+  <!-- Flechas principales -->
+  <line x1="310" y1="285" x2="376" y2="285" stroke="#1f2933" stroke-width="2.5" marker-end="url(#flecha)" marker-start="url(#flecha)"/>
+  <text x="343" y="273" font-size="12" text-anchor="middle" fill="#52606d">HTTP(S)</text>
+  <line x1="680" y1="285" x2="746" y2="285" stroke="#1f2933" stroke-width="2.5" marker-end="url(#flecha)" marker-start="url(#flecha)"/>
+  <text x="713" y="265" font-size="12" text-anchor="middle" fill="#52606d">TCP 3306</text>
+  <text x="713" y="322" font-size="12" text-anchor="middle" fill="#52606d">SQL</text>
+  <line x1="1050" y1="285" x2="1116" y2="285" stroke="#1f2933" stroke-width="2.5" marker-end="url(#flecha)" marker-start="url(#flecha)"/>
+  <text x="1083" y="273" font-size="12" text-anchor="middle" fill="#52606d">InnoDB</text>
+
+  <!-- Respaldo -->
+  <rect x="750" y="510" width="610" height="120" rx="10" fill="#ffffff" stroke="#1f2933" stroke-width="2"/>
+  <text x="770" y="542" font-size="17" font-weight="700" fill="#1f2933">Respaldo y restauración</text>
+  <text x="770" y="570" font-size="14" fill="#323f4b">Sql/respaldo_restauracion.ps1 → mysqldump con rutinas, triggers y eventos</text>
+  <text x="770" y="594" font-size="14" fill="#323f4b">Archivo en Sql/respaldos/ (fuera de GitHub) + copia fuera de la computadora</text>
+  <text x="770" y="618" font-size="14" fill="#323f4b">Restauración probada en una base aparte (CHECKSUM idéntico)</text>
+  <line x1="1060" y1="450" x2="1060" y2="506" stroke="#1f2933" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#flecha)"/>
+
+  <!-- Seguridad -->
+  <rect x="40" y="510" width="640" height="250" rx="10" fill="#ffffff" stroke="#7b2d26" stroke-width="2"/>
+  <text x="60" y="542" font-size="17" font-weight="700" fill="#7b2d26">Seguridad</text>
+  <text x="60" y="572" font-size="14" fill="#323f4b">• La app se conecta con app_floreria, nunca con root.</text>
+  <text x="60" y="598" font-size="14" fill="#323f4b">• Sin DROP / ALTER / CREATE ni acceso a otras bases; pagos y auditoría solo lectura.</text>
+  <text x="60" y="624" font-size="14" fill="#323f4b">• Credenciales fuera del repositorio (user-secrets / variable de entorno).</text>
+  <text x="60" y="650" font-size="14" fill="#323f4b">• Contraseñas y claves personales solo como hash.</text>
+  <text x="60" y="676" font-size="14" fill="#323f4b">• Reglas críticas en la base (CHECK, FK, triggers) y además en la interfaz.</text>
+  <text x="60" y="702" font-size="14" fill="#323f4b">• Auditoría automática de correcciones (quién, cuándo, antes y después).</text>
+  <text x="60" y="736" font-size="13" font-weight="700" fill="#9a6b00">[a confirmar con el equipo de la app]: inicio de sesión, roles y HTTPS en la página</text>
+</svg>
