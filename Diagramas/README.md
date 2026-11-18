@@ -11,6 +11,9 @@ Los cinco diagramas representan **el mismo modelo**: 11 tablas y 8 llaves forán
 | 4 | UML | `uml.png` / `.pdf` | Generado por script |
 | 5 | IDEF1X | `idef1x.png` / `.pdf` | Generado por script |
 
+**Esquema de arquitectura** (Usuarios → Interfaz → SGBD → BD): `arquitectura.svg` (editable en
+Inkscape, diagrams.net o un editor de texto) y `arquitectura.png` (exportado con Microsoft Edge).
+
 **Fuentes editables:** `fuentes/modelo.json` (tablas, columnas y llaves exportadas de MySQL con
 `fuentes/exportar_modelo.py`) y `fuentes/generar_diagramas.py` (dibuja las 4 notaciones).
 Si cambia el esquema:
