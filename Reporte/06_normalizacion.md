@@ -1,6 +1,6 @@
-# 6. Anomalías y normalización
+# 7. Anomalías y normalización
 
-## 6.1 Esquema inicial: la hoja que hoy se lleva a mano
+## 7.1 Esquema inicial: la hoja que hoy se lleva a mano
 
 Hoy el encargado usa una hoja por empleado y semana. Pasada a una sola tabla queda así:
 
@@ -26,7 +26,7 @@ HOJA_SEMANAL( empleado, telefono, puesto, sueldo_base, semana_inicio, semana_fin
 | **Eliminación** | Si se tira la única hoja de una semana, se pierde también el teléfono y el puesto del empleado. |
 | **Inconsistencia de derivados** | `salario_final` se escribe a mano y puede no coincidir con las checadas (no hay forma de comprobarlo). |
 
-## 6.2 Primera forma normal (1FN)
+## 7.2 Primera forma normal (1FN)
 
 Se eliminan los grupos repetidos y el texto multivaluado: queda **una fila por empleado y día**.
 
@@ -51,7 +51,7 @@ PK = (id_empleado, fecha)
 | `(id_empleado, fecha) → entrada, salida_comida, regreso_comida, salida, tipo_ausencia` | Lo que pasó ese día |
 | `(id_empleado, semana_inicio) → total_descuentos, total_extra, salario_final` | El pago es semanal |
 
-## 6.3 Segunda forma normal (2FN)
+## 7.3 Segunda forma normal (2FN)
 
 Hay **dependencias parciales**: atributos que dependen solo de una parte de la PK
 (`id_empleado` o `fecha`). Se separan:
@@ -63,7 +63,7 @@ REGISTRO( id_empleado, fecha, entrada, salida_comida, regreso_comida, salida, ti
 PAGO( id_empleado, semana_inicio, total_descuentos, total_extra, salario_final )
 ```
 
-## 6.4 Tercera forma normal (3FN)
+## 7.4 Tercera forma normal (3FN)
 
 Se quitan las **dependencias transitivas**:
 
@@ -77,7 +77,7 @@ Se quitan las **dependencias transitivas**:
   **`ausencia(id_empleado, fecha, tipo, observaciones)`**.
 - En `PAGO`: los totales salen de los renglones del cálculo. Se separa
   **`detalle_pago(id_pago, fecha, concepto, minutos, monto)`**, y los totales se conservan en
-  `pago_semanal` como **desnormalización controlada** (§6.6).
+  `pago_semanal` como **desnormalización controlada** (§7.6).
 - Los valores que el dueño puede cambiar (48 h, 5 min, 30 min, 540 min, ×2, ×3) pasan a
   **`configuracion`**, en lugar de repetirse en cada cálculo.
 - Se agregan `usuario` (quién usa la página) y `auditoria_registro` (quién corrigió qué).
@@ -86,7 +86,7 @@ Se quitan las **dependencias transitivas**:
 de normalización: **ya cumple 3FN** salvo las desnormalizaciones controladas que se justifican
 abajo. No se inventaron errores en el diseño final.
 
-## 6.5 Revisión del esquema final: BCNF, 4FN y 5FN
+## 7.5 Revisión del esquema final: BCNF, 4FN y 5FN
 
 **BCNF** (todo determinante de una DF no trivial es superllave). Se revisó tabla por tabla:
 
@@ -96,7 +96,7 @@ abajo. No se inventaron errores en el diseño final.
 | `empleado` | Sí | `id_huella` determina todo, pero es clave candidata (`UNIQUE`). |
 | `semana` | Sí, si se reconoce `fecha_fin` como clave candidata | `fecha_inicio → fecha_fin` y `fecha_fin → fecha_inicio`. Ambas son claves; solo `fecha_inicio` está declarada `UNIQUE`. `fecha_fin` además es derivable (`fecha_inicio + 5 días`) y se guarda para que las consultas `BETWEEN` sean simples. |
 | `registro_asistencia` | **No estricta** | Por `ck_registro_fecha` existe la DF `entrada → fecha` (`DATE(entrada) = fecha`), y `entrada` no es superllave (dos empleados pueden entrar el mismo minuto). Como `fecha` es **atributo primo** (forma parte de `id_empleado, fecha`), la tabla **sí cumple 3FN** pero no BCNF. Se acepta porque `fecha` hace falta como llave aunque `entrada` sea NULL (correcciones manuales), y el `CHECK` impide la anomalía. |
-| `pago_semanal` | **No** (desnormalización controlada) | `sueldo_base_usado → valor_hora` es transitiva, y los totales (`descuento_total`, `monto_extra`, `min_*`, `salario_final`) se derivan de `detalle_pago`. Ver §6.6. |
+| `pago_semanal` | **No** (desnormalización controlada) | `sueldo_base_usado → valor_hora` es transitiva, y los totales (`descuento_total`, `monto_extra`, `min_*`, `salario_final`) se derivan de `detalle_pago`. Ver §7.6. |
 | `detalle_pago` | Sí dentro de la tabla | `monto` se deriva de `minutos` y del `valor_hora` del pago (otra tabla); es parte de la misma "foto". |
 | `auditoria_registro` | **No** (a propósito) | `id_registro → id_empleado, fecha` es transitiva. La copia es intencional: la bitácora debe seguir legible si el registro se borra, y por eso no tiene FK. |
 
@@ -110,7 +110,7 @@ que ninguna tabla mezcla dos listas independientes. **Cumple 4FN.**
 Descomponerla en proyecciones y volver a unirlas no recupera nada nuevo, y generaría tuplas falsas
 si se separaran los montos. **Cumple 5FN.** No conviene descomponer más.
 
-## 6.6 Desnormalización controlada de `pago_semanal` y `detalle_pago`
+## 7.6 Desnormalización controlada de `pago_semanal` y `detalle_pago`
 
 Los totales y renglones del pago se **guardan** en lugar de calcularse cada vez que se consultan.
 Es intencional:

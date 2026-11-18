@@ -1,4 +1,4 @@
-# 12. Aplicación web
+# 13. Aplicación web
 
 > **[A cargo de frontend/backend]** Esta sección la redacta el equipo de la aplicación.
 
@@ -9,6 +9,6 @@ Sugerencia de contenido:
   (`Sql/conexion_plantilla.md`).
 - Pantallas: inicio de sesión, empleados, checador, ausencias, pagos, ticket, días sin checada.
 - **Capturas de la aplicación** funcionando: [A cargo de frontend/backend].
-- Pruebas de interfaz A01–A08 de la matriz (sección 10), con lo observado.
+- Pruebas de interfaz A01–A08 de la matriz (sección 11), con lo observado.
 - Cómo se cumplen las reglas del contrato (`Sql/CONTRATO_BD.md`, regla 0) y las validaciones de
   `Sql/validaciones_interfaz.md`.

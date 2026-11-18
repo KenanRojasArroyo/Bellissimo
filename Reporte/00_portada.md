@@ -22,16 +22,18 @@ Universidad Autónoma de Baja California · Facultad de Ingeniería, Arquitectur
 
 ## Contenido
 
-1. Planteamiento del problema
-2. Reglas de negocio y requerimientos funcionales
-3. Entidades, claves y relaciones
-4. Diagramas y modelo relacional
-5. Diccionario de datos
-6. Anomalías y normalización
-7. Álgebra relacional
-8. Consultas SQL explicadas
-9. Implementación en MySQL 8.0
-10. Pruebas de base de datos
-11. Incidencias
-12. Aplicación web *[A cargo de frontend/backend]*
-13. Conclusiones
+1. Introducción y planteamiento del problema
+2. Objetivos, alcance, usuarios, reglas de negocio y requerimientos
+3. Arquitectura del sistema y tecnologías
+4. Entidades, atributos, claves y relaciones
+5. Diagramas y modelo relacional
+6. Diccionario de datos
+7. Anomalías y normalización
+8. Álgebra relacional
+9. Consultas SQL explicadas
+10. Implementación en MySQL 8.0
+11. Pruebas de base de datos
+12. Incidencias
+13. Aplicación web *[A cargo de frontend/backend]*
+14. Conclusiones
+15. Referencias

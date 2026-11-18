@@ -1,10 +1,10 @@
-# 13. Conclusiones
+# 14. Conclusiones
 
-## 13.1 Conclusión del equipo
+## 14.1 Conclusión del equipo
 
 > [A redactar por el equipo.]
 
-## 13.2 Conclusión individual — DBA ([INTEGRANTE_1])
+## 14.2 Conclusión individual — DBA ([INTEGRANTE_1])
 
 > **Plantilla.** La escribe el DBA con sus propias palabras; no está redactada a propósito.
 > Borra estas indicaciones al terminar.
@@ -24,6 +24,6 @@
 - *(Normalización con datos reales, transacciones, triggers, seguridad, trabajo con Git en
   equipo…)*
 
-## 13.3 Conclusiones individuales del resto del equipo
+## 14.3 Conclusiones individuales del resto del equipo
 
 > [INTEGRANTE_2] … [INTEGRANTE_N]: a redactar por cada integrante.

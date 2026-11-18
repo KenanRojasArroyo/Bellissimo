@@ -1,33 +1,33 @@
-# 4. Diagramas y modelo relacional
+# 5. Diagramas y modelo relacional
 
 Los cinco diagramas muestran **el mismo modelo** (11 tablas, 8 llaves foráneas), tomado de la
 base real en MySQL 8.0.46. La explicación de cada notación y de cuál conviene está en
 `Diagramas/README.md`. En resumen: se recomienda **Crow's Foot**, porque muestra en un solo
 símbolo la cardinalidad y la participación (obligatoria u opcional).
 
-## 4.1 Crow's Foot
+## 5.1 Crow's Foot
 
 ![Crow's Foot](../Diagramas/crows_foot.png)
 
-## 4.2 Classic
+## 5.2 Classic
 
 > **[Captura pendiente del DBA]** `Diagramas/workbench/02_classic.png`, exportada de MySQL
 > Workbench con *Model → Object Notation: Classic* y *Relationship Notation: Classic*
 > (pasos en `Diagramas/README.md`).
 
-## 4.3 Connect to Columns
+## 5.3 Connect to Columns
 
 ![Connect to Columns](../Diagramas/connect_to_columns.png)
 
-## 4.4 UML
+## 5.4 UML
 
 ![UML](../Diagramas/uml.png)
 
-## 4.5 IDEF1X
+## 5.5 IDEF1X
 
 ![IDEF1X](../Diagramas/idef1x.png)
 
-## 4.6 Modelo relacional
+## 5.6 Modelo relacional
 
 Notación: **subrayado** = llave primaria · *cursiva* = llave foránea (→ tabla referenciada) ·
 `UQ` = llave única.
@@ -56,4 +56,4 @@ Notación: **subrayado** = llave primaria · *cursiva* = llave foránea (→ tab
   usuario_bd, fecha_cambio) — sin FK, a propósito
 
 Todas las FK: `ON UPDATE CASCADE`, `ON DELETE RESTRICT`. Tipos, longitudes, nulos y valores por
-omisión de cada columna: sección 5, diccionario de datos.
+omisión de cada columna: sección 6, diccionario de datos.

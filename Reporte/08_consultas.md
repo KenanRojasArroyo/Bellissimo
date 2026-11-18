@@ -1,4 +1,4 @@
-# 8. Consultas SQL explicadas
+# 9. Consultas SQL explicadas
 
 Las 10 consultas están en `Sql/04_consultas_vistas.sql`. Los resultados son los que devolvió
 **MySQL 8.0.46** el 2026-11-16, justo después de reconstruir con `01–04`. Las columnas de fecha y

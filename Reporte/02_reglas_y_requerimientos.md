@@ -1,10 +1,112 @@
-# 2. Reglas de negocio y requerimientos funcionales
+# 2. Objetivos, alcance, usuarios, reglas de negocio y requerimientos
+
+## 2.1 Objetivos
+
+**Objetivo general.** Diseñar e implementar en MySQL 8.0 una base de datos relacional que
+registre la asistencia diaria de los empleados de la Florería Bellissimo y calcule su pago
+semanal según las reglas acordadas con el dueño. Cada pago debe quedar justificado con un ticket,
+congelado una vez entregado y con rastro de toda corrección. La base la usará una aplicación web.
+
+**Objetivos específicos.**
+
+1. Modelar el negocio (empleados, puestos, horario, checadas, ausencias, semanas, pagos, ticket y
+   auditoría) en un modelo entidad–relación documentado en cinco notaciones.
+2. Obtener un esquema relacional en 3FN, con desnormalización controlada y justificada, y su
+   diccionario de datos generado del SGBD.
+3. Hacer cumplir en la base las reglas críticas con restricciones (PK, FK, UNIQUE, NOT NULL,
+   CHECK), triggers y procedimientos almacenados con transacciones.
+4. Calcular el pago semanal (retardos, comida de más, salidas tempranas, faltas y tiempo extra)
+   con parámetros configurables y guardar el ticket que lo justifica.
+5. Proteger la información con un usuario de mínimo privilegio, auditoría de correcciones y un
+   procedimiento de respaldo y restauración probado.
+6. Comprobar el funcionamiento con casos de prueba ejecutados en el SGBD (válidos e inválidos) y
+   documentar las incidencias reales.
+7. Entregar al equipo de la aplicación un contrato de uso de la base para que la interfaz no
+   duplique ni contradiga la lógica del SGBD.
+
+## 2.2 Alcance
+
+**Incluye:** empleados y puestos, usuarios de la página (dueño y encargado), horario único,
+parámetros del cálculo, las cuatro checadas diarias, ausencias (justificada, injustificada y
+vacaciones), semanas de pago, pago semanal con su ticket, cierre (congelamiento) del pago y
+auditoría de correcciones.
+
+**Fuera de alcance (etapa 2):** bonificaciones y vacaciones por antigüedad. El checado por huella
+queda preparado (`empleado.id_huella`, método `Huella`), pero todavía no se usa.
+
+**Estado de la aplicación:** la interfaz web está en desarrollo por el equipo de la aplicación;
+las pantallas, la autenticación y su despliegue son *[a cargo de frontend/backend]*.
+
+**Datos:** todos los datos de prueba son **ficticios** (5 empleados, 2 semanas). No se usan datos
+reales de los empleados.
+
+## 2.3 Actores y usuarios
+
+| Actor | Tipo | Cómo interactúa con el sistema | Cuenta / acceso |
+| ----- | ---- | ------------------------------ | --------------- |
+| **Dueño** | Usuario de la página | Configura parámetros del cálculo y el horario; consulta pagos, reportes y auditoría; *supuesto:* corrige checadas olvidadas | `usuario` con rol `Dueno` |
+| **Encargado** | Usuario de la página | Registra ausencias, corrige checadas (queda auditado), genera, revisa y cierra pagos, agrega observaciones, consulta el ticket | `usuario` con rol `Encargado` |
+| **Empleado** | Actor del checador | Registra sus 4 checadas diarias con su clave personal (huella en el futuro); no inicia sesión en la página | Fila en `empleado` (`clave_hash`) |
+| **Aplicación web** | Sistema | Ejecuta procedimientos y consultas en nombre de los usuarios | Cuenta MySQL `app_floreria` (mínimo privilegio) |
+| **DBA** | Administrador | Crea y mantiene la base, respaldos y pruebas | Cuenta administrativa de MySQL (Workbench) |
+| **Contador** | Interesado externo | No usa el sistema; debe confirmar los multiplicadores de tiempo extra | — |
+
+Qué pantallas ve cada rol en la página: *[a confirmar con el equipo de la app]*.
+
+## 2.4 Datos que se registran
+
+| Grupo | Datos | Tabla(s) |
+| ----- | ----- | -------- |
+| Personal | Nombre y apellidos, teléfono, fecha de ingreso, puesto, sueldo base semanal, clave personal (hash), identificador de huella, si está activo | `empleado`, `puesto` |
+| Usuarios de la página | Nombre, usuario, contraseña (hash), rol, si está activo | `usuario` |
+| Reglas configurables | Horario por día; horas base (48), tolerancia (5 min), comida (30 min), umbral y multiplicadores de extra, umbrales de retardo (pendientes) | `horario_general`, `configuracion` |
+| Asistencia | Por empleado y día: entrada, salida a comer, regreso, salida, método (Clave, Huella o Manual) y quién corrigió | `registro_asistencia` |
+| Ausencias | Fecha, tipo (justificada, injustificada o vacaciones) y observaciones | `ausencia` |
+| Pago | Semana; por empleado: sueldo y valor de la hora usados, minutos por concepto, descuentos, extra, salario final, estado (borrador o cerrado), observaciones | `semana`, `pago_semanal` |
+| Ticket | Un renglón por concepto y día: minutos y monto | `detalle_pago` |
+| Auditoría | Antes y después de cada corrección, usuario de la página, cuenta de MySQL y fecha | `auditoria_registro` |
+
+## 2.5 Decisiones que requieren información
+
+| Decisión | Quién la toma | Información que necesita | De dónde sale |
+| -------- | ------------- | ------------------------ | ------------- |
+| Cuánto pagarle a cada empleado esta semana | Encargado / dueño | Checadas, ausencias, parámetros y el cálculo con su detalle | `sp_generar_pago`, `sp_ticket`, `v_resumen_pago_semanal` |
+| Si ya se puede cerrar la semana o falta capturar algo | Encargado | Días laborales sin checada ni ausencia | `v_dias_sin_checada` |
+| Cómo responder a un empleado que reclama su pago | Encargado / dueño | Ticket congelado, renglón por renglón | `sp_ticket` (datos guardados, no recalculados) |
+| Si una corrección de horario fue legítima | Dueño | Valor anterior y nuevo, quién y cuándo | `auditoria_registro` |
+| A quién hablarle por puntualidad | Dueño | Retardos y comida de más acumulados; ranking de puntualidad | Consultas 6 y 9; `v_asistencia_diaria` |
+| Cuánto cuesta la nómina semanal y el tiempo extra | Dueño | Totales, promedio, descuentos y extra por semana | Consulta 7 |
+| Qué puestos generan más descuentos | Dueño | Incidencias y montos por puesto | Consulta 8 |
+| Si conviene cambiar una regla (tolerancia, multiplicador, retardos) | Dueño (con el contador) | Parámetros vigentes y su efecto en los pagos | `configuracion`; regenerar pagos en borrador |
+
+## 2.6 Operaciones CRUD previstas
+
+C = crear · R = consultar · U = modificar · D = eliminar. Lo marcado *(proc.)* se hace solo con un
+procedimiento almacenado y lo marcado *(trigger)* lo escribe la base sola. Los permisos coinciden
+con `Sql/05_usuario_app.sql`.
+
+| Entidad | C | R | U | D | Notas |
+| ------- | - | - | - | - | ----- |
+| `empleado` | Sí | Sí | Sí | Sí, sin historial | Baja normal: `activo = 0` (las FK impiden borrar a quien tiene historial) |
+| `puesto` | Sí | Sí | Sí | No | Catálogo |
+| `usuario` | Sí | Sí | Sí | No | Baja con `activo = 0` |
+| `horario_general`, `configuracion` | No | Sí | Sí | No | Solo se ajustan valores |
+| `registro_asistencia` | Sí *(proc. `sp_registrar_checada`)* | Sí | Sí, corrección | Sí, corrección | Las correcciones quedan auditadas; bloqueado si la semana está cerrada |
+| `ausencia` | Sí | Sí | Sí | Sí | Bloqueada si la semana está cerrada o si ese día hay checadas |
+| `semana` | Sí | Sí | No | No | Una por lunes |
+| `pago_semanal` | Sí *(proc. `sp_generar_pago`)* | Sí | *(proc.)* regenerar, cerrar, observación | No | Cerrado = congelado |
+| `detalle_pago` | *(proc.)* | Sí | No | *(proc.)* al regenerar | Solo lo escribe `sp_generar_pago` |
+| `auditoria_registro` | *(trigger)* | Sí | No | No | La app no escribe aquí |
+
+**Operación de negocio que afecta varias tablas:** `sp_generar_pago` lee `empleado`,
+`semana`, `configuracion`, `horario_general`, `registro_asistencia` y `ausencia`, y escribe
+`pago_semanal` y `detalle_pago` dentro de una sola transacción.
+
+## 2.7 Reglas de negocio (verificables)
 
 Reglas acordadas con el dueño de la florería. Cada una dice **qué mecanismo de la base la hace
-cumplir** y **con qué prueba se verifica** (`Pruebas/pruebas_bd.sql`; resultados en
-`Pruebas/matriz_pruebas.md`). Las marcadas *Supuesto* o *Pendiente* no las cerró el DBA.
-
-## 2.1 Reglas de negocio (verificables)
+cumplir** y **con qué prueba se verifica** (`Pruebas/pruebas_bd.sql`; resultados en la
+sección 11). Las marcadas *Supuesto* o *Pendiente* no las cerró el DBA.
 
 | ID | Regla | Mecanismo en la BD | Verificación |
 | -- | ----- | ------------------ | ------------ |
@@ -31,7 +133,7 @@ Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retard
 corrige checadas olvidadas. El hallazgo PEN-01 (checada y ausencia el mismo día) ya se resolvió con
 la regla RN17.
 
-## 2.2 Requerimientos funcionales
+## 2.8 Requerimientos funcionales
 
 | ID | Requerimiento | Lo cumple | Verificación |
 | -- | ------------- | --------- | ------------ |

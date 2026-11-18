@@ -54,7 +54,7 @@ def table(rows):
     return "\n".join(out)
 
 
-md = ["# 5. Diccionario de datos — base `belissimo`", "",
+md = ["# 6. Diccionario de datos — base `belissimo`", "",
       "Generado automáticamente desde `information_schema` de **MySQL 8.0.46** con "
       "`Sql/diccionario_datos.sql` (no está escrito a mano). El significado de cada atributo "
       "es el `COMMENT` definido en `Sql/01_esquema.sql`.", "",
@@ -62,22 +62,22 @@ md = ["# 5. Diccionario de datos — base `belissimo`", "",
       f"CHECK: **{len(checks) - 1}** · Llaves foráneas: **{len(fks) - 1}** · "
       f"Índices: **{len(indices) - 1}** · Triggers: **{len(triggers) - 1}**", ""]
 
-md += ["## 5.1 Tablas", "", table(tablas), ""]
-md += ["## 5.2 Atributos por tabla", ""]
+md += ["## 6.1 Tablas", "", table(tablas), ""]
+md += ["## 6.2 Atributos por tabla", ""]
 by_table = {}
 for row in columnas[1:]:
     by_table.setdefault(row[0], []).append(row[1:])
 for t, rows in by_table.items():
     md += [f"### `{t}`", "", f"_{desc.get(t, '')}_", "",
            table([columnas[0][1:]] + rows), ""]
-md += ["## 5.3 Restricciones CHECK", "", table(checks), ""]
-md += ["## 5.4 Llaves foráneas (integridad referencial)", "", table(fks), ""]
-md += ["## 5.5 Índices", "",
+md += ["## 6.3 Restricciones CHECK", "", table(checks), ""]
+md += ["## 6.4 Llaves foráneas (integridad referencial)", "", table(fks), ""]
+md += ["## 6.5 Índices", "",
        "`PRIMARY` = llave primaria; los `uq_`/`UNIQUE` son claves candidatas; los `fk_` los crea "
        "MySQL para las llaves foráneas; los `idx_` se agregaron para búsquedas frecuentes.", "",
        table(indices), ""]
-md += ["## 5.6 Triggers", "",
-       "Lógica completa de cada trigger: `Sql/03_rutinas.sql` y sección 9.5.", "",
+md += ["## 6.6 Triggers", "",
+       "Lógica completa de cada trigger: `Sql/03_rutinas.sql` y sección 10.6.", "",
        table(triggers), ""]
 
 text = "\n".join(md).replace(db, "belissimo")

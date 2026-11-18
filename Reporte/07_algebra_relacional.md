@@ -1,4 +1,4 @@
-# 7. Álgebra relacional
+# 8. Álgebra relacional
 
 Cada expresión se comprobó con su SQL equivalente (`Sql/algebra_relacional.sql`) en **MySQL 8.0.46**
 el 2026-11-16, sobre la base recién reconstruida con `Sql/01–04` (datos ficticios). Los

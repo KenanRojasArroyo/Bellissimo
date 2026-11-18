@@ -18,6 +18,7 @@ SECCIONES = [
     ("00_portada.md", None),
     ("01_problema.md", None),
     ("02_reglas_y_requerimientos.md", None),
+    ("02b_arquitectura.md", None),
     ("03_entidades_y_relaciones.md", None),
     ("04_diagramas_modelo_relacional.md", None),
     ("05_diccionario_datos.md", None),
@@ -25,10 +26,11 @@ SECCIONES = [
     ("07_algebra_relacional.md", None),
     ("08_consultas.md", None),
     ("09_implementacion.md", None),
-    ("../Pruebas/matriz_pruebas.md", "10. Pruebas de base de datos"),
-    ("../Pruebas/incidencias.md", "11. Incidencias"),
+    ("../Pruebas/matriz_pruebas.md", "11. Pruebas de base de datos"),
+    ("../Pruebas/incidencias.md", "12. Incidencias"),
     ("12_aplicacion_web.md", None),
     ("13_conclusiones.md", None),
+    ("15_referencias.md", None),
 ]
 
 
