@@ -1,0 +1,9 @@
+# Respaldos generados con mysqldump (pueden contener datos reales)
+respaldos/
+*.dump
+*_respaldo_*.sql
+# Configuracion local con credenciales: nunca subir
+*.env
+.env*
+conexion.local.*
+*.cnf

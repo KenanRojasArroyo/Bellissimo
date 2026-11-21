@@ -1,0 +1,12 @@
+﻿[OK ] sp_registrar_checada → ENTRADA 2026-11-10 09:01
+[OK ] domingo rechazado → 1644: No se checa los domingos: no hay horario.
+[OK ] sp_generar_pago 
+[OK ] sp_ticket → salario 2807.28, estado Borrador, 7 renglones, neto -492.72
+[OK ] v_resumen_pago_semanal → total semana 2 = 14562.50
+[OK ] fn_valor_hora → 68.7500
+[OK ] activo como bool → Boolean = True
+[OK ] regenerar pago cerrado rechazado → 1644: El pago de esta semana ya esta cerrado y no se puede regenerar.
+[OK ] UPDATE directo a pago_semanal rechazado → 1142
+TODO OK
+
+usuario temporal borrado
