@@ -1,10 +1,61 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <section class="hero">
+        <h1>Bienvenido a Bellissimo</h1>
+    </section>
+    <div class="row g-3 mt-2">
+        <div class="col-md-6 col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Entradas</h3>
+                    <p class="card-text">Registra las entradas del personal.</p>
+                    <a asp-page="/RegistroEntradas/Index" class="btn btn-primary">
+                        Ir a Entradas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Salidas</h3>
+                    <p class="card-text">Registra las salidas del personal.</p>
+                    <a asp-page="/RegistroSalidas/Index" class="btn btn-primary">
+                        Ir a Salidas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Pagos</h3>
+                    <p class="card-text">Revisa los pagos al personal.</p>
+                    <a asp-page="/Pagos/Index" class="btn btn-primary">
+                        Ir a Pagos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Personal</h3>
+                    <p class="card-text">Gestiona la información del personal.</p>
+                    <a asp-page="/Personal/Index" class="btn btn-primary">
+                        Ir a Personal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

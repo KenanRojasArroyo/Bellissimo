@@ -1,0 +1,54 @@
+﻿@page
+@model Bellissimo.Web.Pages.RegistroEntradas.RegistroRegresoComidaModel
+@{
+    ViewData["Title"] = "Registro de Regreso de Comida";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <h1 class="mb-4">Registro de Salida del Turno</h1>
+
+            @if (!string.IsNullOrEmpty(Model.MensajeExito))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @Model.MensajeExito
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            }
+
+            <div class="card shadow-sm p-4">
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-4">
+                            <input asp-for="Matricula"
+                                   class="form-control form-control-lg text-center fs-3"
+                                   placeholder="Ingresa tu matrícula"
+                                   inputmode="numeric"
+                                   pattern="[0-9]{6}"
+                                   maxlength="6"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
+                                   autofocus
+                                   autocomplete="off" />
+                            <span asp-validation-for="Matricula" class="text-danger d-block mt-2"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fs-3 fw-bold">
+                                Registrar Salida
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a asp-page="/RegistroEntradas/Index" class="btn btn-outline-secondary px-4"> Regresar </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

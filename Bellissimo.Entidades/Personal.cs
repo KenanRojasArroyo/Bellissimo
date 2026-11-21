@@ -2,9 +2,9 @@
 
 namespace Bellissimo.Entidades;
 
-public class Cliente
+public class Personal
 {
-    public int IdCliente { get; set; }
+    public int IdPersonal { get; set; }
 
     [Required(ErrorMessage = "El nombre es obligatorio.")]
     [StringLength(60)]
@@ -21,15 +21,12 @@ public class Cliente
     [StringLength(20)]
     public string Telefono { get; set; } = string.Empty;
 
-    [EmailAddress(ErrorMessage = "El correo no tiene un formato válido.")]
-    [StringLength(120)]
-    public string? Correo { get; set; }
-
     [Required(ErrorMessage = "El tipo de cargo es obligatorio.")]
     public TipoCargo TipoCargo { get; set; }
 
     [Required(ErrorMessage = "El sueldo base es obligatorio.")]
     [Range(0, double.MaxValue, ErrorMessage = "El sueldo base debe ser mayor a 0.")]
+    [Display(Name = "Sueldo base / hr")]
     public decimal SueldoBase { get; set; }
 
     public DateTime FechaRegistro { get; set; }
@@ -38,5 +35,22 @@ public class Cliente
 public enum TipoCargo
 {
     EncargadoGeneral,
-    EncargadoDeFlorista
+    EncargadoFlorista,
+    Florista,
+    Repartidor
+}
+
+public static class TipoCargoExtensions
+{
+    public static string ObtenerNombreAmigable(this TipoCargo cargo)
+    {
+        return cargo switch
+        {
+            TipoCargo.EncargadoGeneral => "Encargado General",
+            TipoCargo.EncargadoFlorista => "Encargado de Florista",
+            TipoCargo.Florista => "Florista",
+            TipoCargo.Repartidor => "Repartidor",
+            _ => cargo.ToString()
+        };
+    }
 }
