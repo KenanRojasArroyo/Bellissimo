@@ -1,7 +1,7 @@
 # Bellissimo — Sistema de gestión para florería
 
 Proyecto académico de
-Ambientes de Programación Visual
+Ambientes de Programación Visual y Base de Datos
 (UABC — FIAD, ISyTE).
 
 ## Tecnologías
@@ -31,13 +31,11 @@ Más detalle en [`Docs/ARQUITECTURA.md`](Docs/ARQUITECTURA.md).
 | Módulo | Backend (Negocios + Datos) | Páginas |
 | --- | :---: | :---: |
 | Personal: listar, buscar, registrar, editar (baja lógica), detalle y eliminar | Listo | Listas |
-| Checador con clave personal | Listo | Pendiente |
-| Ausencias (CRUD) | Listo | Pendiente |
-| Correcciones de checadas (CRUD) y reporte de asistencia | Listo | Pendiente |
-| Puestos (alta y edición) | Listo | Pendiente |
-| Semanas y pagos: generar, ticket, cerrar, observaciones, días sin checada | Listo | Pendiente |
-
-Ver [`Docs/PENDIENTES.md`](Docs/PENDIENTES.md).
+| Checador con clave personal | Listo | Listas |
+| Ausencias (CRUD) | Listo | Listas |
+| Correcciones de checadas (CRUD) y reporte de asistencia | Listo | Listas |
+| Puestos (alta y edición) | Listo | Listas |
+| Semanas y pagos: generar, ticket, cerrar, observaciones, días sin checada | Listo | Listas |
 
 ## Requisitos
 
@@ -45,6 +43,19 @@ Ver [`Docs/PENDIENTES.md`](Docs/PENDIENTES.md).
 - .NET 10
 - MySQL Server 8.0
 - MySQL Workbench
+- Git o GitHub Desktop
+
+```
+bash
+git clone <URL_DEL_REPOSITORIO>
+cd bellissimo_floreria
+```
+
+Para cambiar a la rama de desarrollo de interfaz antes de su integración a main:
+
+```
+git checkout frontend
+```
 
 ## Base de datos
 
@@ -74,9 +85,21 @@ O desde la terminal:
 ```powershell
 cd Bellissimo.Web
 dotnet user-secrets set "ConnectionStrings:Bellissimo" "Server=localhost;Port=3306;Database=belissimo;User ID=app_floreria;Password=<contraseña>;CharSet=utf8mb4;SslMode=Preferred"
+cd ..
 ```
 
-Después establecer `Bellissimo.Web` como proyecto de inicio y ejecutar.
+## Ejecución
+Desde Visual Studio:
+
+1. Establecer Bellissimo.Web como proyecto de inicio (Set as Startup Project).
+2. Presionar F5 o Ctrl + F5 (Visual Studio restaurará automáticamente los paquetes NuGet como MySql.Data y abrirá el navegador).
+
+```
+dotnet restore
+dotnet run --project Bellissimo.Web
+```
+
+Abrir en el navegador la URL local mostrada en consola (https://localhost:7xxx o http://localhost:5xxx).
 
 ## Documentación
 
