@@ -1,7 +1,24 @@
-var builder = WebApplication.CreateBuilder(args);
+using Bellissimo.Negocios;
 
-// Add services to the container.
+var builder =
+    WebApplication.CreateBuilder(args);
+
 builder.Services.AddRazorPages();
+
+string? cadena =
+    builder.Configuration
+        .GetConnectionString("Bellissimo");
+
+if (!string.IsNullOrWhiteSpace(cadena))
+{
+    ConfiguracionNegocio.Inicializar(cadena);
+}
+else
+{
+    System.Diagnostics.Debug.WriteLine(
+        "No se encontró ConnectionStrings:Bellissimo. " +
+        "Revise User Secrets.");
+}
 
 var app = builder.Build();
 

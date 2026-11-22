@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Bellissimo.Entidades\Bellissimo.Entidades.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="26.10.0" />
+  </ItemGroup>
+
 </Project>
