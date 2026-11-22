@@ -80,17 +80,9 @@ public class NuevoModel : PageModel
 
     private void CargarPuestos()
     {
-        // Si Backend ya creó PuestoNegocio (o PersonalNegocio.ListarPuestos()), descomenta las siguientes líneas:
-        // PuestoNegocio puestoNegocio = new();
-        // ListaPuestos = puestoNegocio.Listar()
-        //     .Select(p => new SelectListItem { Value = p.IdPuesto.ToString(), Text = p.Nombre })
-        //     .ToList();
-
-        ListaPuestos = new List<SelectListItem>
-        {
-            new() { Value = "1", Text = "Recepcionista" },
-            new() { Value = "2", Text = "Repartidor" },
-            new() { Value = "3", Text = "Encargado de Florista" }
-        };
+        PuestoNegocio puestoNegocio = new();
+        ListaPuestos = puestoNegocio.Listar()
+            .Select(p => new SelectListItem { Value = p.IdPuesto.ToString(), Text = p.Nombre })
+            .ToList();
     }
 }
