@@ -100,23 +100,36 @@ Antes de la corrección, el `POST` de Eliminar habría terminado en página 500.
 
 ### Prueba de integración Negocios → Datos → MySQL
 
-Se ejecuta con la cadena de User Secrets de `Bellissimo.Web` y deja la base como estaba
-(el empleado temporal de prueba se crea y se elimina).
+Ejecutada el 2026-11-22 con la cadena de User Secrets de `Bellissimo.Web`, conectando como
+`app_floreria` (mínimo privilegio), sobre la base reconstruida con `Sql/01`–`05`. Deja la base
+como estaba (el empleado temporal de prueba se crea y se elimina).
+
+**Resultado: 26 verificaciones OK, 0 fallas (12/12 casos aprobados).**
 
 | No. | Caso | Esperado | Resultado |
 | ---: | --- | --- | :---: |
-| 1 | `ProbarConexion` | Cuenta empleados | Pendiente |
-| 2 | `PuestoNegocio.Listar` | Recepcionista, Repartidor, Florista | Pendiente |
-| 3 | `Listar` | Empleados con `NombrePuesto` | Pendiente |
-| 4 | `Buscar("Ana")`, `Buscar("Florista")`, `Buscar("Ana Torres")` | Filtra por nombre, puesto y nombre completo | Pendiente |
-| 5 | `Buscar("' OR 1=1 -- ")` | 0 resultados (sin inyección) | Pendiente |
-| 6 | `BuscarPorId` existente / `99999` / `0` | Empleado / `null` / `null` | Pendiente |
-| 7 | `Agregar` con nombre vacío, sueldo 0, puesto 999, teléfono vacío | `ArgumentException` con el mensaje de la regla | Pendiente |
-| 8 | `Agregar` válido | Id nuevo, `fecha_ingreso` = hoy, `activo = 1` | Pendiente |
-| 9 | `Modificar` (baja lógica `Activo = false`, cambio de puesto) | `true` y cambios guardados | Pendiente |
-| 10 | `Eliminar` a María (tiene checadas en `Sql/02_datos.sql`) | `ReglaNegocioException`; sigue existiendo | Pendiente |
-| 11 | `Eliminar(0)` / `Eliminar(99999)` | `ArgumentException` / `false` | Pendiente |
-| 12 | `Eliminar` del empleado temporal | `true`; ya no existe | Pendiente |
+| 1 | `ProbarConexion` | Cuenta empleados | APROBADO |
+| 2 | `PuestoNegocio.Listar` | Recepcionista, Repartidor, Florista | APROBADO |
+| 3 | `Listar` | Empleados con `NombrePuesto` | APROBADO |
+| 4 | `Buscar("Ana")`, `Buscar("Florista")`, `Buscar("Ana Torres")` | Filtra por nombre, puesto y nombre completo | APROBADO |
+| 5 | `Buscar("' OR 1=1 -- ")` | 0 resultados (sin inyección) | APROBADO |
+| 6 | `BuscarPorId` existente / `99999` / `0` | Empleado / `null` / `null` | APROBADO |
+| 7 | `Agregar` con nombre vacío, sueldo 0, puesto 999, teléfono vacío | `ArgumentException` con el mensaje de la regla | APROBADO |
+| 8 | `Agregar` válido | Id nuevo, `fecha_ingreso` = hoy, `activo = 1` | APROBADO |
+| 9 | `Modificar` (baja lógica `Activo = false`, cambio de puesto) | `true` y cambios guardados | APROBADO |
+| 10 | `Eliminar` a María (tiene checadas en `Sql/02_datos.sql`) | `ReglaNegocioException`; sigue existiendo | APROBADO |
+| 11 | `Eliminar(0)` / `Eliminar(99999)` | `ArgumentException` / `false` | APROBADO |
+| 12 | `Eliminar` del empleado temporal | `true`; ya no existe | APROBADO |
+
+### Prueba Web con base de datos — 2026-11-22
+
+| Página | Resultado |
+| --- | --- |
+| `/Personal` | 5 empleados de MySQL, sin alerta de error |
+| `/Personal?Buscar=Florista` | Sólo Ana Torres y Luis Ramírez (puesto Florista) |
+| `/Personal/Nuevo` | `<select>` con Florista, Recepcionista y Repartidor desde la tabla `puesto` |
+| `/Personal/Detalle/1` | María López: Recepcionista, $3,000.00 |
+| `/Personal/Eliminar/1` (POST) | HTTP 200, mensaje de `ReglaNegocioException`; María no se elimina |
 
 ## `Program.cs`
 

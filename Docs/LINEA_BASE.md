@@ -37,9 +37,9 @@
 - Fecha:
 - Commit de main aceptado:
 - Compila: Sí (0 errores, 0 advertencias en la rama `backend`)
-- Ejecuta: Sí (verificado sin base: arranca y muestra mensajes amigables)
-- MySQL: Pendiente de confirmar con User Secrets (`ConnectionStrings:Bellissimo`)
-- Personal: Pendiente de confirmar con la prueba de integración de `PRUEBAS_BACKEND.md`
+- Ejecuta: Sí (con y sin base; sin base muestra mensajes amigables)
+- MySQL: Sí (User Secrets `ConnectionStrings:Bellissimo`, usuario `app_floreria`)
+- Personal: APROBADO (integración 26/26 OK en `PRUEBAS_BACKEND.md`)
 
 ## Problemas resueltos
 
@@ -53,5 +53,4 @@
 
 ## Problemas pendientes
 
-- Ninguno dentro del alcance obligatorio (módulo Personal), sujeto a la prueba de
-  integración con MySQL.
+- Ninguno dentro del alcance obligatorio (módulo Personal).
