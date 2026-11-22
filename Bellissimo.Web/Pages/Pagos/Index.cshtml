@@ -1,13 +1,141 @@
 ﻿@page
 @model Bellissimo.Web.Pages.Pagos.IndexModel
 @{
-    ViewData["Title"] = "Pagos";
+    ViewData["Title"] = "Pagos Semanales";
 }
 
-<div class="container py-4">
-    <h1>Pagos</h1>
-    <div class="alert alert-info">
-        Módulo en preparación. Esta funcionalidad se desarrollará
-        en una versión posterior.
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="mb-0">Pagos Semanales</h1>
+        <a asp-page="./Semanas" class="btn btn-outline-primary">
+            Gestionar Semanas
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success">@mensaje</div>
+    }
+
+    @if (TempData["Omitidos"] is string omitidos)
+    {
+        <div class="alert alert-warning">
+            <strong>Detalle de omitidos:</strong> @omitidos
+        </div>
+    }
+
+    @if (Model.PendientesSemana.Count > 0)
+    {
+        <div class="alert alert-warning">
+            <strong>Atención:</strong> Hay <strong>@Model.PendientesSemana.Count</strong> día(s) sin checada ni ausencia registrada en la semana filtrada. Deben completarse antes de cerrar los pagos correspondientes.
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold">
+            Generar Pagos de la Semana
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="GenerarSemana" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label asp-for="SemanaGenerar" class="form-label">Semana</label>
+                    <select asp-for="SemanaGenerar" asp-items="Model.ListaSemanas" class="form-select">
+                        <option value="0">Seleccione una semana...</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="UsuarioGenerar" class="form-label">Generado por (opcional)</label>
+                    <select asp-for="UsuarioGenerar" asp-items="Model.ListaUsuarios" class="form-select">
+                        <option value="">Sistema / Sin especificar</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Generar pagos de la semana
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <form method="get" class="row g-2 align-items-end mb-4">
+        <div class="col-md-3">
+            <label asp-for="IdSemana" class="form-label">Semana</label>
+            <select asp-for="IdSemana" asp-items="Model.ListaSemanas" class="form-select">
+                <option value="">Todas las semanas</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="IdEmpleado" class="form-label">Empleado</label>
+            <select asp-for="IdEmpleado" asp-items="Model.ListaEmpleados" class="form-select">
+                <option value="">Todos los empleados</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Estado" class="form-label">Estado</label>
+            <select asp-for="Estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="Borrador">Borrador</option>
+                <option value="Cerrado">Cerrado</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary flex-fill">Filtrar</button>
+            <a asp-page="./Index" class="btn btn-outline-secondary flex-fill">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Semana</th>
+                    <th>Empleado</th>
+                    <th>Puesto</th>
+                    <th class="text-end">Sueldo Base</th>
+                    <th class="text-end">Descuentos</th>
+                    <th class="text-end">Extra</th>
+                    <th class="text-end">Salario Final</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pago in Model.ListaPagos)
+                {
+                    <tr>
+                        <td>@pago.FechaInicio.ToString("dd/MM/yyyy") – @pago.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td class="fw-semibold">@pago.Empleado</td>
+                        <td>@pago.Puesto</td>
+                        <td class="text-end">@pago.SueldoBase.ToString("C2")</td>
+                        <td class="text-end text-danger">-@pago.DescuentoTotal.ToString("C2")</td>
+                        <td class="text-end text-success">+@pago.MontoExtra.ToString("C2")</td>
+                        <td class="text-end fw-bold">@pago.SalarioFinal.ToString("C2")</td>
+                        <td>
+                            @if (pago.Cerrado)
+                            {
+                                <span class="badge bg-dark">Cerrado</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Borrador</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-page="./Ticket"
+                               asp-route-id="@pago.IdPago"
+                               class="btn btn-sm btn-outline-primary">
+                                Ver Ticket
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

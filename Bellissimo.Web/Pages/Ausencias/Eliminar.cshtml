@@ -1,0 +1,55 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Ausencias.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Ausencia";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Eliminar Ausencia</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    @if (Model.Ausencia is not null)
+    {
+        @if (Model.Ausencia.SemanaCerrada)
+        {
+            <div class="alert alert-warning">
+                Esta ausencia pertenece a una semana cerrada y no puede eliminarse.
+            </div>
+            <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+        }
+        else
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <p class="fs-5">¿Confirmas que deseas eliminar esta ausencia?</p>
+                    <dl class="row mb-4">
+                        <dt class="col-sm-3">Empleado</dt>
+                        <dd class="col-sm-9">@Model.Ausencia.NombreEmpleado</dd>
+
+                        <dt class="col-sm-3">Fecha</dt>
+                        <dd class="col-sm-9">@Model.Ausencia.Fecha.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-3">Tipo</dt>
+                        <dd class="col-sm-9">@Model.Ausencia.Tipo</dd>
+
+                        <dt class="col-sm-3">Observaciones</dt>
+                        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Ausencia.Observaciones) ? "-" : Model.Ausencia.Observaciones)</dd>
+                    </dl>
+
+                    <form method="post" class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+</div>

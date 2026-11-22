@@ -11,9 +11,16 @@ public class EditarModel : PageModel
     [BindProperty]
     public Bellissimo.Entidades.Personal Empleado { get; set; } = new();
 
+    [BindProperty]
+    public string? NuevaClave { get; set; }
+
     public List<SelectListItem> ListaPuestos { get; private set; } = new();
 
     public string? Error { get; private set; }
+
+    public string? MensajeClave { get; private set; }
+
+    public string? ErrorClave { get; private set; }
 
     public IActionResult OnGet(int id)
     {
@@ -57,7 +64,10 @@ public class EditarModel : PageModel
         }
 
         if (!ModelState.IsValid)
+        {
+            RecargarEstadoClave(Empleado.IdPersonal);
             return Page();
+        }
 
         try
         {
@@ -72,13 +82,63 @@ public class EditarModel : PageModel
         }
         catch (ArgumentException ex)
         {
+            RecargarEstadoClave(Empleado.IdPersonal);
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return Page();
+        }
+        catch (ReglaNegocioException ex)
+        {
+            RecargarEstadoClave(Empleado.IdPersonal);
             ModelState.AddModelError(string.Empty, ex.Message);
             return Page();
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex);
+            RecargarEstadoClave(Empleado.IdPersonal);
             ModelState.AddModelError(string.Empty, "No fue posible modificar el empleado.");
+            return Page();
+        }
+    }
+
+    public IActionResult OnPostAsignarClave()
+    {
+        ModelState.Clear();
+
+        try
+        {
+            CargarPuestos();
+            PersonalNegocio negocio = new();
+
+            bool asignada = negocio.AsignarClave(Empleado.IdPersonal, NuevaClave ?? string.Empty);
+            if (!asignada)
+                return NotFound();
+
+            Bellissimo.Entidades.Personal? actual = negocio.BuscarPorId(Empleado.IdPersonal);
+            if (actual is not null)
+                Empleado = actual;
+
+            NuevaClave = string.Empty;
+            MensajeClave = "Clave del checador guardada correctamente.";
+            return Page();
+        }
+        catch (ArgumentException ex)
+        {
+            ErrorClave = ex.Message;
+            RecargarDatosCompletos(Empleado.IdPersonal);
+            return Page();
+        }
+        catch (ReglaNegocioException ex)
+        {
+            ErrorClave = ex.Message;
+            RecargarDatosCompletos(Empleado.IdPersonal);
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+            ErrorClave = "No fue posible asignar la clave del checador.";
+            RecargarDatosCompletos(Empleado.IdPersonal);
             return Page();
         }
     }
@@ -89,5 +149,35 @@ public class EditarModel : PageModel
         ListaPuestos = puestoNegocio.Listar()
             .Select(p => new SelectListItem { Value = p.IdPuesto.ToString(), Text = p.Nombre })
             .ToList();
+    }
+
+    private void RecargarEstadoClave(int id)
+    {
+        try
+        {
+            PersonalNegocio negocio = new();
+            var actual = negocio.BuscarPorId(id);
+            if (actual is not null)
+                Empleado.TieneClave = actual.TieneClave;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+    }
+
+    private void RecargarDatosCompletos(int id)
+    {
+        try
+        {
+            PersonalNegocio negocio = new();
+            var actual = negocio.BuscarPorId(id);
+            if (actual is not null)
+                Empleado = actual;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
     }
 }

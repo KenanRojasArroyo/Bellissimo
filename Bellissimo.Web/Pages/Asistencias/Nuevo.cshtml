@@ -1,0 +1,80 @@
+﻿@page
+@model Bellissimo.Web.Pages.Asistencias.NuevoModel
+@{
+    ViewData["Title"] = "Captura Manual de Asistencia";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Captura Manual de Asistencia</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="col-md-5">
+                        <label asp-for="IdEmpleado" class="form-label">Empleado</label>
+                        <select asp-for="IdEmpleado" asp-items="Model.ListaEmpleados" class="form-select">
+                            <option value="0">Seleccione un empleado...</option>
+                        </select>
+                        <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Fecha" class="form-label">Fecha</label>
+                        <input asp-for="Fecha" type="date" class="form-control" />
+                        <span asp-validation-for="Fecha" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ModificadoPor" class="form-label">Corregido por</label>
+                        <select asp-for="ModificadoPor" asp-items="Model.ListaUsuarios" class="form-select">
+                            <option value="0">Seleccione responsable...</option>
+                        </select>
+                        <span asp-validation-for="ModificadoPor" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraEntrada" class="form-label">Entrada *</label>
+                        <input asp-for="HoraEntrada" type="time" class="form-control" />
+                        <span asp-validation-for="HoraEntrada" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraSalidaComida" class="form-label">Salida a comer</label>
+                        <input asp-for="HoraSalidaComida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraSalidaComida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraRegresoComida" class="form-label">Regreso de comer</label>
+                        <input asp-for="HoraRegresoComida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraRegresoComida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraSalida" class="form-label">Salida</label>
+                        <input asp-for="HoraSalida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraSalida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar asistencia</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

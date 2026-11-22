@@ -1,0 +1,62 @@
+﻿@page
+@model Bellissimo.Web.Pages.Ausencias.NuevoModel
+@{
+    ViewData["Title"] = "Nueva Ausencia";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Registrar Ausencia</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Ausencia.IdEmpleado" class="form-label">Empleado</label>
+                        <select asp-for="Ausencia.IdEmpleado" asp-items="Model.ListaEmpleados" class="form-select">
+                            <option value="0">Seleccione un empleado...</option>
+                        </select>
+                        <span asp-validation-for="Ausencia.IdEmpleado" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Ausencia.Fecha" class="form-label">Fecha</label>
+                        <input asp-for="Ausencia.Fecha" type="date" class="form-control" />
+                        <span asp-validation-for="Ausencia.Fecha" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Ausencia.Tipo" class="form-label">Tipo de ausencia</label>
+                        <select asp-for="Ausencia.Tipo" asp-items="Model.ListaTipos" class="form-select">
+                            <option value="">Seleccione un tipo...</option>
+                        </select>
+                        <span asp-validation-for="Ausencia.Tipo" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Ausencia.Observaciones" class="form-label">Observaciones (opcional)</label>
+                        <textarea asp-for="Ausencia.Observaciones" class="form-control" rows="2" maxlength="200"></textarea>
+                        <span asp-validation-for="Ausencia.Observaciones" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar ausencia</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -20,22 +20,37 @@
             <div class="card shadow-sm p-4">
                 <div class="card-body">
                     <form method="post">
-                        <div class="mb-4">
-                            <input asp-for="Matricula"
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger text-start"></div>
+
+                        <div class="mb-3 text-start">
+                            <label asp-for="IdEmpleado" class="form-label fw-semibold">Número de empleado</label>
+                            <input asp-for="IdEmpleado"
+                                   type="number"
+                                   min="1"
                                    class="form-control form-control-lg text-center fs-3"
-                                   placeholder="Ingresa tu matrícula"
+                                   placeholder="Ej. 1"
                                    inputmode="numeric"
-                                   pattern="[0-9]{6}"
-                                   maxlength="6"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);"
                                    autofocus
                                    autocomplete="off" />
-                            <span asp-validation-for="Matricula" class="text-danger d-block mt-2"></span>
+                            <span asp-validation-for="IdEmpleado" class="text-danger d-block mt-1"></span>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <label asp-for="Clave" class="form-label fw-semibold">Clave personal (4 a 8 dígitos)</label>
+                            <input asp-for="Clave"
+                                   type="password"
+                                   class="form-control form-control-lg text-center fs-3"
+                                   placeholder="••••"
+                                   inputmode="numeric"
+                                   maxlength="8"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);"
+                                   autocomplete="off" />
+                            <span asp-validation-for="Clave" class="text-danger d-block mt-1"></span>
                         </div>
 
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg py-3 fs-3 fw-bold">
-                                Registrar Salida
+                                Registrar Salida a Comer
                             </button>
                         </div>
                     </form>
@@ -43,7 +58,7 @@
             </div>
 
             <div class="mt-4 text-center">
-                <a asp-page="/RegistroEntradas/Index" class="btn btn-outline-secondary px-4"> Regresar </a>
+                <a asp-page="/RegistroSalidas/Index" class="btn btn-outline-secondary px-4">Regresar</a>
             </div>
         </div>
     </div>
