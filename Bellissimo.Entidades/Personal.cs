@@ -42,10 +42,18 @@ public class Personal
 
     [Display(Name = "Fecha de registro")]
     public DateTime FechaRegistro { get; set; }
+
+    // true si ya tiene clave personal para el checador (se guarda sólo el hash).
+    [Display(Name = "Clave del checador")]
+    public bool TieneClave { get; set; }
 }
 
 public class Puesto
 {
     public int IdPuesto { get; set; }
+
+    [Required(ErrorMessage = "El nombre del puesto es obligatorio.")]
+    [StringLength(50, ErrorMessage = "El nombre del puesto no puede exceder los 50 caracteres.")]
+    [Display(Name = "Puesto")]
     public string Nombre { get; set; } = string.Empty;
 }

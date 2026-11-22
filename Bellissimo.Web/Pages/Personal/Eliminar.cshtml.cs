@@ -37,16 +37,16 @@ public class EliminarModel : PageModel
 
     public IActionResult OnPost(int id)
     {
-        PersonalNegocio negocio = new();
-        Bellissimo.Entidades.Personal? empleado = negocio.BuscarPorId(id);
-
-        if (empleado is null)
-            return NotFound();
-
-        Empleado = empleado;
-
         try
         {
+            PersonalNegocio negocio = new();
+            Bellissimo.Entidades.Personal? empleado = negocio.BuscarPorId(id);
+
+            if (empleado is null)
+                return NotFound();
+
+            Empleado = empleado;
+
             bool eliminado = negocio.Eliminar(id);
 
             if (!eliminado)
