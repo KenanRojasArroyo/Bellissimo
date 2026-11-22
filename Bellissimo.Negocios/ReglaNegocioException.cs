@@ -6,4 +6,9 @@ public class ReglaNegocioException : Exception
         : base(mensaje)
     {
     }
+
+    public ReglaNegocioException(string mensaje, Exception interna)
+        : base(mensaje, interna)
+    {
+    }
 }
