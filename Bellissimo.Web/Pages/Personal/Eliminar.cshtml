@@ -1,0 +1,56 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Personal.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Empleado";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Eliminar Empleado</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">
+            @Model.Error
+        </div>
+
+        <a asp-page="./Index" class="btn btn-outline-secondary">
+            Regresar
+        </a>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            ¿Desea eliminar al empleado
+            <strong>
+                @Model.Empleado.Nombre
+                @Model.Empleado.ApellidoPaterno
+                @Model.Empleado.ApellidoMaterno
+            </strong>?
+        </div>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-striped align-middle mb-0">
+                <tbody>
+                    <tr>
+                        <th scope="row" style="width: 30%;">Puesto</th>
+                        <td>@Model.Empleado.NombrePuesto</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Teléfono</th>
+                        <td>@Model.Empleado.Telefono</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <form method="post" class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">
+                Eliminar
+            </button>
+
+            <a asp-page="./Index" class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+        </form>
+    }
+</div>

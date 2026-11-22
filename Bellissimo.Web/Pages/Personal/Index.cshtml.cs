@@ -1,4 +1,5 @@
 using Bellissimo.Entidades;
+using Bellissimo.Negocios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -11,48 +12,23 @@ public class IndexModel : PageModel
 
     public List<Bellissimo.Entidades.Personal> ListaPersonal { get; private set; } = new();
 
+    public string? Error { get; private set; }
+
     public void OnGet()
     {
-        ListaPersonal = new List<Bellissimo.Entidades.Personal>
+        try
         {
-            new()
-            {
-                IdPersonal = 1,
-                Nombre = "Ana",
-                ApellidoPaterno = "López",
-                ApellidoMaterno = "García",
-                Telefono = "6461234567",
-                NombrePuesto = "Encargado de Florista",
-                SueldoBase = 3300m,
-                Activo = true,
-                FechaRegistro = DateTime.Now,
-            },
-            new()
-            {
-                IdPersonal = 2,
-                Nombre = "Carlos",
-                ApellidoPaterno = "Ramírez",
-                ApellidoMaterno = "Torres",
-                Telefono = "6467654321",
-                NombrePuesto = "Encargado General",
-                SueldoBase = 3000m,
-                Activo = true,
-                FechaRegistro = DateTime.Now,
-            }
-        };
+            PersonalNegocio negocio = new();
 
-        if (!string.IsNullOrWhiteSpace(Buscar))
+            ListaPersonal = string.IsNullOrWhiteSpace(Buscar)
+                ? negocio.Listar()
+                : negocio.Buscar(Buscar.Trim());
+        }
+        catch (Exception ex)
         {
-            string texto = Buscar.Trim();
+            System.Diagnostics.Debug.WriteLine(ex);
 
-            ListaPersonal = ListaPersonal
-                .Where(p =>
-                    p.Nombre.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
-                    p.ApellidoPaterno.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
-                    (p.ApellidoMaterno != null && p.ApellidoMaterno.Contains(texto, StringComparison.OrdinalIgnoreCase)) ||
-                    (p.NombrePuesto != null && p.NombrePuesto.Contains(texto, StringComparison.OrdinalIgnoreCase)) ||
-                    p.Telefono.Contains(texto, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            Error = "No fue posible consultar el personal. Verifique la conexión con MySQL.";
         }
     }
 }
