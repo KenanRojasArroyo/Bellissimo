@@ -1,0 +1,119 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Asistencias.EditarModel
+@{
+    ViewData["Title"] = "Corregir Asistencia";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Corregir Asistencia <span class="text-muted fs-4">#@Model.IdRegistro</span></h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+    else if (Model.SemanaCerrada)
+    {
+        <div class="alert alert-warning">
+            Este registro pertenece a una semana cerrada y se muestra en modo de solo lectura.
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Empleado</label>
+                    <input value="@Model.NombreEmpleado" class="form-control" disabled />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Fecha</label>
+                    <input value="@Model.Fecha.ToString("dd/MM/yyyy")" class="form-control" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Entrada</label>
+                    <input value="@(Model.HoraEntrada?.ToString(@"hh\:mm") ?? "-")" class="form-control" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Salida a comer</label>
+                    <input value="@(Model.HoraSalidaComida?.ToString(@"hh\:mm") ?? "-")" class="form-control" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Regreso de comer</label>
+                    <input value="@(Model.HoraRegresoComida?.ToString(@"hh\:mm") ?? "-")" class="form-control" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Salida</label>
+                    <input value="@(Model.HoraSalida?.ToString(@"hh\:mm") ?? "-")" class="form-control" disabled />
+                </div>
+                <div class="col-12 mt-4">
+                    <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    <input type="hidden" asp-for="IdRegistro" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="col-md-5">
+                        <label asp-for="IdEmpleado" class="form-label">Empleado</label>
+                        <select asp-for="IdEmpleado" asp-items="Model.ListaEmpleados" class="form-select">
+                            <option value="0">Seleccione un empleado...</option>
+                        </select>
+                        <span asp-validation-for="IdEmpleado" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="Fecha" class="form-label">Fecha</label>
+                        <input asp-for="Fecha" type="date" class="form-control" />
+                        <span asp-validation-for="Fecha" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ModificadoPor" class="form-label">Corregido por</label>
+                        <select asp-for="ModificadoPor" asp-items="Model.ListaUsuarios" class="form-select">
+                            <option value="0">Seleccione responsable...</option>
+                        </select>
+                        <span asp-validation-for="ModificadoPor" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraEntrada" class="form-label">Entrada *</label>
+                        <input asp-for="HoraEntrada" type="time" class="form-control" />
+                        <span asp-validation-for="HoraEntrada" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraSalidaComida" class="form-label">Salida a comer</label>
+                        <input asp-for="HoraSalidaComida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraSalidaComida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraRegresoComida" class="form-label">Regreso de comer</label>
+                        <input asp-for="HoraRegresoComida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraRegresoComida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="HoraSalida" class="form-label">Salida</label>
+                        <input asp-for="HoraSalida" type="time" class="form-control" />
+                        <span asp-validation-for="HoraSalida" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-primary">Guardar corrección</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

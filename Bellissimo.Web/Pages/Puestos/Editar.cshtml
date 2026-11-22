@@ -1,0 +1,41 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Puestos.EditarModel
+@{
+    ViewData["Title"] = "Editar Puesto";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Editar Puesto <span class="text-muted fs-4">#@Model.Puesto.IdPuesto</span></h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    <input type="hidden" asp-for="Puesto.IdPuesto" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Puesto.Nombre" class="form-label">Nombre del puesto</label>
+                        <input asp-for="Puesto.Nombre" class="form-control" maxlength="50" />
+                        <span asp-validation-for="Puesto.Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-primary">Guardar cambios</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

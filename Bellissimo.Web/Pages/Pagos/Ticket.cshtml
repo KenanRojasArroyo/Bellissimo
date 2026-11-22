@@ -1,0 +1,149 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Pagos.TicketModel
+@{
+    ViewData["Title"] = "Ticket de Pago Semanal";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Ticket de Pago <span class="text-muted fs-4">#@Model.Ticket?.IdPago</span></h1>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar a Pagos</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success">@mensaje</div>
+    }
+
+    @if (Model.Ticket is not null)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="fw-bold fs-5">@Model.Ticket.Empleado</span>
+                    <span class="text-muted ms-2">(@Model.Ticket.Puesto)</span>
+                </div>
+                @if (Model.Ticket.Cerrado)
+                {
+                    <span class="badge bg-dark fs-6">Cerrado</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark fs-6">Borrador</span>
+                }
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="text-muted small">Semana</div>
+                        <div class="fw-semibold">@Model.Ticket.FechaInicio.ToString("dd/MM/yyyy") – @Model.Ticket.FechaFin.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-muted small">Sueldo Base / Valor Hora</div>
+                        <div class="fw-semibold">@Model.Ticket.SueldoBase.ToString("C2") (@Model.Ticket.ValorHora.ToString("C2")/hr)</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-muted small">Generado</div>
+                        <div class="fw-semibold">
+                            @Model.Ticket.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")
+                            @(string.IsNullOrWhiteSpace(Model.Ticket.GeneradoPor) ? "" : $"por {Model.Ticket.GeneradoPor}")
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row text-center border-top border-bottom py-3 mb-4 bg-light rounded">
+                    <div class="col-6 col-md-3">
+                        <div class="small text-muted">Sueldo Base</div>
+                        <div class="fs-5 fw-semibold">@Model.Ticket.SueldoBase.ToString("C2")</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-muted">Descuentos</div>
+                        <div class="fs-5 fw-semibold text-danger">-@Model.Ticket.DescuentoTotal.ToString("C2")</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-muted">Monto Extra</div>
+                        <div class="fs-5 fw-semibold text-success">+@Model.Ticket.MontoExtra.ToString("C2")</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="small text-muted">Salario a Pagar</div>
+                        <div class="fs-4 fw-bold text-primary">@Model.Ticket.SalarioAPagar.ToString("C2")</div>
+                    </div>
+                </div>
+
+                <h5 class="mb-3">Desglose de Conceptos</h5>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th class="text-end">Minutos</th>
+                                <th class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.Ticket.Renglones)
+                            {
+                                <tr>
+                                    <td>@(r.Fecha?.ToString("dd/MM/yyyy") ?? "Semanal")</td>
+                                    <td>@r.Concepto</td>
+                                    <td class="text-end">@r.Minutos min</td>
+                                    <td class="text-end fw-semibold @(r.Monto < 0 ? "text-danger" : (r.Monto > 0 ? "text-success" : "text-muted"))">
+                                        @r.Monto.ToString("C2")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (!Model.Ticket.Cerrado)
+                {
+                    <div class="border-top pt-3 mb-4">
+                        @if (Model.DiasPendientes.Count > 0)
+                        {
+                            <div class="alert alert-warning">
+                                <strong>No se puede cerrar todavía:</strong> Faltan checadas o ausencias para los días:
+                                @string.Join(", ", Model.DiasPendientes.Select(d => d.Fecha.ToString("dd/MM/yyyy"))).
+                                Regístrelas y vuelva a generar el pago antes de cerrar.
+                            </div>
+                        }
+                        else
+                        {
+                            <form method="post"
+                                  asp-page-handler="Cerrar"
+                                  asp-route-id="@Model.Ticket.IdPago"
+                                  onsubmit="return confirm('¿Confirmas cerrar este pago? Una vez cerrado ya no se podrán modificar checadas, ausencias ni montos.');">
+                                <button type="submit" class="btn btn-danger">
+                                    Cerrar Pago Definitivamente
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+
+                <div class="border-top pt-3">
+                    <h5>Notas / Observaciones</h5>
+                    <form method="post" asp-page-handler="Observacion" asp-route-id="@Model.Ticket.IdPago" class="row g-2">
+                        <div class="col-md-9">
+                            <input asp-for="NuevaObservacion"
+                                   class="form-control"
+                                   maxlength="255"
+                                   placeholder="Agregar nota u observación (permitido incluso en pagos cerrados)..." />
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                Guardar nota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

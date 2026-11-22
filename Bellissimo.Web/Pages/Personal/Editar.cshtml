@@ -5,7 +5,9 @@
 }
 
 <div class="container-fluid mx-auto py-4 contenedor-ajustable">
-    <h1 class="mb-4">Editar Empleado</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Editar Empleado <span class="text-muted fs-4">#@Model.Empleado.IdPersonal</span></h1>
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.Error))
     {
@@ -18,6 +20,9 @@
     else
     {
         <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold">
+                Datos Generales
+            </div>
             <div class="card-body">
                 <form method="post" class="row g-3">
                     <input type="hidden" asp-for="Empleado.IdPersonal" />
@@ -76,6 +81,56 @@
                         <a asp-page="/Personal/Index" class="btn btn-outline-secondary">
                             Cancelar
                         </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Clave Personal del Checador</span>
+                @if (Model.Empleado.TieneClave)
+                {
+                    <span class="badge bg-success">Clave asignada</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">Sin clave asignada</span>
+                }
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrWhiteSpace(Model.MensajeClave))
+                {
+                    <div class="alert alert-success">@Model.MensajeClave</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorClave))
+                {
+                    <div class="alert alert-danger">@Model.ErrorClave</div>
+                }
+
+                <form method="post" asp-page-handler="AsignarClave" class="row g-3 align-items-end">
+                    <input type="hidden" asp-for="Empleado.IdPersonal" />
+
+                    <div class="col-md-6">
+                        <label asp-for="NuevaClave" class="form-label">
+                            @(Model.Empleado.TieneClave ? "Nueva clave (4 a 8 dígitos)" : "Asignar clave (4 a 8 dígitos)")
+                        </label>
+                        <input asp-for="NuevaClave"
+                               type="password"
+                               inputmode="numeric"
+                               maxlength="8"
+                               class="form-control"
+                               placeholder="Ej. 1234" />
+                        <div class="form-text">
+                            El empleado usará su número (#@Model.Empleado.IdPersonal) y esta clave para registrar entradas y salidas.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary">
+                            @(Model.Empleado.TieneClave ? "Actualizar clave" : "Asignar clave")
+                        </button>
                     </div>
                 </form>
             </div>

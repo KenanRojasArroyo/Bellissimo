@@ -12,7 +12,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-3">
+        <nav class="navbar navbar-expand-xl navbar-toggleable-sm mb-3">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-4" asp-area="" asp-page="/Index">
                     <img src="~/img/logoBellissimo.png" alt="Logo Bellissimo" style="height: 60px; width: auto;" />
@@ -22,7 +22,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-xl-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link" asp-page="/Index">Inicio</a>
@@ -42,10 +42,19 @@
                             </div>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-page="/Asistencias/Index">Asistencias</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Ausencias/Index">Ausencias</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-page="/Pagos/Index">Pagos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-page="/Personal/Index">Personal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Puestos/Index">Puestos</a>
                         </li>
                     </ul>
                 </div>

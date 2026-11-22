@@ -1,0 +1,57 @@
+﻿@page "{id:int}"
+@model Bellissimo.Web.Pages.Asistencias.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Registro de Asistencia";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <h1 class="mb-4">Eliminar Registro de Asistencia</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    @if (Model.Registro is not null)
+    {
+        @if (Model.Registro.SemanaCerrada)
+        {
+            <div class="alert alert-warning">
+                Este registro pertenece a una semana cerrada y no puede eliminarse.
+            </div>
+            <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+        }
+        else
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <p class="fs-5">¿Confirmas que deseas eliminar este registro de checadas?</p>
+                    <dl class="row mb-4">
+                        <dt class="col-sm-3">Empleado</dt>
+                        <dd class="col-sm-9">@Model.Registro.NombreEmpleado</dd>
+
+                        <dt class="col-sm-3">Fecha</dt>
+                        <dd class="col-sm-9">@Model.Registro.Fecha.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-3">Entrada / Salida</dt>
+                        <dd class="col-sm-9">
+                            @(Model.Registro.Entrada?.ToString("HH:mm") ?? "-") — @(Model.Registro.Salida?.ToString("HH:mm") ?? "-")
+                        </dd>
+
+                        <dt class="col-sm-3">Método</dt>
+                        <dd class="col-sm-9">@Model.Registro.Metodo</dd>
+                    </dl>
+
+                    <form method="post" class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">Eliminar definitivamente</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar</a>
+    }
+</div>

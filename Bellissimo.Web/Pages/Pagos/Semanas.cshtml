@@ -1,0 +1,79 @@
+﻿@page
+@model Bellissimo.Web.Pages.Pagos.SemanasModel
+@{
+    ViewData["Title"] = "Semanas de Pago";
+}
+
+<div class="container-fluid mx-auto py-4 contenedor-ajustable">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Semanas de Pago</h1>
+        <a asp-page="./Index" class="btn btn-outline-secondary">Regresar a Pagos</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success">@mensaje</div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold">
+            Registrar Nueva Semana (Lunes a Sábado)
+        </div>
+        <div class="card-body">
+            <form method="post" class="row g-3 align-items-end">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="col-md-5">
+                    <label asp-for="FechaInicio" class="form-label">Fecha de inicio (debe ser lunes)</label>
+                    <input asp-for="FechaInicio" type="date" class="form-control" />
+                    <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Registrar semana</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Periodo</th>
+                    <th>Inicio (Lunes)</th>
+                    <th>Fin (Sábado)</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sem in Model.ListaSemanas)
+                {
+                    <tr>
+                        <td class="fw-semibold">#@sem.IdSemana</td>
+                        <td>@sem.Descripcion</td>
+                        <td>@sem.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@sem.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <a asp-page="./Index"
+                               asp-route-IdSemana="@sem.IdSemana"
+                               class="btn btn-sm btn-outline-primary">
+                                Ver pagos de esta semana
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
