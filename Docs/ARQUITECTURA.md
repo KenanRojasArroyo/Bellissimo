@@ -20,9 +20,22 @@ Reglas y validaciones.
 - `PersonalNegocio`: normaliza espacios; valida nombre, apellidos, teléfono, sueldo base
   semanal mayor a 0 y que el puesto exista; impide eliminar a un empleado con historial
   (checadas, ausencias o pagos).
-- `PuestoNegocio`: lista los puestos de la tabla `puesto` para el `<select>`.
+  `AsignarClave` guarda la clave personal del checador sólo como hash (`ClaveHasher`,
+  PBKDF2-SHA256).
+- `PuestoNegocio`: lista, registra y edita puestos (nombre único). Los puestos no se borran.
+- `ChecadorNegocio`: valida número de empleado y clave contra el hash y registra la
+  siguiente checada con la hora del servidor (`sp_registrar_checada`).
+- `AusenciaNegocio`: CRUD de ausencias con sus reglas (un día es checada o ausencia,
+  semana cerrada en solo lectura).
+- `AsistenciaNegocio`: consulta y corrección manual de checadas (CRUD de
+  `registro_asistencia`) y reporte de asistencia diaria.
+- `SemanaNegocio` y `PagoNegocio`: semanas de pago; generar, consultar ticket, cerrar y
+  anotar pagos; aviso de días sin checada.
+- `UsuarioNegocio`: lista al dueño y al encargado activos.
 - `ReglaNegocioException`: distingue una regla funcional (mensaje para el usuario) de un
   error técnico.
+- `ErroresBaseDatos`: traduce los errores conocidos de MySQL (1644, 1062, 1451, 1452,
+  3819) a `ReglaNegocioException`.
 - `ConfiguracionNegocio`: recibe la cadena de conexión desde Web.
 - **No** contiene HTML ni SQL.
 - Referencia a: `Bellissimo.Datos`, `Bellissimo.Entidades`.
@@ -34,7 +47,13 @@ ADO.NET y MySQL (`MySql.Data 26.10.0`).
 - `PersonalDatos`: `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre la tabla `empleado`
   (con `INNER JOIN puesto`) usando parámetros (`@idPersonal`, `@texto`, `@idPuesto`, …).
   Nunca se concatena un dato del usuario dentro del SQL.
-- `PuestoDatos`: lista puestos y comprueba que un `@idPuesto` exista.
+- `PuestoDatos`, `AusenciaDatos`, `RegistroAsistenciaDatos`, `SemanaDatos`,
+  `UsuarioDatos`: consultas y escrituras parametrizadas sobre sus tablas.
+- `ChecadorDatos` y `PagoDatos`: llaman a `sp_registrar_checada`, `sp_generar_pago`,
+  `sp_ticket`, `sp_cerrar_pago` y `sp_agregar_observacion`, y leen las vistas
+  `v_resumen_pago_semanal`, `v_dias_sin_checada` y `v_asistencia_diaria`.
+- `BaseDatosException`: envuelve los errores conocidos de MySQL con su número, para que
+  Negocios no dependa de `MySql.Data`.
 - `TieneHistorial()` apoya la regla de eliminación.
 - Referencia a: `Bellissimo.Entidades` y al paquete `MySql.Data`.
 
@@ -100,6 +119,29 @@ Personal.
 
 La baja normal es **lógica**: en `Editar` se apaga el interruptor *Activo* (`activo = 0`).
 
+## Ejemplo de flujo: checar entrada
+
+1. **Web** — la página del checador recibe el número de empleado y la clave, y llama a
+   `ChecadorNegocio.Registrar(id, clave, TipoChecada.Entrada)`.
+2. **Negocios** — busca al empleado, compara la clave contra `clave_hash` (PBKDF2) y revisa
+   que la siguiente checada de hoy sea la de la página. Si algo falla, lanza
+   `ReglaNegocioException` con un mensaje claro.
+3. **Datos** — `ChecadorDatos.Registrar` llama a
+   `sp_registrar_checada(@id, hora del servidor, 'Clave')`.
+4. **MySQL** — el procedimiento decide la checada y los triggers rechazan una semana cerrada
+   o un día con ausencia (error 1644, que se muestra tal cual).
+
+## Ejemplo de flujo: generar y cerrar un pago
+
+1. **Web** — el encargado elige la semana y genera los pagos (`PagoNegocio.GenerarSemana`).
+2. **Datos** — `PagoDatos.Generar` llama a `sp_generar_pago` por empleado, sin
+   `MySqlTransaction` (el procedimiento usa su propia transacción con `COMMIT`/`ROLLBACK`
+   y escribe en `pago_semanal` y `detalle_pago`).
+3. **Web** — muestra el resumen (`v_resumen_pago_semanal`) y el ticket (`sp_ticket`).
+4. **Negocios** — `PagoNegocio.Cerrar` no deja cerrar si hay días sin checada ni ausencia
+   (`v_dias_sin_checada`); después llama a `sp_cerrar_pago`.
+5. **MySQL** — los triggers congelan el pago, las checadas y las ausencias de esa semana.
+
 ## Manejo de errores
 
 | Situación | Tratamiento |
@@ -123,7 +165,8 @@ mensaje técnico de MySQL.
 
 ## Base de datos
 
-Base `belissimo` (MySQL 8.0), 11 tablas. La interfaz Web de esta versión usa `empleado` y
-`puesto`, y consulta `registro_asistencia`, `ausencia` y `pago_semanal` sólo para la regla
-de eliminación. La aplicación se conecta con `app_floreria` (mínimo privilegio,
-`Sql/05_usuario_app.sql`), que tiene los permisos necesarios para estas operaciones.
+Base `belissimo` (MySQL 8.0), 11 tablas. Negocios y Datos usan `empleado`, `puesto`, `usuario`,
+`registro_asistencia`, `ausencia`, `semana`, `pago_semanal` (sólo lectura), los cinco
+procedimientos, `fn_semana_cerrada` y las tres vistas. La aplicación nunca escribe en
+`pago_semanal`, `detalle_pago` ni `auditoria_registro` (reglas 1–3 del contrato). La aplicación se conecta con `app_floreria` (mínimo privilegio,
+`Sql/05_usuario_app.sql`), que tiene exactamente los permisos necesarios para estas operaciones.

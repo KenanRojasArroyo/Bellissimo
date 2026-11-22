@@ -22,16 +22,21 @@ Web → Negocios → Datos → MySQL
 | `Bellissimo.Web` | Interfaz con Razor Pages y Bootstrap |
 | `Bellissimo.Negocios` | Reglas y validaciones |
 | `Bellissimo.Datos` | Acceso a MySQL con consultas parametrizadas |
-| `Bellissimo.Entidades` | Modelos compartidos (`Personal`, `Puesto`) |
+| `Bellissimo.Entidades` | Modelos compartidos (`Personal`, `Puesto`, `Ausencia`, `RegistroAsistencia`, `Semana`, `Ticket`, …) |
 
 Más detalle en [`Docs/ARQUITECTURA.md`](Docs/ARQUITECTURA.md).
 
-## Módulos funcionales
+## Módulos
 
-- Personal: listar, buscar, registrar, editar (incluye baja lógica), detalle y eliminar
-  (bloqueado si el empleado tiene checadas, ausencias o pagos).
+| Módulo | Backend (Negocios + Datos) | Páginas |
+| --- | :---: | :---: |
+| Personal: listar, buscar, registrar, editar (baja lógica), detalle y eliminar | Listo | Listas |
+| Checador con clave personal | Listo | Pendiente |
+| Ausencias (CRUD) | Listo | Pendiente |
+| Correcciones de checadas (CRUD) y reporte de asistencia | Listo | Pendiente |
+| Puestos (alta y edición) | Listo | Pendiente |
+| Semanas y pagos: generar, ticket, cerrar, observaciones, días sin checada | Listo | Pendiente |
 
-Entradas, Salidas y Pagos aparecen en el menú, pero todavía no están conectados a la base.
 Ver [`Docs/PENDIENTES.md`](Docs/PENDIENTES.md).
 
 ## Requisitos
