@@ -8,6 +8,11 @@
 <div class="container-fluid mx-auto py-4 contenedor-ajustable">
     <h1 class="mb-4">Editar Empleado</h1>
 
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form method="post" class="row g-3">

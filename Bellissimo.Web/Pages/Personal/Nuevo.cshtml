@@ -9,6 +9,11 @@
 <div class="container py-4">
     <h1>Nuevo Empleado</h1>
 
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
+
     <form method="post" class="row g-3">
         <div asp-validation-summary="ModelOnly"
              class="text-danger"></div>

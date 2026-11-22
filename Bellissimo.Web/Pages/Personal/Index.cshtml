@@ -1,5 +1,4 @@
 ﻿@page
-@using Bellissimo.Entidades
 @model Bellissimo.Web.Pages.Personal.IndexModel
 @{
     ViewData["Title"] = "Ajustes de Personal";
@@ -13,6 +12,11 @@
             Nuevo empleado
         </a>
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
+    {
+        <div class="alert alert-danger">@Model.Error</div>
+    }
 
     @if (TempData["Mensaje"] is string mensaje)
     {
@@ -72,7 +76,11 @@
 
                                 <a asp-page="./Editar"
                                    asp-route-id="@personal.IdPersonal"
-                                   class="btn btn-sm btn-outline-secondary mb-2">Editar</a>
+                                   class="btn btn-sm btn-outline-secondary me-2 mb-2">Editar</a>
+
+                                <a asp-page="./Eliminar"
+                                   asp-route-id="@personal.IdPersonal"
+                                   class="btn btn-sm btn-outline-danger mb-2">Eliminar</a>
                             </div>
                         </td>
                     </tr>

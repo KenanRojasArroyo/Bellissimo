@@ -1,7 +1,8 @@
+using Bellissimo.Entidades;
+using Bellissimo.Negocios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Bellissimo.Entidades;
 
 namespace Bellissimo.Web.Pages.Personal;
 
@@ -12,66 +13,74 @@ public class EditarModel : PageModel
 
     public List<SelectListItem> ListaPuestos { get; private set; } = new();
 
+    public string? Error { get; private set; }
+
     public IActionResult OnGet(int id)
     {
-        CargarPuestos();
-
-        // Datos temporales alineados con la BD (puestos: Recepcionista=1, Repartidor=2, Encargado de Florista=3; sueldos semanales $3,000-$3,300)
-        Empleado = id switch
+        try
         {
-            1 => new Bellissimo.Entidades.Personal
-            {
-                IdPersonal = 1,
-                Nombre = "Ana",
-                ApellidoPaterno = "López",
-                ApellidoMaterno = "García",
-                Telefono = "6461234567",
-                IdPuesto = 3,
-                NombrePuesto = "Encargado de Florista",
-                SueldoBase = 3300m,
-                Activo = true,
-                FechaRegistro = DateTime.Now
-            },
-            2 => new Bellissimo.Entidades.Personal
-            {
-                IdPersonal = 2,
-                Nombre = "Carlos",
-                ApellidoPaterno = "Ramírez",
-                ApellidoMaterno = "Torres",
-                Telefono = "6467654321",
-                IdPuesto = 1,
-                NombrePuesto = "Recepcionista",
-                SueldoBase = 3000m,
-                Activo = true,
-                FechaRegistro = DateTime.Now
-            },
-            _ => new Bellissimo.Entidades.Personal()
-        };
+            CargarPuestos();
 
-        if (Empleado.IdPersonal == 0)
-            return NotFound();
+            PersonalNegocio negocio = new();
+            Bellissimo.Entidades.Personal? empleado = negocio.BuscarPorId(id);
 
-        return Page();
+            if (empleado is null)
+                return NotFound();
+
+            Empleado = empleado;
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+            Error = "No fue posible consultar el empleado. Verifique la conexión con MySQL.";
+            return Page();
+        }
     }
 
     public IActionResult OnPost()
     {
+        try
+        {
+            CargarPuestos();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+            ModelState.AddModelError(string.Empty, "No fue posible cargar los puestos.");
+            return Page();
+        }
+
         if (Empleado.IdPuesto <= 0)
         {
             ModelState.AddModelError("Empleado.IdPuesto", "Seleccione un puesto válido.");
         }
 
         if (!ModelState.IsValid)
+            return Page();
+
+        try
         {
-            CargarPuestos();
+            PersonalNegocio negocio = new();
+            bool modificado = negocio.Modificar(Empleado);
+
+            if (!modificado)
+                return NotFound();
+
+            TempData["Mensaje"] = "Empleado modificado correctamente.";
+            return RedirectToPage("./Index");
+        }
+        catch (ArgumentException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
             return Page();
         }
-
-        // PRÁCTICA 6:
-        // new PersonalNegocio().Modificar(Empleado);
-
-        TempData["Mensaje"] = "Cambios validados correctamente.";
-        return RedirectToPage("./Index");
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+            ModelState.AddModelError(string.Empty, "No fue posible modificar el empleado.");
+            return Page();
+        }
     }
 
     private void CargarPuestos()
