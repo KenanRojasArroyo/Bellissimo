@@ -78,7 +78,6 @@ Después establecer `Bellissimo.Web` como proyecto de inicio y ejecutar.
 | Documento | Contenido |
 | --- | --- |
 | [`Docs/ARQUITECTURA.md`](Docs/ARQUITECTURA.md) | Capas, flujos y manejo de errores |
-| [`Docs/LINEA_BASE.md`](Docs/LINEA_BASE.md) | Estado inicial y final del backend |
 | [`Docs/PRUEBAS_BACKEND.md`](Docs/PRUEBAS_BACKEND.md) | Revisión de Backend |
 | [`Docs/PRUEBAS_FRONTEND.md`](Docs/PRUEBAS_FRONTEND.md) | Revisión de Frontend |
 | [`Docs/PENDIENTES.md`](Docs/PENDIENTES.md) | Evolución futura |
