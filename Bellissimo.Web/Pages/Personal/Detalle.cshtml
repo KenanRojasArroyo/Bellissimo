@@ -1,5 +1,4 @@
 ﻿@page "{id:int}"
-@using Bellissimo.Entidades
 @model Bellissimo.Web.Pages.Personal.DetalleModel
 @{
     ViewData["Title"] = "Detalle Empleado";
@@ -11,61 +10,67 @@
     @if (!string.IsNullOrWhiteSpace(Model.Error))
     {
         <div class="alert alert-danger">@Model.Error</div>
-    }
-
-    <div class="table-responsive mb-4">
-        <table class="table table-striped table-hover align-middle mb-0">
-            <tbody>
-                <tr>
-                    <th scope="row" style="width: 30%;">Nombre</th>
-                    <td>
-                        @Model.Empleado.Nombre
-                        @Model.Empleado.ApellidoPaterno
-                        @Model.Empleado.ApellidoMaterno
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Teléfono</th>
-                    <td>@Model.Empleado.Telefono</td>
-                </tr>
-                <tr>
-                    <th scope="row">Puesto</th>
-                    <td>@Model.Empleado.NombrePuesto</td>
-                </tr>
-                <tr>
-                    <th scope="row">Sueldo Base Semanal</th>
-                    <td>@Model.Empleado.SueldoBase.ToString("C")</td>
-                </tr>
-                <tr>
-                    <th scope="row">Estado</th>
-                    <td>
-                        @if (Model.Empleado.Activo)
-                        {
-                            <span class="badge bg-success">Activo</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Inactivo</span>
-                        }
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Fecha de Registro</th>
-                    <td>@Model.Empleado.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="d-flex gap-2">
-        <a asp-page="./Editar"
-           asp-route-id="@Model.Empleado.IdPersonal"
-           class="btn btn-outline-primary">
-            Editar
-        </a>
 
         <a asp-page="./Index" class="btn btn-outline-secondary">
             Regresar
         </a>
-    </div>
+    }
+    else
+    {
+        <div class="table-responsive mb-4">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <tbody>
+                    <tr>
+                        <th scope="row" style="width: 30%;">Nombre</th>
+                        <td>
+                            @Model.Empleado.Nombre
+                            @Model.Empleado.ApellidoPaterno
+                            @Model.Empleado.ApellidoMaterno
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Teléfono</th>
+                        <td>@Model.Empleado.Telefono</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Puesto</th>
+                        <td>@Model.Empleado.NombrePuesto</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Sueldo Base Semanal</th>
+                        <td>@Model.Empleado.SueldoBase.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Estado</th>
+                        <td>
+                            @if (Model.Empleado.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Fecha de Registro</th>
+                        <td>@Model.Empleado.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-page="./Editar"
+               asp-route-id="@Model.Empleado.IdPersonal"
+               class="btn btn-outline-primary">
+                Editar
+            </a>
+
+            <a asp-page="./Index" class="btn btn-outline-secondary">
+                Regresar
+            </a>
+        </div>
+    }
 </div>
