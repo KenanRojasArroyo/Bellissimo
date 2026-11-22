@@ -22,8 +22,9 @@ public class IndexModel : PageModel
                 ApellidoPaterno = "López",
                 ApellidoMaterno = "García",
                 Telefono = "6461234567",
-                TipoCargo = TipoCargo.EncargadoFlorista,
-                SueldoBase = 6000m,
+                NombrePuesto = "Encargado de Florista",
+                SueldoBase = 3300m,
+                Activo = true,
                 FechaRegistro = DateTime.Now,
             },
             new()
@@ -33,8 +34,9 @@ public class IndexModel : PageModel
                 ApellidoPaterno = "Ramírez",
                 ApellidoMaterno = "Torres",
                 Telefono = "6467654321",
-                TipoCargo = TipoCargo.EncargadoGeneral,
-                SueldoBase = 15000m,
+                NombrePuesto = "Encargado General",
+                SueldoBase = 3000m,
+                Activo = true,
                 FechaRegistro = DateTime.Now,
             }
         };
@@ -48,7 +50,7 @@ public class IndexModel : PageModel
                     p.Nombre.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
                     p.ApellidoPaterno.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
                     (p.ApellidoMaterno != null && p.ApellidoMaterno.Contains(texto, StringComparison.OrdinalIgnoreCase)) ||
-                    p.TipoCargo.ObtenerNombreAmigable().Contains(texto, StringComparison.OrdinalIgnoreCase) || // <-- Se aplicó el cambio aquí
+                    (p.NombrePuesto != null && p.NombrePuesto.Contains(texto, StringComparison.OrdinalIgnoreCase)) ||
                     p.Telefono.Contains(texto, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }

@@ -7,50 +7,45 @@ public class Personal
     public int IdPersonal { get; set; }
 
     [Required(ErrorMessage = "El nombre es obligatorio.")]
-    [StringLength(60)]
+    [StringLength(60, ErrorMessage = "El nombre no puede exceder los 60 caracteres.")]
     public string Nombre { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El apellido paterno es obligatorio.")]
-    [StringLength(60)]
+    [StringLength(60, ErrorMessage = "El apellido paterno no puede exceder los 60 caracteres.")]
+    [Display(Name = "Apellido paterno")]
     public string ApellidoPaterno { get; set; } = string.Empty;
 
-    [StringLength(60)]
+    [StringLength(60, ErrorMessage = "El apellido materno no puede exceder los 60 caracteres.")]
+    [Display(Name = "Apellido materno")]
     public string? ApellidoMaterno { get; set; }
 
     [Required(ErrorMessage = "El teléfono es obligatorio.")]
-    [StringLength(20)]
+    [StringLength(20, ErrorMessage = "El teléfono no puede exceder los 20 caracteres.")]
+    [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El tipo de cargo es obligatorio.")]
-    public TipoCargo TipoCargo { get; set; }
+    [Required(ErrorMessage = "Seleccione un puesto.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Seleccione un puesto válido.")]
+    [Display(Name = "Puesto")]
+    public int IdPuesto { get; set; }
 
-    [Required(ErrorMessage = "El sueldo base es obligatorio.")]
-    [Range(0, double.MaxValue, ErrorMessage = "El sueldo base debe ser mayor a 0.")]
-    [Display(Name = "Sueldo base / hr")]
+    [Display(Name = "Puesto")]
+    public string? NombrePuesto { get; set; }
+
+    [Required(ErrorMessage = "El sueldo base semanal es obligatorio.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "El sueldo base semanal debe ser mayor a 0.")]
+    [Display(Name = "Sueldo base semanal")]
     public decimal SueldoBase { get; set; }
 
+    [Display(Name = "Activo")]
+    public bool Activo { get; set; } = true;
+
+    [Display(Name = "Fecha de registro")]
     public DateTime FechaRegistro { get; set; }
 }
 
-public enum TipoCargo
+public class Puesto
 {
-    EncargadoGeneral,
-    EncargadoFlorista,
-    Florista,
-    Repartidor
-}
-
-public static class TipoCargoExtensions
-{
-    public static string ObtenerNombreAmigable(this TipoCargo cargo)
-    {
-        return cargo switch
-        {
-            TipoCargo.EncargadoGeneral => "Encargado General",
-            TipoCargo.EncargadoFlorista => "Encargado de Florista",
-            TipoCargo.Florista => "Florista",
-            TipoCargo.Repartidor => "Repartidor",
-            _ => cargo.ToString()
-        };
-    }
+    public int IdPuesto { get; set; }
+    public string Nombre { get; set; } = string.Empty;
 }

@@ -19,8 +19,10 @@ public class DetalleModel : PageModel
                 ApellidoPaterno = "López",
                 ApellidoMaterno = "García",
                 Telefono = "6461234567",
-                TipoCargo = TipoCargo.EncargadoFlorista,
-                SueldoBase = 60m,
+                IdPuesto = 3,
+                NombrePuesto = "Encargado de Florista",
+                SueldoBase = 3300m,
+                Activo = true,
                 FechaRegistro = DateTime.Now
             },
             2 => new Bellissimo.Entidades.Personal
@@ -30,8 +32,10 @@ public class DetalleModel : PageModel
                 ApellidoPaterno = "Ramírez",
                 ApellidoMaterno = "Torres",
                 Telefono = "6467654321",
-                TipoCargo = TipoCargo.EncargadoGeneral,
-                SueldoBase = 60m,
+                IdPuesto = 1,
+                NombrePuesto = "Recepcionista",
+                SueldoBase = 3000m,
+                Activo = true,
                 FechaRegistro = DateTime.Now
             },
             _ => new Bellissimo.Entidades.Personal()

@@ -24,12 +24,25 @@
                     <td>@Model.Empleado.Telefono</td>
                 </tr>
                 <tr>
-                    <th scope="row">Cargo</th>
-                    <td>@Model.Empleado.TipoCargo.ObtenerNombreAmigable()</td>
+                    <th scope="row">Puesto</th>
+                    <td>@Model.Empleado.NombrePuesto</td>
                 </tr>
                 <tr>
-                    <th scope="row">Sueldo Base / hr</th>
+                    <th scope="row">Sueldo Base Semanal</th>
                     <td>@Model.Empleado.SueldoBase.ToString("C")</td>
+                </tr>
+                <tr>
+                    <th scope="row">Estado</th>
+                    <td>
+                        @if (Model.Empleado.Activo)
+                        {
+                            <span class="badge bg-success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactivo</span>
+                        }
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">Fecha de Registro</th>

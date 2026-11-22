@@ -23,7 +23,7 @@
         <div class="flex-grow-1">
             <input asp-for="Buscar"
                    class="form-control border-0 shadow-sm"
-                   placeholder="Buscar por nombre..." />
+                   placeholder="Buscar por nombre o puesto..." />
         </div>
         <button type="submit" class="btn btn-outline-primary">
             Buscar
@@ -39,7 +39,8 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Teléfono</th>
-                    <th>Cargo</th>
+                    <th>Puesto</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -51,9 +52,19 @@
                             @personal.Nombre @personal.ApellidoPaterno @personal.ApellidoMaterno
                         </td>
                         <td>@personal.Telefono</td>
-                        <td>@personal.TipoCargo.ObtenerNombreAmigable()</td>
+                        <td>@personal.NombrePuesto</td>
                         <td>
-                            <!-- Aquí está el contenedor flex corregido con los márgenes en los botones -->
+                            @if (personal.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </td>
+
+                        <td>
                             <div class="d-flex flex-wrap">
                                 <a asp-page="./Detalle"
                                    asp-route-id="@personal.IdPersonal"
