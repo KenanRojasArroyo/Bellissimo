@@ -8,11 +8,16 @@ namespace Bellissimo.Datos;
 // FechaRegistro = fecha_ingreso, NombrePuesto = puesto.nombre.
 public class PersonalDatos
 {
+    // Prefijo del hash que genera la aplicación; cualquier otro valor
+    // (por ejemplo, los datos de prueba) se considera "sin clave".
+    public const string PrefijoHash = "PBKDF2-SHA256$";
+
     private const string SelectBase = """
         SELECT e.id_empleado, e.nombre, e.apellido_paterno,
                e.apellido_materno, e.telefono, e.id_puesto,
                p.nombre AS nombre_puesto, e.sueldo_base_semanal,
-               e.activo, e.fecha_ingreso
+               e.activo, e.fecha_ingreso,
+               (e.clave_hash LIKE 'PBKDF2-SHA256$%') AS tiene_clave
         FROM empleado e
         INNER JOIN puesto p
             ON p.id_puesto = e.id_puesto
@@ -110,7 +115,15 @@ public class PersonalDatos
         using MySqlCommand cmd = new(sql, cn);
 
         AgregarParametros(cmd, personal);
-        cmd.ExecuteNonQuery();
+
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (MySqlException ex) when (BaseDatosException.EsConocido(ex))
+        {
+            throw BaseDatosException.Desde(ex);
+        }
 
         return Convert.ToInt32(cmd.LastInsertedId);
     }
@@ -138,7 +151,14 @@ public class PersonalDatos
         AgregarParametros(cmd, personal);
         cmd.Parameters.AddWithValue("@idPersonal", personal.IdPersonal);
 
-        return cmd.ExecuteNonQuery() > 0;
+        try
+        {
+            return cmd.ExecuteNonQuery() > 0;
+        }
+        catch (MySqlException ex) when (BaseDatosException.EsConocido(ex))
+        {
+            throw BaseDatosException.Desde(ex);
+        }
     }
 
     // Historial que impide el borrado físico (FK con ON DELETE RESTRICT):
@@ -187,6 +207,53 @@ public class PersonalDatos
             "@idPersonal",
             idPersonal);
 
+        try
+        {
+            return cmd.ExecuteNonQuery() > 0;
+        }
+        catch (MySqlException ex) when (BaseDatosException.EsConocido(ex))
+        {
+            throw BaseDatosException.Desde(ex);
+        }
+    }
+
+    // Hash de la clave personal del checador (null si no tiene).
+    public string? ObtenerClaveHash(int idPersonal)
+    {
+        using MySqlConnection cn = Conexion.Crear();
+        cn.Open();
+
+        const string sql = """
+            SELECT clave_hash
+            FROM empleado
+            WHERE id_empleado = @idPersonal;
+            """;
+
+        using MySqlCommand cmd = new(sql, cn);
+        cmd.Parameters.AddWithValue("@idPersonal", idPersonal);
+
+        object? valor = cmd.ExecuteScalar();
+
+        return valor is null || valor == DBNull.Value
+            ? null
+            : Convert.ToString(valor);
+    }
+
+    public bool ActualizarClaveHash(int idPersonal, string claveHash)
+    {
+        using MySqlConnection cn = Conexion.Crear();
+        cn.Open();
+
+        const string sql = """
+            UPDATE empleado
+            SET clave_hash = @claveHash
+            WHERE id_empleado = @idPersonal;
+            """;
+
+        using MySqlCommand cmd = new(sql, cn);
+        cmd.Parameters.AddWithValue("@claveHash", claveHash);
+        cmd.Parameters.AddWithValue("@idPersonal", idPersonal);
+
         return cmd.ExecuteNonQuery() > 0;
     }
 
@@ -229,7 +296,10 @@ public class PersonalDatos
             NombrePuesto = Convert.ToString(dr["nombre_puesto"]),
             SueldoBase = Convert.ToDecimal(dr["sueldo_base_semanal"]),
             Activo = Convert.ToBoolean(dr["activo"]),
-            FechaRegistro = Convert.ToDateTime(dr["fecha_ingreso"])
+            FechaRegistro = Convert.ToDateTime(dr["fecha_ingreso"]),
+            TieneClave =
+                dr["tiene_clave"] != DBNull.Value
+                && Convert.ToInt32(dr["tiene_clave"]) == 1
         };
     }
 }

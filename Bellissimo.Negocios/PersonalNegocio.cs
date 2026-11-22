@@ -34,7 +34,7 @@ public class PersonalNegocio
     {
         Normalizar(personal);
         Validar(personal);
-        return _datos.Agregar(personal);
+        return ErroresBaseDatos.Ejecutar(() => _datos.Agregar(personal));
     }
 
     public bool Modificar(Personal personal)
@@ -44,7 +44,7 @@ public class PersonalNegocio
 
         Normalizar(personal);
         Validar(personal);
-        return _datos.Modificar(personal);
+        return ErroresBaseDatos.Ejecutar(() => _datos.Modificar(personal));
     }
 
     public bool Eliminar(int idPersonal)
@@ -67,7 +67,24 @@ public class PersonalNegocio
                 "Para darlo de baja, desactívelo desde Editar.");
         }
 
-        return _datos.Eliminar(idPersonal);
+        return ErroresBaseDatos.Ejecutar(() => _datos.Eliminar(idPersonal));
+    }
+
+    // Asigna o cambia la clave personal del checador. Sólo se guarda el hash.
+    public bool AsignarClave(int idPersonal, string clave)
+    {
+        if (idPersonal <= 0)
+            throw new ArgumentException("Empleado no válido.");
+
+        clave = clave?.Trim() ?? "";
+
+        if (clave.Length < 4 || clave.Length > 8 || !clave.All(char.IsAsciiDigit))
+            throw new ArgumentException("La clave debe tener de 4 a 8 dígitos.");
+
+        if (_datos.BuscarPorId(idPersonal) is null)
+            return false;
+
+        return _datos.ActualizarClaveHash(idPersonal, ClaveHasher.Generar(clave));
     }
 
     private static void Normalizar(Personal personal)
