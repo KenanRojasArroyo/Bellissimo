@@ -11,9 +11,7 @@ símbolo la cardinalidad y la participación (obligatoria u opcional).
 
 ## 5.2 Classic
 
-> **[Captura pendiente del DBA]** `Diagramas/workbench/02_classic.png`, exportada de MySQL
-> Workbench con *Model → Object Notation: Classic* y *Relationship Notation: Classic*
-> (pasos en `Diagramas/README.md`).
+![Classic](../Diagramas/classic.png)
 
 ## 5.3 Connect to Columns
 

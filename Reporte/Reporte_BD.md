@@ -124,7 +124,7 @@ reales de los empleados.
 
 | Actor | Tipo | Cómo interactúa con el sistema | Cuenta / acceso |
 | ----- | ---- | ------------------------------ | --------------- |
-| **Dueño** | Usuario de la página | Configura parámetros del cálculo y el horario; consulta pagos, reportes y auditoría; *supuesto:* corrige checadas olvidadas | `usuario` con rol `Dueno` |
+| **Dueño** | Usuario de la página | Configura parámetros del cálculo y el horario; consulta pagos, reportes y auditoría; corrige checadas olvidadas | `usuario` con rol `Dueno` |
 | **Encargado** | Usuario de la página | Registra ausencias, corrige checadas (queda auditado), genera, revisa y cierra pagos, agrega observaciones, consulta el ticket | `usuario` con rol `Encargado` |
 | **Empleado** | Actor del checador | Registra sus 4 checadas diarias con su clave personal (huella en el futuro); no inicia sesión en la página | Fila en `empleado` (`clave_hash`) |
 | **Aplicación web** | Sistema | Ejecuta procedimientos y consultas en nombre de los usuarios | Cuenta MySQL `app_floreria` (mínimo privilegio) |
@@ -203,7 +203,7 @@ sección 11). Las marcadas *Supuesto* o *Pendiente* no las cerró el DBA.
 | RN13 | Un pago cerrado queda congelado: ni checadas, ni ausencias, ni ticket, ni montos de esa semana; solo observaciones. | `sp_cerrar_pago`; `fn_semana_cerrada`; triggers `trg_registro_bi/bu/bd_cerrado`, `trg_ausencia_bi/bu/bd_cerrado`, `trg_detalle_bi/bu/bd_cerrado`, `trg_pago_bu_cerrado`, `trg_pago_bd_cerrado`; `sp_generar_pago` rechaza regenerar. | P14, P14a–e, P17, P17a–b, P18, P18a–b |
 | RN14 | Toda corrección manual de una checada queda registrada (antes, después, usuario de la app y usuario de BD). | `trg_registro_au_auditoria` → `auditoria_registro`. | P13 |
 | RN15 | No se borra información con historial (empleados, puestos, semanas, pagos con ticket). | FK con `ON DELETE RESTRICT`; baja lógica con `activo = 0`. | P05, P06 |
-| RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (pendiente — equipo de la aplicación) |
+| RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (Sección 13.5) |
 | RN17 | Un día es **checada o ausencia**, nunca las dos, para el mismo empleado (decisión del 2026-11-16, PEN-01). | `trg_registro_bi_ausencia`, `trg_registro_bu_ausencia`, `trg_ausencia_bi_checada`, `trg_ausencia_bu_checada`. | P21, P21a–d |
 
 Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retardos acumulados
@@ -382,9 +382,7 @@ símbolo la cardinalidad y la participación (obligatoria u opcional).
 
 ## 5.2 Classic
 
-> **[Captura pendiente del DBA]** `Diagramas/workbench/02_classic.png`, exportada de MySQL
-> Workbench con *Model → Object Notation: Classic* y *Relationship Notation: Classic*
-> (pasos en `Diagramas/README.md`).
+![Classic](../Diagramas/classic.png)
 
 ## 5.3 Connect to Columns
 
