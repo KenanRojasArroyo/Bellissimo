@@ -13,9 +13,7 @@ encontradas.
 
 La base de datos es la parte central del sistema: las reglas críticas del pago (descuentos,
 tiempo extra, congelamiento del pago entregado y auditoría) se hacen cumplir **dentro del SGBD**,
-para que ninguna pantalla pueda saltárselas. La aplicación web que la usará (ASP.NET Core Razor
-Pages) está **en desarrollo por el equipo de la aplicación**. Su descripción, capturas y pruebas
-de interfaz se integran en la sección 13 cuando estén listas *[a cargo de frontend/backend]*.
+para que ninguna pantalla pueda saltárselas. La aplicación web que la utiliza (ASP.NET Core Razor Pages .NET 10) está implementada en cuatro capas; su arquitectura, capturas y pruebas de interfaz se documentan en la sección 13. 
 Para facilitar esa integración, la base entrega un contrato de uso (`Sql/CONTRATO_BD.md`) con
 procedimientos, vistas, errores y ejemplos en C# probados contra la base.
 
