@@ -5,16 +5,15 @@
 Universidad Autónoma de Baja California · Facultad de Ingeniería, Arquitectura y Diseño (FIAD)
 · Ingeniería en Software y Tecnologías Emergentes (ISyTE) · Materia: Base de datos
 
-**Equipo:** [EQUIPO_XX]
+**Equipo:** Bongles
 
 | Integrante | Rol |
 | ---------- | --- |
-| [INTEGRANTE_1] | Administrador de base de datos (DBA) |
-| [INTEGRANTE_2] | [ROL — backend] |
-| [INTEGRANTE_3] | [ROL — frontend] |
-| [INTEGRANTE_N] | [ROL] |
+| Jose Antonio Montoya Garcia | Administrador de base de datos (DBA) |
+| Troy Leonardo Moreno Calderon | Backend |
+| Kenan Rojas Arroyo | Frontend |
 
-**Maestro:** [NOMBRE_DEL_MAESTRO] · **Fecha de entrega:** [FECHA] · **Plataforma:** [PLATAFORMA]
+**Maestro:** Julia Guadalupe Juarez Hernandez · **Fecha de entrega:** Domingo 22 de noviembre de 2026 · **Plataforma:** Classroom
 
 **Repositorio:** https://github.com/KenanRojasArroyo/Bellissimo
 
@@ -34,6 +33,6 @@ Universidad Autónoma de Baja California · Facultad de Ingeniería, Arquitectur
 10. Implementación en MySQL 8.0
 11. Pruebas de base de datos
 12. Incidencias
-13. Aplicación web *[A cargo de frontend/backend]*
+13. Aplicación web
 14. Conclusiones
 15. Referencias

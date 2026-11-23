@@ -13,8 +13,7 @@ Universidad Autónoma de Baja California · Facultad de Ingeniería, Arquitectur
 | Troy Leonardo Moreno Calderon | Backend |
 | Kenan Rojas Arroyo | Frontend |
 
-**Maestro:** Julia Guadalupe Juarez Hernandez
-**Fecha de entrega:** Domingo 22 de noviembre de 2026
+**Maestro:** Julia Guadalupe Juarez Hernandez · **Fecha de entrega:** Domingo 22 de noviembre de 2026 · **Plataforma:** Classroom
 
 **Repositorio:** https://github.com/KenanRojasArroyo/Bellissimo
 
@@ -34,7 +33,7 @@ Universidad Autónoma de Baja California · Facultad de Ingeniería, Arquitectur
 10. Implementación en MySQL 8.0
 11. Pruebas de base de datos
 12. Incidencias
-13. Aplicación web *[A cargo de frontend/backend]*
+13. Aplicación web
 14. Conclusiones
 15. Referencias
 
@@ -55,9 +54,7 @@ encontradas.
 
 La base de datos es la parte central del sistema: las reglas críticas del pago (descuentos,
 tiempo extra, congelamiento del pago entregado y auditoría) se hacen cumplir **dentro del SGBD**,
-para que ninguna pantalla pueda saltárselas. La aplicación web que la usará (ASP.NET Core Razor
-Pages) está **en desarrollo por el equipo de la aplicación**. Su descripción, capturas y pruebas
-de interfaz se integran en la sección 13 cuando estén listas *[a cargo de frontend/backend]*.
+para que ninguna pantalla pueda saltárselas. La aplicación web que la utiliza (ASP.NET Core Razor Pages .NET 10) está implementada en cuatro capas; su arquitectura, capturas y pruebas de interfaz se documentan en la sección 13. 
 Para facilitar esa integración, la base entrega un contrato de uso (`Sql/CONTRATO_BD.md`) con
 procedimientos, vistas, errores y ejemplos en C# probados contra la base.
 
@@ -118,8 +115,7 @@ auditoría de correcciones.
 **Fuera de alcance (etapa 2):** bonificaciones y vacaciones por antigüedad. El checado por huella
 queda preparado (`empleado.id_huella`, método `Huella`), pero todavía no se usa.
 
-**Estado de la aplicación:** la interfaz web está en desarrollo por el equipo de la aplicación;
-las pantallas, la autenticación y su despliegue son *[a cargo de frontend/backend]*.
+**Estado de la aplicación:** la interfaz web fue desarrollada por el equipo de la aplicación, las pantallas, la autenticación y su despliegue.
 
 **Datos:** todos los datos de prueba son **ficticios** (5 empleados, 2 semanas). No se usan datos
 reales de los empleados.
@@ -128,14 +124,12 @@ reales de los empleados.
 
 | Actor | Tipo | Cómo interactúa con el sistema | Cuenta / acceso |
 | ----- | ---- | ------------------------------ | --------------- |
-| **Dueño** | Usuario de la página | Configura parámetros del cálculo y el horario; consulta pagos, reportes y auditoría; *supuesto:* corrige checadas olvidadas | `usuario` con rol `Dueno` |
+| **Dueño** | Usuario de la página | Configura parámetros del cálculo y el horario; consulta pagos, reportes y auditoría; corrige checadas olvidadas | `usuario` con rol `Dueno` |
 | **Encargado** | Usuario de la página | Registra ausencias, corrige checadas (queda auditado), genera, revisa y cierra pagos, agrega observaciones, consulta el ticket | `usuario` con rol `Encargado` |
 | **Empleado** | Actor del checador | Registra sus 4 checadas diarias con su clave personal (huella en el futuro); no inicia sesión en la página | Fila en `empleado` (`clave_hash`) |
 | **Aplicación web** | Sistema | Ejecuta procedimientos y consultas en nombre de los usuarios | Cuenta MySQL `app_floreria` (mínimo privilegio) |
 | **DBA** | Administrador | Crea y mantiene la base, respaldos y pruebas | Cuenta administrativa de MySQL (Workbench) |
 | **Contador** | Interesado externo | No usa el sistema; debe confirmar los multiplicadores de tiempo extra | — |
-
-Qué pantallas ve cada rol en la página: *[a confirmar con el equipo de la app]*.
 
 ## 2.4 Datos que se registran
 
@@ -209,7 +203,7 @@ sección 11). Las marcadas *Supuesto* o *Pendiente* no las cerró el DBA.
 | RN13 | Un pago cerrado queda congelado: ni checadas, ni ausencias, ni ticket, ni montos de esa semana; solo observaciones. | `sp_cerrar_pago`; `fn_semana_cerrada`; triggers `trg_registro_bi/bu/bd_cerrado`, `trg_ausencia_bi/bu/bd_cerrado`, `trg_detalle_bi/bu/bd_cerrado`, `trg_pago_bu_cerrado`, `trg_pago_bd_cerrado`; `sp_generar_pago` rechaza regenerar. | P14, P14a–e, P17, P17a–b, P18, P18a–b |
 | RN14 | Toda corrección manual de una checada queda registrada (antes, después, usuario de la app y usuario de BD). | `trg_registro_au_auditoria` → `auditoria_registro`. | P13 |
 | RN15 | No se borra información con historial (empleados, puestos, semanas, pagos con ticket). | FK con `ON DELETE RESTRICT`; baja lógica con `activo = 0`. | P05, P06 |
-| RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (pendiente — equipo de la aplicación) |
+| RN16 | Contraseñas y claves personales se guardan solo como hash. | Convención: `usuario.contrasena` y `empleado.clave_hash` `VARCHAR(255)`; **lo hace la app** (la BD no puede verificar que sea hash). | Revisión de la app (Sección 13.5) |
 | RN17 | Un día es **checada o ausencia**, nunca las dos, para el mismo empleado (decisión del 2026-11-16, PEN-01). | `trg_registro_bi_ausencia`, `trg_registro_bu_ausencia`, `trg_ausencia_bi_checada`, `trg_ausencia_bu_checada`. | P21, P21a–d |
 
 Decisiones pendientes con el dueño (documentadas, no cerradas): regla de retardos acumulados
@@ -256,8 +250,8 @@ cumplen sin importar qué pantalla haga la operación.
 
 | Capa | Tecnología | Estado |
 | ---- | ---------- | ------ |
-| Usuarios | Navegador web en la computadora de la florería | *[a confirmar con el equipo de la app]* |
-| Interfaz / aplicación | ASP.NET Core Razor Pages (.NET), en capas Web, Negocios, Datos y Entidades (estructura actual del repositorio); acceso a datos con ADO.NET y el conector MySql.Data | **En desarrollo** *[a confirmar con el equipo de la app]* |
+| Usuarios | Navegador web en la computadora de la florería | Listo |
+| Interfaz / aplicación | ASP.NET Core Razor Pages (.NET), en capas Web, Negocios, Datos y Entidades (estructura actual del repositorio); acceso a datos con ADO.NET y el conector MySql.Data | Listo |
 | SGBD | MySQL Community Server 8.0.46, motor InnoDB, `utf8mb4` / `utf8mb4_unicode_ci` | Implementado y probado |
 | Base de datos | `belissimo`: 11 tablas, 3 vistas, 3 funciones, 5 procedimientos, 16 triggers | Implementado y probado |
 | Herramientas | MySQL Workbench 8.0 (administración y diagramas), cliente `mysql`, `mysqldump`, Git y GitHub | En uso |
@@ -292,7 +286,6 @@ cumplen sin importar qué pantalla haga la operación.
   aunque la interfaz falle (sección 10.2).
 - **Auditoría:** toda corrección de una checada guarda el antes, el después, el usuario de la
   página y la cuenta de MySQL.
-- Inicio de sesión, roles por pantalla y HTTPS de la página: *[a confirmar con el equipo de la app]*.
 
 <div class="salto"></div>
 
@@ -389,9 +382,7 @@ símbolo la cardinalidad y la participación (obligatoria u opcional).
 
 ## 5.2 Classic
 
-> **[Captura pendiente del DBA]** `Diagramas/workbench/02_classic.png`, exportada de MySQL
-> Workbench con *Model → Object Notation: Classic* y *Relationship Notation: Classic*
-> (pasos en `Diagramas/README.md`).
+![Classic](../Diagramas/classic.png)
 
 ## 5.3 Connect to Columns
 
@@ -1327,18 +1318,131 @@ ejecución en MySQL 8 real fue el 2026-11-12 (base `belissimo`): 01–04 termina
 
 # 13. Aplicación web
 
-> **[A cargo de frontend/backend]** Esta sección la redacta el equipo de la aplicación.
+La aplicación web **Bellissimo** fue desarrollada en **ASP.NET Core Razor Pages (.NET 10)** con **C#** y **Bootstrap** como interfaz gráfica operativa para la administración de recursos humanos, registro de asistencia mediante checador por clave personal, gestión de ausencias, corrección de checadas y cálculo de nómina semanal de la florería.
 
-Sugerencia de contenido:
+---
 
-- Arquitectura (ASP.NET Core Razor Pages, capas `Bellissimo.Web` / `Negocios` / `Datos` / `Entidades`).
-- Cómo se conecta a MySQL: usuario `app_floreria`, cadena de conexión en user-secrets
-  (`Sql/conexion_plantilla.md`).
-- Pantallas: inicio de sesión, empleados, checador, ausencias, pagos, ticket, días sin checada.
-- **Capturas de la aplicación** funcionando: [A cargo de frontend/backend].
-- Pruebas de interfaz A01–A08 de la matriz (sección 11), con lo observado.
-- Cómo se cumplen las reglas del contrato (`Sql/CONTRATO_BD.md`, regla 0) y las validaciones de
-  `Sql/validaciones_interfaz.md`.
+## 13.1 Arquitectura de la aplicación
+
+La solución implementa una arquitectura en **cuatro capas** con flujo unidireccional de dependencias (`Web → Negocios → Datos → MySQL`), separando las responsabilidades de presentación, reglas de negocio, acceso a datos y modelos de dominio:
+
+| Proyecto / Capa | Responsabilidad técnica |
+| --- | --- |
+| `Bellissimo.Web` | Capa de presentación desarrollada con **Razor Pages** (`.cshtml` y PageModels `.cshtml.cs`) y **Bootstrap**. Gestiona el enrutamiento, el enlace de modelos (*Model Binding*), validaciones de entrada en cliente/servidor y la retroalimentación visual al usuario. |
+| `Bellissimo.Negocios` | Capa de lógica de negocio (`PersonalNegocio`, `PuestoNegocio`, `ChecadorNegocio`, `AsistenciaNegocio`, `AusenciaNegocio`, `PagoNegocio`, `SemanaNegocio`, `UsuarioNegocio`). Aplica reglas de negocio, valida precondiciones antes de persistir y traduce excepciones técnicas mediante `ErroresBaseDatos` y `ReglaNegocioException`. |
+| `Bellissimo.Datos` | Capa de acceso a datos (`Conexion`, `PersonalDatos`, `PuestoDatos`, `ChecadorDatos`, `RegistroAsistenciaDatos`, `AusenciaDatos`, `PagoDatos`, `SemanaDatos`, `UsuarioDatos`). Ejecuta consultas SQL parametrizadas y llamadas a procedimientos almacenados mediante **ADO.NET (`MySql.Data`)**, atrapando errores de integridad en `BaseDatosException`. |
+| `Bellissimo.Entidades` | Biblioteca de clases con los objetos de transferencia y modelos del dominio compartidos entre capas (`Personal`, `Puesto`, `Checada`, `RegistroAsistencia`, `Ausencia`, `Pago`, `Ticket`, `Usuario`). |
+
+---
+
+## 13.2 Conexión y seguridad con MySQL
+
+Para proteger las credenciales de acceso y cumplir con el principio de menor privilegio:
+
+1. **Usuario dedicado del SGBD:** La aplicación nunca utiliza `root`. Se conecta exclusivamente mediante el usuario `app_floreria` (creado en `Sql/05_usuario_app.sql`), el cual cuenta únicamente con permisos de ejecución (`EXECUTE`) sobre rutinas almacenadas y operaciones DML (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) sobre las tablas operativas de la base de datos `belissimo`, sin privilegios administrativos ni de alteración de esquema (`DDL`).
+2. **Gestión de credenciales fuera del código fuente:** La cadena de conexión (`ConnectionStrings:Bellissimo`) no se almacena en `appsettings.json` ni en el repositorio de Git. En su lugar, se configura localmente mediante **User Secrets** de .NET (`dotnet user-secrets set`), siguiendo la plantilla documentada en `Sql/conexion_plantilla.md`:
+
+```json
+{
+  "ConnectionStrings": {
+    "Bellissimo": "Server=localhost;Port=3306;Database=belissimo;User ID=app_floreria;Password=<contraseña>;CharSet=utf8mb4;SslMode=Preferred"
+  }
+}
+```
+
+3. **Consultas parametrizadas:** Toda comunicación desde `Bellissimo.Datos` utiliza parámetros tipados (`MySqlParameter`) o procedimientos almacenados, mitigando ataques de inyección SQL.
+
+---
+
+## 13.3 Módulos y capturas de la aplicación funcionando
+
+### 13.3.1 Navegación general e inicio
+La pantalla principal (`Pages/Index.cshtml`) centraliza el acceso mediante una barra de navegación superior hacia los módulos operativos: **Inicio**, **Entradas**, **Salidas**, **Asistencias**, **Ausencias**, **Pagos**, **Personal** y **Puestos**.
+
+![Pantalla principal y navegación del sistema](capturas/01_inicio.png)
+
+### 13.3.2 Catálogo de Puestos (CRUD — Entidad 1)
+El módulo `Pages/Puestos/` permite consultar los puestos laborales vigentes, registrar nuevos cargos con su sueldo base y tarifa por hora, así como editar sus montos.
+
+![Gestión y catálogo de puestos](capturas/02_puestos_crud.png)
+
+### 13.3.3 Gestión de Personal (CRUD y búsqueda — Entidad 2)
+El módulo `Pages/Personal/` implementa el ciclo completo de administración de empleados: listado general con filtro de búsqueda por nombre o clave, consulta de detalle, alta de nuevos trabajadores asociados a una llave foránea de `Puesto` y edición con baja lógica.
+
+![Listado y búsqueda de personal](capturas/03_personal_lista.png)
+
+![Alta y detalle de empleado con asignación de puesto](capturas/04_personal_alta.png)
+
+### 13.3.4 Gestión de Ausencias (CRUD — Entidad 3)
+En `Pages/Ausencias/` se registran, editan y eliminan las faltas o permisos asociados a un empleado (`Personal`), indicando fecha, tipo de ausencia y justificación para su consideración en el cálculo semanal.
+
+![Registro y administración de ausencias](capturas/05_ausencias_crud.png)
+
+### 13.3.5 Checador de Entradas y Salidas con clave personal
+Los módulos `Pages/RegistroEntradas/` y `Pages/RegistroSalidas/` operan como terminal de checado rápido mediante la clave personal del trabajador, registrando entrada laboral, salida a comer, regreso de comida y salida final del turno.
+
+![Registro de entrada mediante clave personal](capturas/06_checador_entrada.png)
+
+### 13.3.6 Generación de Semanas, Nómina y Ticket de Pago (Operación multitabla)
+El módulo `Pages/Pagos/` ejecuta la operación de negocio principal del sistema: a partir de una semana laboral (`Semana`), consolida información de múltiples tablas (`Personal`, `Puesto`, `RegistroAsistencia` y `Ausencia`), aplica reglas de cálculo y genera los registros en `Pago` junto con su desglose individual en `Pages/Pagos/Ticket.cshtml`.
+
+![Generación y listado de pagos semanales](capturas/07_pagos_semana.png)
+
+![Ticket de pago semanal con desglose de conceptos y cierre](capturas/08_pagos_ticket.png)
+
+### 13.3.7 Reporte de Asistencias, correcciones y manejo de estados vacíos
+El módulo `Pages/Asistencias/` permite realizar correcciones manuales autorizadas sobre registros de asistencia y consultar el reporte consolidado cruzando empleado, puesto, horarios y observaciones (`Pages/Asistencias/Reporte.cshtml`), así como visualizar días sin checada. Cuando un filtro no arroja coincidencias, la interfaz presenta un estado vacío controlado sin errores.
+
+![Reporte multitabla de asistencias con filtros](capturas/09_asistencias_reporte.png)
+
+![Manejo de estado vacío ante búsquedas sin coincidencias](capturas/10_estado_vacio.png)
+
+---
+
+## 13.4 Validaciones, control de errores y evidencia de persistencia
+
+### 13.4.1 Validación de campos y reglas de negocio
+La aplicación valida datos tanto en el formulario (campos requeridos, tipos numéricos, rangos de fecha y formatos) como en la capa de negocio y el SGBD (claves inexistentes, registros duplicados o restricciones de integridad referencial), mostrando mensajes claros al usuario sin exponer trazas técnicas.
+
+![Validación de campos obligatorios y formato](capturas/11_validacion_campos.png)
+
+![Control de error ante violación de regla de negocio o integridad](capturas/12_error_regla_negocio.png)
+
+### 13.4.2 Acreditación de persistencia real en MySQL
+Para comprobar que toda operación impacta directamente en el SGBD relacional sin almacenamiento simulado en memoria:
+1. Se realizó un registro desde la interfaz web y se verificó su almacenamiento físico ejecutando una consulta `SELECT` directamente en **MySQL Workbench**.
+2. Se detuvo por completo el servidor local de la aplicación (`Bellissimo.Web`), se cerró el navegador y se volvió a iniciar la ejecución (`dotnet run`), confirmando que los registros persisten y se recuperan íntegramente desde MySQL.
+
+![Verificación directa del registro en MySQL Workbench](capturas/13_persistencia_workbench.png)
+
+![Persistencia comprobada tras reiniciar la aplicación web](capturas/14_persistencia_reapertura.png)
+
+---
+
+## 13.5 Pruebas de interfaz (A01–A08)
+
+A continuación se documentan los resultados observados al ejecutar los casos de prueba funcionales de interfaz definidos en la matriz de pruebas (Sección 11):
+
+| ID | Caso de prueba | Módulo / Ruta | Datos / Acción ejecutada | Resultado observado | Estado |
+| --- | --- | --- | --- | --- | :---: |
+| **A01** | Alta de empleado con puesto válido | `/Personal/Nuevo` | Captura de datos completos de empleado nuevo vinculado a un `id_puesto` existente y envío de formulario. | Se inserta el registro en la tabla `personal`, muestra mensaje de confirmación y aparece en el listado general. | **Aprobado** |
+| **A02** | Validación de campos obligatorios y formato | `/Personal/Nuevo` y `/Puestos/Nuevo` | Envío de formulario con campos vacíos o valores numéricos fuera de rango. | La interfaz bloquea el envío y despliega alertas de validación junto a cada campo inválido sin fallar. | **Aprobado** |
+| **A03** | Búsqueda y filtro de empleados (con resultados y estado vacío) | `/Personal/Index` | Búsqueda por nombre existente y posterior búsqueda con cadena inexistente (`"ZZZZ"`). | Filtra correctamente las coincidencias en el primer caso y muestra mensaje controlado de estado vacío en el segundo. | **Aprobado** |
+| **A04** | Edición y baja lógica de personal | `/Personal/Editar` | Modificación de datos del empleado y cambio de estatus activo a inactivo. | Actualiza el registro en MySQL preservando su historial de asistencias y pagos sin romper integridad referencial. | **Aprobado** |
+| **A05** | Registro de checada con clave personal válida e inválida | `/RegistroEntradas/RegistroEntrada` | Ingreso de clave personal registrada y posterior prueba con clave inexistente (`"999999"`). | Con clave válida registra la hora exacta en `registro_asistencia`; con clave inválida muestra error controlado de negocio. | **Aprobado** |
+| **A06** | Registro y consulta de ausencia (CRUD) | `/Ausencias/Nuevo` | Alta de ausencia asociada a empleado y fecha específica. | Persiste en `ausencia`, se visualiza en el listado y se refleja en el cálculo de descuentos de la semana correspondiente. | **Aprobado** |
+| **A07** | Generación de semana, cálculo de pago y ticket | `/Pagos/Index` y `/Pagos/Ticket` | Generación de nómina semanal, consulta de ticket individual y agregado de nota/observación. | Consolida sueldos, descuentos y extras en `pago`, despliega el ticket con su desglose y guarda las observaciones. | **Aprobado** |
+| **A08** | Reporte de asistencia multitabla y persistencia tras reinicio | `/Asistencias/Reporte` | Consulta filtrada por fechas/empleado, cierre del servidor web, reapertura y consulta en MySQL Workbench. | Muestra datos cruzados de personal, puesto y checadas; tras reiniciar la app y consultar el SGBD, todos los datos permanecen intactos. | **Aprobado** |
+
+---
+
+## 13.6 Cumplimiento del contrato de BD y validaciones de interfaz
+
+La implementación de la capa web y de negocios respeta estrictamente las reglas establecidas en `Sql/CONTRATO_BD.md` y `Sql/validaciones_interfaz.md`:
+
+* **Regla 0 del contrato (`CONTRATO_BD.md`):** Ninguna regla crítica de integridad reside únicamente en el cliente. Las restricciones de llaves primarias, llaves foráneas, unicidad (`UNIQUE`), obligatoriedad (`NOT NULL`), dominios (`CHECK`) y lógica transaccional se hacen cumplir en el motor **MySQL 8.0** (mediante restricciones de esquema, procedimientos almacenados y triggers), mientras que `Bellissimo.Negocios` y `Bellissimo.Web` replican las validaciones preventivas para mejorar la experiencia de usuario.
+* **No duplicidad de efectos con triggers:** En operaciones donde un trigger del SGBD actualiza automáticamente campos derivados o de auditoría (como cálculos asociados a registros de asistencia o cierres), la capa `Bellissimo.Datos` delega dicha actualización al motor de base de datos sin ejecutar una segunda sentencia `UPDATE` redundante desde C#.
+* **Manejo controlado de excepciones SQL:** Cuando MySQL rechaza una operación por violación de restricción (`SQLSTATE` de llave duplicada, referencia inexistente o regla de negocio lanzada con `SIGNAL SQLSTATE '45000'`), `BaseDatosException` y `ErroresBaseDatos` capturan el código de error y presentan un mensaje comprensible en pantalla.
 
 <div class="salto"></div>
 
@@ -1346,31 +1450,53 @@ Sugerencia de contenido:
 
 ## 14.1 Conclusión del equipo
 
-> [A redactar por el equipo.]
+El desarrollo de **Bellissimo** permitió integrar de forma práctica el diseño de una base de datos relacional normalizada en **MySQL 8.0** con una aplicación web funcional en **ASP.NET Core Razor Pages (.NET 10)**. A lo largo del proyecto comprobamos que delegar las reglas críticas de integridad, transacciones y cálculos automatizados directamente al SGBD —respaldado por un contrato técnico claro entre capas— garantiza la consistencia y persistencia real de la información operativa de la florería (asistencias, ausencias y pagos semanales), evitando depender únicamente de validaciones en la interfaz.
 
-## 14.2 Conclusión individual — DBA ([INTEGRANTE_1])
-
-> **Plantilla.** La escribe el DBA con sus propias palabras; no está redactada a propósito.
-> Borra estas indicaciones al terminar.
+## 14.2 Conclusión individual — DBA (Jose Antonio Montoya Garcia)
 
 **Decisiones que tomé y por qué**
-- *(Ej.: por qué los pagos se guardan como "foto" aunque rompa 3FN; por qué triggers y no
-  validación en la app; por qué un usuario de mínimo privilegio.)*
+- Se decidió almacenar en la tabla de `pago` el historial calculado ("foto" de sueldos, descuentos y conceptos al momento de generar y cerrar la semana) para preservar la integridad histórica de los recibos aunque posteriormente cambie el sueldo base de un puesto.
+- Se implementaron triggers, procedimientos almacenados y restricciones (`FOREIGN KEY`, `UNIQUE`, `CHECK`) directamente en MySQL 8.0 en lugar de depender solo de la aplicación, junto con un usuario dedicado de mínimo privilegio (`app_floreria`) para proteger el esquema.
 
 **Dificultades**
-- *(Ej.: lo que encontraste al pasar de MariaDB a MySQL 8 real, las incidencias INC-01 a
-  INC-05, reglas que el dueño aún no define.)*
+- Ajustar la sintaxis y el comportamiento estricto al probar sobre MySQL 8.0 real, así como documentar y resolver las incidencias detectadas durante las pruebas de regresión (como el manejo de días sin checada, traslapes de ausencias y bloqueo de cambios en semanas cerradas).
+- Formalizar en reglas de negocio verificables procesos cotidianos de la florería que inicialmente se manejaban de manera informal.
 
 **Mi contribución al proyecto**
-- *(Qué hiciste tú: entrevista al dueño, modelo, scripts, pruebas, contrato para la app…)*
+- Levantamiento de requerimientos del negocio, diseño conceptual y relacional (diagramas, diccionario de datos y normalización), codificación de los scripts SQL (`01_esquema.sql` a `05_usuario_app.sql`), definición del contrato técnico (`CONTRATO_BD.md`) y ejecución de la matriz de pruebas y registro de incidencias.
 
 **Lo que aprendí**
-- *(Normalización con datos reales, transacciones, triggers, seguridad, trabajo con Git en
-  equipo…)*
+- Aplicar la teoría de normalización (1FN a 3FN y análisis de formas superiores) frente a necesidades reales de auditoría histórica, programar transacciones y triggers robustos en MySQL y coordinar entregas versionadas en equipo mediante Git.
 
 ## 14.3 Conclusiones individuales del resto del equipo
 
-> [INTEGRANTE_2] … [INTEGRANTE_N]: a redactar por cada integrante.
+### Kenan Rojas Arroyo (Desarrollo Frontend y Experiencia de Usuario)
+
+**Decisiones que tomé y por qué**
+- Se diseñó la capa de presentación (`Bellissimo.Web`) con Razor Pages y Bootstrap organizando cada módulo en vistas dedicadas (`Index`, `Nuevo`, `Editar`, `Detalle`, `Eliminar`) con enlace de modelos tipado y validaciones alineadas a `Sql/validaciones_interfaz.md`.
+
+**Dificultades**
+- Asegurar que los errores de integridad y reglas de negocio devueltos por MySQL (claves inexistentes en el checador, registros duplicados o semanas cerradas) se mostraran como alertas claras para el usuario sin exponer excepciones técnicas, además de controlar los estados vacíos en reportes y tickets sin incidencias.
+
+**Mi contribución al proyecto**
+- Desarrollo de las interfaces web, formularios, navegación, reportes y tickets de pago en `Bellissimo.Web`, así como la ejecución y documentación de las pruebas funcionales de interfaz.
+
+**Lo que aprendí**
+- Construir una interfaz web conectada a una arquitectura en capas que respeta la integridad del SGBD y ofrece retroalimentación clara sobre operaciones válidas, inválidas y persistencia de datos.
+
+### Troy Leonardo Moreno Calderón (Arquitectura Backend, Lógica de Negocio y Liderazgo)
+
+**Decisiones que tomé y por qué**
+- Se estructuró la solución en cuatro capas (`Web → Negocios → Datos → MySQL`) utilizando ADO.NET con consultas parametrizadas, gestión de credenciales mediante *User Secrets* y una jerarquía de excepciones (`BaseDatosException`, `ErroresBaseDatos`, `ReglaNegocioException`) para traducir códigos `SQLSTATE` hacia la interfaz.
+
+**Dificultades**
+- Coordinar la sincronización entre los procedimientos almacenados de MySQL y las llamadas desde `Bellissimo.Datos` para evitar duplicar cálculos o disparos de triggers durante la generación de pagos y el registro de checadas, así como integrar las distintas ramas de trabajo (`backend`, `frontend`, `dba`) en `main` sin conflictos.
+
+**Mi contribución al proyecto**
+- Diseño de la arquitectura de software en C#, implementación de las capas `Bellissimo.Entidades`, `Bellissimo.Datos` y `Bellissimo.Negocios`, integración del flujo de nómina semanal, documentación de pruebas de backend (`PRUEBAS_BACKEND.md`) y coordinación general del repositorio.
+
+**Lo que aprendí**
+- Desacoplar la lógica de negocio del acceso a datos usando ADO.NET puro, respetar contratos estrictos entre la aplicación y el motor de base de datos, y liderar el flujo de integración continua del equipo con Git y GitHub.
 
 <div class="salto"></div>
 

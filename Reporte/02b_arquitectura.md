@@ -16,8 +16,8 @@ cumplen sin importar qué pantalla haga la operación.
 
 | Capa | Tecnología | Estado |
 | ---- | ---------- | ------ |
-| Usuarios | Navegador web en la computadora de la florería | *[a confirmar con el equipo de la app]* |
-| Interfaz / aplicación | ASP.NET Core Razor Pages (.NET), en capas Web, Negocios, Datos y Entidades (estructura actual del repositorio); acceso a datos con ADO.NET y el conector MySql.Data | **En desarrollo** *[a confirmar con el equipo de la app]* |
+| Usuarios | Navegador web en la computadora de la florería | Listo |
+| Interfaz / aplicación | ASP.NET Core Razor Pages (.NET), en capas Web, Negocios, Datos y Entidades (estructura actual del repositorio); acceso a datos con ADO.NET y el conector MySql.Data | Listo |
 | SGBD | MySQL Community Server 8.0.46, motor InnoDB, `utf8mb4` / `utf8mb4_unicode_ci` | Implementado y probado |
 | Base de datos | `belissimo`: 11 tablas, 3 vistas, 3 funciones, 5 procedimientos, 16 triggers | Implementado y probado |
 | Herramientas | MySQL Workbench 8.0 (administración y diagramas), cliente `mysql`, `mysqldump`, Git y GitHub | En uso |
@@ -52,4 +52,3 @@ cumplen sin importar qué pantalla haga la operación.
   aunque la interfaz falle (sección 10.2).
 - **Auditoría:** toda corrección de una checada guarda el antes, el después, el usuario de la
   página y la cuenta de MySQL.
-- Inicio de sesión, roles por pantalla y HTTPS de la página: *[a confirmar con el equipo de la app]*.
