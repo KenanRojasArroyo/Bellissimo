@@ -7,7 +7,7 @@ public class Usuario
     public string NombreCompleto { get; set; } = string.Empty;
     public string NombreUsuario { get; set; } = string.Empty;
 
-    // Dueno o Encargado
+    //  o Encargado
     public string Rol { get; set; } = string.Empty;
     public bool Activo { get; set; }
 }
